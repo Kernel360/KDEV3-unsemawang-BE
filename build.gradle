@@ -21,7 +21,7 @@ configurations {
 
 ext {
 	awsSdkVersion = '2.27.21'
-	queryDslVersion = '5.0.1'
+	queryDslVersion = '5.1.0'
 }
 
 repositories {
