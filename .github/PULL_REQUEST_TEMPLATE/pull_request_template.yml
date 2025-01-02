@@ -1,0 +1,35 @@
+name: "🚀 Pull Request Request"
+description: "PR을 통해 코드 변경 사항을 팀과 공유하고, 리뷰를 요청하는 템플릿입니다."
+labels: ["pr", "review"]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 변경 사항 설명
+      description: "이번 PR에서 어떤 변경이 있었는지 간단히 설명해 주세요. 예를 들어, 버그 수정, 새로운 기능 추가, 리팩토링 등."
+      placeholder: "예시: 로그인 API 개선, JWT 토큰 인증 추가"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🐞 관련 이슈
+      description: "이 PR이 해결하는 문제나 관련된 이슈 번호를 작성해 주세요."
+      placeholder: "예시: #123, #456"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔧 변경된 코드 설명
+      description: "주요 변경된 코드나 함수, 클래스, 모듈에 대해 설명해 주세요. 변경 사항이 중요한 부분이라면 코드와 함께 설명을 추가해주세요."
+      placeholder: "예시: AuthService 클래스에서 JWT 인증 기능을 추가하였습니다."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✅ 테스트 여부
+      description: "이 PR에 포함된 코드에 대해 테스트가 진행되었는지 작성해 주세요."
+      placeholder: "예시: 단위 테스트 작성 완료, 통합 테스트 완료, UI 테스트 진행 중"
+    validations:
+      required: true
