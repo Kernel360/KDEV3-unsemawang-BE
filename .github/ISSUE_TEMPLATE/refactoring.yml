@@ -1,0 +1,18 @@
+name: "🔨 Refactoring"
+description: "기존 코드의 리팩토링 작업을 위한 이슈입니다."
+labels: [ "refactor", "development" ]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 리팩토링 대상
+      description: 리팩토링이 필요한 코드나 모듈에 대해 설명해 주세요.
+      placeholder: "예시: UserService 클래스의 로그인 메서드"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 💡 개선 사항
+      description: 리팩토링을 통해 개선할 점을 작성해 주세요.
+      placeholder: "예시: 메서드 중복 제거, 코드 가독성 향상, 캐싱 추가"
+    validations:
+      required: true

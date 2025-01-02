@@ -1,0 +1,37 @@
+name: "🐞 Bug Report"
+description: "버그를 신고합니다."
+labels: [ "bug" ]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 버그 설명
+      description: 발생한 버그에 대해 간단히 설명해 주세요.
+      placeholder: 버그에 대해 작성해 주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 💡 원래 동작
+      description: 정상적으로 동작했을 때 기대되는 결과를 작성해 주세요.
+      placeholder: "예시: 로그인 성공 후 대시보드로 이동"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🔥 실제 결과
+      description: 버그가 발생한 후 실제로 나타나는 결과를 작성해 주세요.
+      placeholder: "예시: 페이지가 크래시됨"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🖥 재현 방법
+      description: 버그를 재현할 수 있는 방법을 적어 주세요.
+      placeholder: "예시: 1. 로그인 화면으로 이동 2. 잘못된 이메일 입력"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🖼 스크린샷/로그
+      description: 버그 발생 시 스크린샷이나 오류 로그가 있으면 첨부해 주세요.
+      placeholder: "스크린샷을 추가하거나 오류 로그를 복사하여 붙여넣기"
