@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ResponseCode implements Codeable {
+public enum ResponseCode implements Codable {
 
 	// 성공 - 0000 고정
 	SUCCESS_REQUEST("0000", HttpStatus.OK, "데이터 처리 성공"),
