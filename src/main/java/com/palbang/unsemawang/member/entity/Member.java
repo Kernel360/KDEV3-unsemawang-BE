@@ -26,10 +26,10 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@Entity
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Entity
 @Table(name = "member")
 public class Member {
 

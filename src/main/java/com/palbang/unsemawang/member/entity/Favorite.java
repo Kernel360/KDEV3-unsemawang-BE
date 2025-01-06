@@ -14,12 +14,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Entity
 @Getter
 @ToString
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Entity
 public class Favorite {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
