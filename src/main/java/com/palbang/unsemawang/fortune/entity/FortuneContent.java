@@ -47,9 +47,11 @@ public class FortuneContent {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt; // 수정일시
 
+	@Builder.Default
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive = true; // 활성 여부 (기본값: true)
 
+	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
 	private Boolean isDeleted = false; // 삭제 여부 (기본값: false)
 
