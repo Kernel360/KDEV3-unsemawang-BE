@@ -208,3 +208,8 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,java,macos,gradle
+
+.idea/
+gradle/
+gradlew.bat
+gradlew
