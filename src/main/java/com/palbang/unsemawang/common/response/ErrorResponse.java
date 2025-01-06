@@ -2,6 +2,10 @@ package com.palbang.unsemawang.common.response;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 
+/**
+ * 에러 응답
+ * @param baseResponse 기본 응답
+ */
 public record ErrorResponse(BaseResponse baseResponse) {
 
 	public static ErrorResponse of(ResponseCode responseCode) {

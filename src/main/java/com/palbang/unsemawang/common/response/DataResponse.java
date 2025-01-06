@@ -2,6 +2,12 @@ package com.palbang.unsemawang.common.response;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 
+/**
+ * 데이터 포함 응답
+ * @param baseResponse 기본 응답
+ * @param data 응답 데이터
+ * @param <T> 응답할 데이터 타입
+ */
 public record DataResponse<T>(BaseResponse baseResponse, T data) {
 
 	public static <T> DataResponse<T> empty() {
