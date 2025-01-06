@@ -47,6 +47,7 @@ public class FortuneShare {
 	@Column(name = "expired_at", nullable = false)
 	private LocalDateTime expiredAt; // 공유 링크 만료 일시
 
+	@Builder.Default
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive = true; // 공유 활성화 여부 (기본값: true)
 }

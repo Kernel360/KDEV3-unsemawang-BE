@@ -41,6 +41,7 @@ public class FortuneFavorite {
 	@Column(name = "registered_at", nullable = false)
 	private LocalDateTime registeredAt; // 생성일시
 
+	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)
 	private Boolean isDeleted = false; // 삭제 여부 (기본값: false)
 
