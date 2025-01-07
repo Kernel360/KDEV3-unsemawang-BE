@@ -58,7 +58,7 @@ public class ReservationCancel {
 
 	@Column(name = "state", nullable = false)
 	@Enumerated(EnumType.STRING)
-	@ColumnDefault("REQUESTED")
+	@ColumnDefault("'REQUESTED'")
 	private CancelState state;
 
 	@Column(name = "requested_at", nullable = false)
