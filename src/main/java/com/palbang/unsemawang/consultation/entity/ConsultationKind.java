@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.consultation.constant.ConsultationMethod;
 
 import jakarta.persistence.Column;
@@ -28,7 +29,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "consulation_kind")
-public class ConsultationKind {
+public class ConsultationKind extends BaseEntity {
 
 	@Id
 	@Column(name = "id")
