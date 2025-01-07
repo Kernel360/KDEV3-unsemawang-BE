@@ -3,6 +3,8 @@ package com.palbang.unsemawang.member.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-public class TermHistory {
+public class TermHistory extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

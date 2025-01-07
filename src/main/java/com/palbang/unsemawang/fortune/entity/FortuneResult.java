@@ -2,6 +2,7 @@ package com.palbang.unsemawang.fortune.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.FortuneCategory;
 import com.palbang.unsemawang.member.entity.Member;
 
@@ -28,7 +29,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "fortune_result")
-public class FortuneResult {
+public class FortuneResult extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

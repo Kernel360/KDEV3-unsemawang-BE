@@ -2,6 +2,8 @@ package com.palbang.unsemawang.member.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,13 +22,13 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-public class FortuneCategory {
+public class FortuneCategory extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String name; // 상담 영역 : 신점, 타로, 역학, 심리 4개
 
 	private String description;

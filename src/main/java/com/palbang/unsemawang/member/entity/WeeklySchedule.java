@@ -3,6 +3,7 @@ package com.palbang.unsemawang.member.entity;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.constant.DayOfTheWeek;
 
 import jakarta.persistence.Column;
@@ -28,7 +29,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-public class WeeklySchedule {
+public class WeeklySchedule extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
