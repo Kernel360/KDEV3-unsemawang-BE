@@ -3,6 +3,7 @@ package com.palbang.unsemawang.member.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.constant.MemberStatus;
 import com.palbang.unsemawang.member.constant.OauthProvider;
@@ -31,7 +32,7 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "member")
-public class Member {
+public class Member extends BaseEntity {
 
 	// 공통 컬럼
 	@Id
