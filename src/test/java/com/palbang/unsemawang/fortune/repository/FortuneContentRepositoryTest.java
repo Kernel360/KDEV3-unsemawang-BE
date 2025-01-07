@@ -12,14 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.TestPropertySource;
 
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestPropertySource(locations = "classpath:application-test.properties")
 class FortuneContentRepositoryTest {
 	@Autowired
 	FortuneContentRepository fortuneContentRepository;
@@ -146,13 +143,6 @@ class FortuneContentRepositoryTest {
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
-			.build();
-	}
-
-	private FortuneCategory createFortuneCategory(int i) {
-		return FortuneCategory.builder()
-			.name("fc-name" + i)
-			.isVisible(true)
 			.build();
 	}
 }
