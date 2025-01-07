@@ -3,13 +3,12 @@ package com.palbang.unsemawang.consultation.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.consultation.constant.ReservationState;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -33,8 +32,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "consultation_reservation")
-@EntityListeners(AuditingEntityListener.class)
-public class ConsultationReservation {
+public class ConsultationReservation extends BaseEntity {
 
 	@Id
 	@Column(name = "id")
