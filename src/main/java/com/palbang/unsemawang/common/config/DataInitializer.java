@@ -61,121 +61,36 @@ public class DataInitializer {
 				// UserRelation 초기 데이터
 				LocalDateTime now = LocalDateTime.now();
 				List<UserRelation> userRelations = List.of(
-					// 가족 관계
 					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("할머니")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("할아버지")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("아버지")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("어머니")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("배우자")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("아들")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("딸")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("형제")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("가족")
-						.relationDetailName("자매")
+						.relationName("본인")
 						.registeredAt(now)
 						.updatedAt(now)
 						.isDeleted(false)
 						.build(),
 
-					// 회사 관계
 					UserRelation.builder()
-						.relationName("회사")
-						.relationDetailName("선배")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("회사")
-						.relationDetailName("동기")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("회사")
-						.relationDetailName("후배")
+						.relationName("가족")
 						.registeredAt(now)
 						.updatedAt(now)
 						.isDeleted(false)
 						.build(),
 
-					// 친구 관계
+					UserRelation.builder()
+						.relationName("회사")
+						.registeredAt(now)
+						.updatedAt(now)
+						.isDeleted(false)
+						.build(),
+
 					UserRelation.builder()
 						.relationName("친구")
-						.relationDetailName("애인")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("친구")
-						.relationDetailName("친구")
 						.registeredAt(now)
 						.updatedAt(now)
 						.isDeleted(false)
 						.build(),
 
-					// 미설정 관계
 					UserRelation.builder()
 						.relationName("미설정")
-						.relationDetailName("선택안함")
-						.registeredAt(now)
-						.updatedAt(now)
-						.isDeleted(false)
-						.build(),
-					UserRelation.builder()
-						.relationName("미설정")
-						.relationDetailName("기타")
 						.registeredAt(now)
 						.updatedAt(now)
 						.isDeleted(false)
