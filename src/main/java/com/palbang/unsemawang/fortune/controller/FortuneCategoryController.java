@@ -14,8 +14,12 @@ import com.palbang.unsemawang.fortune.dto.response.CategoryReadListResponse;
 import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.service.FortuneCategoryService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "운세 분야")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/fortune-category")
@@ -23,6 +27,16 @@ public class FortuneCategoryController {
 
 	private final FortuneCategoryService fortuneCategoryService;
 
+	@Operation(
+		summary = "운세 분야 목록 조회",
+		description = "공개 처리된 운세 분야 목록을 조회한다",
+		responses = {
+			@ApiResponse(
+				description = "Success",
+				responseCode = "200"
+			)
+		}
+	)
 	@GetMapping
 	public ResponseEntity<Response<CategoryReadListResponse>> readList() {
 
