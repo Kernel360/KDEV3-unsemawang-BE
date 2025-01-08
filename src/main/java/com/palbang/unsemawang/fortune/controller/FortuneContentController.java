@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.response.DataResponse;
+import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListResponse;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadResponse;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
@@ -31,7 +31,7 @@ public class FortuneContentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<DataResponse<ContentReadListResponse>> readList() {
+	public ResponseEntity<Response<ContentReadListResponse>> readList() {
 
 		// 컨텐츠 목록 조회
 		List<FortuneContent> list = fortuneContentService.getList();
@@ -39,7 +39,7 @@ public class FortuneContentController {
 		return ResponseEntity.
 			status(HttpStatus.OK)
 			.body(
-				DataResponse.of(
+				Response.success(
 					ResponseCode.SUCCESS_SEARCH,
 					ContentReadListResponse.of(list)
 				)
@@ -47,13 +47,13 @@ public class FortuneContentController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResponse<ContentReadResponse>> read(@PathVariable Long id) {
+	public ResponseEntity<Response<ContentReadResponse>> read(@PathVariable Long id) {
 
 		// 컨텐츠 상세 조회
 		FortuneContent fortuneContent = fortuneContentService.getContentById(id);
 
 		return ResponseEntity.ok(
-			DataResponse.of(
+			Response.success(
 				ResponseCode.SUCCESS_SEARCH,
 				ContentReadResponse.of(fortuneContent)
 			)
