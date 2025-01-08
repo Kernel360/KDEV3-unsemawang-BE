@@ -2,6 +2,7 @@ package com.palbang.unsemawang.consultation.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.consultation.constant.MemberType;
 import com.palbang.unsemawang.consultation.constant.ReservationState;
 
@@ -30,7 +31,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "reservation_state_history")
-public class ReservationStateHistory {
+public class ReservationStateHistory extends BaseEntity {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

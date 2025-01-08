@@ -93,8 +93,8 @@ class FortuneContentControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isUnauthorized())
-			.andExpect(jsonPath("$.baseResponse.success").value(false))
-			.andExpect(jsonPath("$.baseResponse.message").value("유효하지 않은 고유번호 - id: x"));
+			.andExpect(jsonPath("$.success").value(false))
+			.andExpect(jsonPath("$.message").value("유효하지 않은 고유번호 - id: x"));
 	}
 
 	/* 헬퍼 */
