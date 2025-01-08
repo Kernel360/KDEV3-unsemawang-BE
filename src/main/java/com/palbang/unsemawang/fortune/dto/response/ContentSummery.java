@@ -1,7 +1,7 @@
 package com.palbang.unsemawang.fortune.dto.response;
 
+import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

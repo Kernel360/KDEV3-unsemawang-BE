@@ -7,7 +7,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
