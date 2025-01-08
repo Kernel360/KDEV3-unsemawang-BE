@@ -72,7 +72,7 @@ class FortuneUserInfoRegisterServiceTest {
 			.sex('남')
 			.build();
 
-		when(memberRepository.findByEmail("aaa")).thenReturn(Optional.of(mockMember));
+		when(memberRepository.findById("aaa")).thenReturn(Optional.of(mockMember));
 		when(userRelationRepository.findByRelationName("가족")).thenReturn(Optional.of(mockUserRelation));
 		when(fortuneUserInfoRepository.save(any(FortuneUserInfo.class))).thenReturn(savedUserInfo);
 
@@ -84,7 +84,7 @@ class FortuneUserInfoRegisterServiceTest {
 		assertEquals("홍길동", result.getName());
 		assertEquals('남', result.getSex()); // 변경: DTO와 일치하도록 검증
 		assertEquals(LocalDate.of(1990, 2, 12), result.getBirthdate());
-		verify(memberRepository, times(1)).findByEmail("aaa");
+		verify(memberRepository, times(1)).findById("aaa");
 		verify(userRelationRepository, times(1)).findByRelationName("가족");
 		verify(fortuneUserInfoRepository, times(1)).save(any(FortuneUserInfo.class));
 	}
@@ -106,14 +106,14 @@ class FortuneUserInfoRegisterServiceTest {
 			.youn(0)
 			.build();
 
-		when(memberRepository.findByEmail("nonexistent")).thenReturn(Optional.empty()); // 회원 없음
+		when(memberRepository.findById("nonexistent")).thenReturn(Optional.empty()); // 회원 없음
 
 		// When & Then
 		GeneralException exception = assertThrows(GeneralException.class,
 			() -> registerService.registerFortuneInfo(fortuneInfoRequestDto));
 
 		assertEquals("회원을 찾지 못했습니다.", exception.getMessage());
-		verify(memberRepository, times(1)).findByEmail("nonexistent");
+		verify(memberRepository, times(1)).findById("nonexistent");
 		verify(userRelationRepository, times(0)).findByRelationName(anyString());
 		verify(fortuneUserInfoRepository, times(0)).save(any(FortuneUserInfo.class));
 	}
@@ -139,7 +139,7 @@ class FortuneUserInfoRegisterServiceTest {
 			.id("aaa")
 			.build();
 
-		when(memberRepository.findByEmail("aaa")).thenReturn(Optional.of(mockMember)); // 회원은 존재
+		when(memberRepository.findById("aaa")).thenReturn(Optional.of(mockMember)); // 회원은 존재
 		when(userRelationRepository.findByRelationName("존재하지 않는 관계")).thenReturn(Optional.empty()); // 관계 없음
 
 		// When & Then
@@ -147,7 +147,7 @@ class FortuneUserInfoRegisterServiceTest {
 			() -> registerService.registerFortuneInfo(fortuneInfoRequestDto));
 
 		assertEquals("존재하지 않는 관계입니다.", exception.getMessage());
-		verify(memberRepository, times(1)).findByEmail("aaa");
+		verify(memberRepository, times(1)).findById("aaa");
 		verify(userRelationRepository, times(1)).findByRelationName("존재하지 않는 관계");
 		verify(fortuneUserInfoRepository, times(0)).save(any(FortuneUserInfo.class));
 	}
