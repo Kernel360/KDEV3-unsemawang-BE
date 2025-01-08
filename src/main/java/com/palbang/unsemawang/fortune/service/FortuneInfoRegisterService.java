@@ -56,7 +56,7 @@ public class FortuneInfoRegisterService {
 		// 1. Member 조회 (회원일 경우)
 		Member member = null;
 		if (dto.getMemberId() != null) {
-			member = memberRepository.findByEmail(dto.getMemberId())
+			member = memberRepository.findById(dto.getMemberId())
 				.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "회원을 찾지 못했습니다."));
 		}
 
