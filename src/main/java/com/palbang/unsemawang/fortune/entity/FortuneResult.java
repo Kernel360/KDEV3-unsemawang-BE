@@ -3,7 +3,6 @@ package com.palbang.unsemawang.fortune.entity;
 import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.Column;
