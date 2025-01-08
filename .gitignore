@@ -213,3 +213,7 @@ gradle-app.setting
 gradle/
 gradlew.bat
 gradlew
+
+# 환경 파일
+.env
+.env.*
