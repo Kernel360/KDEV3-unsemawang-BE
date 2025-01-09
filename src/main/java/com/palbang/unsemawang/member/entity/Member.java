@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
+import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.constant.MemberStatus;
 import com.palbang.unsemawang.member.constant.OauthProvider;

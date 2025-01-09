@@ -7,10 +7,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
+import com.palbang.unsemawang.fortune.repository.FortuneCategoryRepository;
 import com.palbang.unsemawang.fortune.repository.UserRelationRepository;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
-import com.palbang.unsemawang.member.repository.FortuneCategoryRepository;
 
 @Configuration
 public class DataInitializer {

@@ -2,12 +2,10 @@ package com.palbang.unsemawang.fortune.entity;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
-import com.palbang.unsemawang.member.entity.FortuneCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +30,6 @@ import lombok.ToString;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "fortune_content")
 public class FortuneContent extends BaseEntity {
 
@@ -40,30 +37,35 @@ public class FortuneContent extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; // 운세 컨텐츠 ID
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "fortune_category_id") // 운세 분야 ID와 다대일 관계
-	private FortuneCategory fortuneCategory;
+	@Column(name = "name_en", nullable = false)
+	private String nameEn; // 운세 유형명
 
-	@Column(name = "fortune_content_name", nullable = false)
-	private String fortuneContentName; // 운세 유형명
+	@Column(name = "name_kr", nullable = false)
+	private String nameKo;
 
-	@Column(name = "description", nullable = false, columnDefinition = "TEXT")
-	private String description; // 설명
+	@Column(name = "short_description")
+	private String shortDescription; // 짧은 설명
+
+	@Column(name = "long_description")
+	private String longDescription; // 짧은 설명
+
+	@Column(name = "thumbnail_url")
+	private String thumbnailUrl; // 썸네일 URL
 
 	@Column(name = "path")
 	private String path;
 
-	@CreatedDate
-	@Column(name = "registered_at", nullable = false)
+	@CreationTimestamp
+	@Column(name = "registered_at", nullable = false, updatable = false)
 	private LocalDateTime registeredAt; // 생성일시
 
-	@LastModifiedDate
-	@Column(name = "updated_at")
+	@UpdateTimestamp
+	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt; // 수정일시
 
 	@Builder.Default
-	@Column(name = "is_active", nullable = false)
-	private Boolean isActive = true; // 활성 여부 (기본값: true)
+	@Column(name = "is_visible", nullable = false)
+	private Boolean isVisible = true; // 표시 여부 (기본값: true)
 
 	@Builder.Default
 	@Column(name = "is_deleted", nullable = false)

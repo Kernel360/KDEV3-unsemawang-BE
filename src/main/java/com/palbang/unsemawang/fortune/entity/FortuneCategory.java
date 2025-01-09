@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.member.entity;
+package com.palbang.unsemawang.fortune.entity;
 
 import java.time.LocalDateTime;
 

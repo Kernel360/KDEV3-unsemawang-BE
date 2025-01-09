@@ -16,12 +16,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContentReadListResponse {
-	private List<ContentSummery> contentList;
+	private List<ContentSummeryDto> contentList;
 
 	public static ContentReadListResponse of(List<FortuneContent> fortuneContentList) {
-		List<ContentSummery> contentSummeryList =
+		List<ContentSummeryDto> contentSummeryList =
 			fortuneContentList.stream()
-				.map(ContentSummery::of)
+				.map(ContentSummeryDto::of)
 				.toList();
 
 		return ContentReadListResponse.builder()
