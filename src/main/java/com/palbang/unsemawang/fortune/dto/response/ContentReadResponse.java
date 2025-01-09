@@ -15,19 +15,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContentReadResponse {
-	private Long id;
-	private Long fortuneCategoryId;
-	private String name;
-	private String description;
+	private ContentDetailDto content;
 
 	public static ContentReadResponse of(FortuneContent fortuneContent) {
-		FortuneCategory fortuneCategory = fortuneContent.getFortuneCategory();
-
-		return ContentReadResponse.builder()
-			.id(fortuneContent.getId())
-			.fortuneCategoryId(fortuneCategory != null ? fortuneCategory.getId() : null)
-			.name(fortuneContent.getFortuneContentName())
-			.description(fortuneContent.getDescription())
-			.build();
+		return new ContentReadResponse(ContentDetailDto.of(fortuneContent));
 	}
 }
