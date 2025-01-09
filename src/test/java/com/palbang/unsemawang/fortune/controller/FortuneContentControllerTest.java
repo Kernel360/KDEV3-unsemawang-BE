@@ -11,8 +11,9 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,15 +24,18 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(
+	controllers = FortuneContentController.class,
+	excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class FortuneContentControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc; // 실제 테스트는 MockMvc를 통해 이루어짐
 
 	@MockBean
-	private FortuneContentService fortuneContentService;
+	private FortuneContentService fortuneContentService; // 서비스 모킹
 
 	@Autowired
 	private ObjectMapper objectMapper; // JSON 직렬화에 사용
