@@ -42,6 +42,7 @@ public class FortuneHistory extends BaseEntity {
 	private FortuneUserInfo fortuneUserInfo;
 
 	@Column(name = "is_deleted", nullable = false)
+	@Builder.Default
 	private Boolean isDeleted = false; // 삭제 여부 (기본값: false)
 
 	@Column(name = "deleted_at")

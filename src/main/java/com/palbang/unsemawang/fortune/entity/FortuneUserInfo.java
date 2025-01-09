@@ -56,12 +56,15 @@ public class FortuneUserInfo extends BaseEntity {
 	private char sex; // 성별 ('F', 'M')
 
 	@Column(name = "registered_at", nullable = false, updatable = false)
+	@Builder.Default
 	private LocalDateTime registeredAt = LocalDateTime.now(); // 생성일시
 
 	@Column(name = "updated_at", nullable = false)
+	@Builder.Default
 	private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
 
 	@Column(name = "is_deleted", nullable = false)
+	@Builder.Default
 	private Boolean isDeleted = false; // 삭제 여부
 
 	@Column(name = "deleted_at")
