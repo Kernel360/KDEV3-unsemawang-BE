@@ -100,11 +100,10 @@ class FortuneContentControllerTest {
 	/* 헬퍼 */
 	private FortuneContent createFortuneContent(int i) {
 		return FortuneContent.builder()
-			.id((long)i)
-			.fortuneContentName("test-name" + i)
-			.description("test-desc" + i)
+			.nameEn("test-name" + i)
+			.nameKo("테스트명" + i)
 			.path("/test-path" + i)
-			.isActive(false)
+			.isVisible(false)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
