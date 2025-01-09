@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
-import com.palbang.unsemawang.fortune.dto.response.FortuneInfoResponseDto;
+import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,10 +36,10 @@ public class FortuneInfoRegisterController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<Response<FortuneInfoResponseDto>> registerFortuneUser(
+	public ResponseEntity<Response<FortuneInfoRegisterResponseDto>> registerFortuneUser(
 		@RequestBody FortuneInfoRequestDto requestDto) {
 
-		FortuneInfoResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
+		FortuneInfoRegisterResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
 
 		return ResponseEntity
 			.status(HttpStatus.CREATED)

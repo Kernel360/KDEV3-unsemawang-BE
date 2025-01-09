@@ -14,7 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
-import com.palbang.unsemawang.fortune.dto.response.FortuneInfoResponseDto;
+import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
@@ -77,7 +77,7 @@ class FortuneUserInfoRegisterServiceTest {
 		when(fortuneUserInfoRepository.save(any(FortuneUserInfo.class))).thenReturn(savedUserInfo);
 
 		// When
-		FortuneInfoResponseDto result = registerService.registerFortuneInfo(fortuneInfoRequestDto);
+		FortuneInfoRegisterResponseDto result = registerService.registerFortuneInfo(fortuneInfoRequestDto);
 
 		// Then
 		assertNotNull(result);

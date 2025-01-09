@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
-import com.palbang.unsemawang.fortune.dto.response.FortuneInfoResponseDto;
+import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
@@ -52,7 +52,7 @@ public class FortuneInfoRegisterService {
 	/**
 	 * 사주정보 등록
 	 */
-	public FortuneInfoResponseDto registerFortuneInfo(FortuneInfoRequestDto dto) {
+	public FortuneInfoRegisterResponseDto registerFortuneInfo(FortuneInfoRequestDto dto) {
 		// 1. Member 조회 (회원일 경우)
 		Member member = null;
 		if (dto.getMemberId() != null) {
@@ -87,7 +87,7 @@ public class FortuneInfoRegisterService {
 		fortuneUserInfoRepository.save(fortuneUserInfo);
 
 		// 6. 응답 DTO 생성 및 반환
-		return FortuneInfoResponseDto.builder()
+		return FortuneInfoRegisterResponseDto.builder()
 			.memberId(member != null ? member.getId() : null)
 			.relationName(relation.getRelationName())
 			.name(fortuneUserInfo.getNickname())
