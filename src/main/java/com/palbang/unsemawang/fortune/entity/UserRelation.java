@@ -40,6 +40,7 @@ public class UserRelation extends BaseEntity {
 	private LocalDateTime updatedAt; // 수정일시
 
 	@Column(name = "is_deleted", nullable = false)
+	@Builder.Default
 	private Boolean isDeleted = false; // 삭제 여부 (기본값: false)
 
 	@Column(name = "deleted_at")
