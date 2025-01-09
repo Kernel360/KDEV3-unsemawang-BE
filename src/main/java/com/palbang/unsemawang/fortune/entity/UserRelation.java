@@ -30,9 +30,6 @@ public class UserRelation extends BaseEntity {
 	@Column(name = "relation_name", nullable = false)
 	private String relationName; // 관계명
 
-	@Column(name = "relation_detail_name", nullable = false)
-	private String relationDetailName; // 관계 상세명
-
 	@Column(name = "registered_at", nullable = false, updatable = false)
 	private LocalDateTime registeredAt; // 생성일시
 

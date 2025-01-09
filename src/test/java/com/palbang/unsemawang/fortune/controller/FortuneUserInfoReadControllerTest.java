@@ -49,7 +49,6 @@ class FortuneUserInfoReadControllerTest {
 			.andExpect(jsonPath("$.data[0].name").value("홍길동"))
 			.andExpect(jsonPath("$.data[0].sex").value("남"))
 			.andExpect(jsonPath("$.data[0].birthdate").value("2020-02-02"))
-			.andExpect(jsonPath("$.data[0].birthtime").value("3:30 ~ 5:29"))
 			.andExpect(jsonPath("$.data[0].solunar").value("solar"))
 			.andExpect(jsonPath("$.data[0].youn").value(0));
 
@@ -83,7 +82,7 @@ class FortuneUserInfoReadControllerTest {
 				.name("홍길동")
 				.sex('남')
 				.birthdate(LocalDate.of(2020, 2, 2))
-				.birthtime("3:30 ~ 5:29")
+				.birthtime(0)
 				.solunar("solar")
 				.youn(0)
 				.build(),
@@ -92,7 +91,7 @@ class FortuneUserInfoReadControllerTest {
 				.name("김철수")
 				.sex('남')
 				.birthdate(LocalDate.of(1995, 6, 15))
-				.birthtime("7:30 ~ 9:29")
+				.birthtime(0)
 				.solunar("lunar")
 				.youn(1)
 				.build()

@@ -50,7 +50,7 @@ public class FortuneUserInfo extends BaseEntity {
 	private LocalDate birthdate; // 생년월일
 
 	@Column(name = "birthtime", nullable = true)
-	private String birthtime; // 태어난 시간
+	private int birthtime; // 태어난 시간
 
 	@Column(name = "sex", nullable = false)
 	private char sex; // 성별 ('F', 'M')
