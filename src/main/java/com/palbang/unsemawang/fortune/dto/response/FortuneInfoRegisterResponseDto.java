@@ -22,7 +22,7 @@ public class FortuneInfoRegisterResponseDto {
 	private String name;
 	private char sex; // '남', '여'
 	private LocalDate birthdate;
-	private String birthtime;
+	private int birthtime;
 	private String solunar; // "solar", "lunar"
 	private int youn;
 }

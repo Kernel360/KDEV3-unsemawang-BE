@@ -68,7 +68,7 @@ class FortuneUserInfoRegisterServiceTest {
 			.relation(mockUserRelation)
 			.nickname("홍길동")
 			.birthdate(LocalDate.of(1990, 2, 12))
-			.birthtime("11:30 ~ 13:29")
+			.birthtime(14)
 			.sex('남')
 			.build();
 
