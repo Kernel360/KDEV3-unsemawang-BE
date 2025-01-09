@@ -35,7 +35,7 @@ public class FortuneContentService {
 	public ContentReadListResponse getSearchList(SearchRequest searchRequest) {
 
 		// 검색 키워드를 포함한 이름을 가진 컨텐츠 목록 조회
-		List<FortuneContent> findList = fortuneContentRepository.findByKeyword(searchRequest.keyword());
+		List<FortuneContent> findList = fortuneContentRepository.findByKeyword(searchRequest.getKeyword());
 
 		return ContentReadListResponse.of(findList);
 	}
