@@ -36,9 +36,6 @@ public class FortuneUserInfo extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = true) // 외래 키 매핑
 	private Member member; // Member와의 연관 관계
 
-	// @Column(name = "guest_id", nullable = true)
-	// private String guestId; // 비회원 ID
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "relation_id", nullable = false)
 	private UserRelation relation;
