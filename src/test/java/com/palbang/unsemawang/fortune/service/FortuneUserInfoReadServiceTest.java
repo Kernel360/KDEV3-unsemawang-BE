@@ -17,7 +17,6 @@ import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDt
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
-import com.palbang.unsemawang.member.repository.MemberRepository;
 
 @SpringBootTest(classes = FortuneUserInfoReadService.class)
 class FortuneUserInfoReadServiceTest {
@@ -26,9 +25,6 @@ class FortuneUserInfoReadServiceTest {
 
 	@MockBean
 	private FortuneUserInfoRepository fortuneUserInfoRepository;
-
-	@MockBean
-	private MemberRepository memberRepository;
 
 	@Test
 	@DisplayName("특정 사용자 ID로 사주 정보 조회 성공 테스트")
