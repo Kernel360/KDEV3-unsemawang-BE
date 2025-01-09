@@ -45,8 +45,8 @@ class FortuneContentRepositoryTest {
 	public void insertContent_notDefaultField() {
 		// 1. given - 필수 필드로만 구성된 엔티티 객체 생성(기본 값 세팅된 필드 제외)
 		FortuneContent fortuneContent = FortuneContent.builder()
-			.fortuneContentName("test-name")
-			.description("test-desc")
+			.nameEn("test-name")
+			.nameKo("테스트명")
 			.path("/test-path")
 			.build();
 
@@ -57,7 +57,7 @@ class FortuneContentRepositoryTest {
 		// 3. then - 조회된 엔티티에 삭제 일시를 제외한 모든 필드에 값이 들어가 있어야 한다
 		FortuneContent getFortuneContent = fortuneContentRepository.findAll().get(0);
 		assertNotNull(getFortuneContent);
-		assertTrue(getFortuneContent.getIsActive());
+		assertTrue(getFortuneContent.getIsVisible());
 		assertFalse(getFortuneContent.getIsDeleted());
 		assertNotNull(getFortuneContent.getRegisteredAt());
 
@@ -68,10 +68,10 @@ class FortuneContentRepositoryTest {
 	public void insertContent_allEssentialField() {
 		// 1. given - 필수 필드로만 구성된 엔티티 객체 생성
 		FortuneContent fortuneContent = FortuneContent.builder()
-			.fortuneContentName("test-name")
-			.description("test-desc")
+			.nameEn("test-name")
+			.nameKo("테스트명")
 			.path("/test-path")
-			.isActive(false)
+			.isVisible(false)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
@@ -84,8 +84,8 @@ class FortuneContentRepositoryTest {
 		// 3. then - 조회한 데이터와 삽입한 데이터가 일치해야한다
 		FortuneContent getFortuneContent = fortuneContentRepository.findAll().get(0);
 		assertNotNull(getFortuneContent);
-		assertEquals(fortuneContent.getFortuneContentName(), savedFortuneContent.getFortuneContentName());
-		assertEquals(fortuneContent.getIsActive(), savedFortuneContent.getIsActive());
+		assertEquals(fortuneContent.getNameEn(), savedFortuneContent.getNameEn());
+		assertEquals(fortuneContent.getIsVisible(), savedFortuneContent.getIsVisible());
 
 	}
 
@@ -94,10 +94,8 @@ class FortuneContentRepositoryTest {
 	public void insertContent_notEssentialField() {
 		// 1. given - 일부 필수 필드 미포함하여 엔티티 생성
 		FortuneContent fortuneContent = FortuneContent.builder()
-			.fortuneContentName(null)
-			.description("test-desc")
+			.nameEn(null)
 			.path("/test-path")
-			.isActive(false)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
@@ -136,10 +134,10 @@ class FortuneContentRepositoryTest {
 	/* 헬퍼 */
 	private FortuneContent createFortuneContent(int i) {
 		return FortuneContent.builder()
-			.fortuneContentName("test-name" + i)
-			.description("test-desc" + i)
+			.nameEn("test-name" + i)
+			.nameKo("테스트명" + i)
 			.path("/test-path" + i)
-			.isActive(false)
+			.isVisible(false)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
