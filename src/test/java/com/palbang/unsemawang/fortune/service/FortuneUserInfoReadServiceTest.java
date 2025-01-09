@@ -80,8 +80,9 @@ class FortuneUserInfoReadServiceTest {
 			.thenReturn(List.of());
 
 		// When & Then
-		GeneralException exception = assertThrows(GeneralException.class,
-			() -> readService.fortuneInfoListRead(memberId));
+		GeneralException exception = assertThrows(GeneralException.class, () -> {
+			readService.fortuneInfoListRead(memberId);
+		});
 
 		assertEquals("해당 회원의 사주 정보를 찾을 수 없습니다.", exception.getMessage());
 

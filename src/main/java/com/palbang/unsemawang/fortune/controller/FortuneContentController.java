@@ -17,6 +17,10 @@ import com.palbang.unsemawang.fortune.dto.response.ContentReadResponse;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "운세 컨텐츠")
 @RestController
 @RequestMapping("/fortune-contents")
 public class FortuneContentController {
@@ -30,6 +34,7 @@ public class FortuneContentController {
 		this.fortuneContentService = fortuneContentService;
 	}
 
+	@Operation(description = "운세 컨텐츠 목록 전체 조회하는 API 입니다", summary = "운세 컨텐츠 목록 조회 API")
 	@GetMapping
 	public ResponseEntity<Response<ContentReadListResponse>> readList() {
 
@@ -46,8 +51,9 @@ public class FortuneContentController {
 			);
 	}
 
+	@Operation(description = "운세 컨텐츠 정보 상세 조회하는 API 입니다", summary = "운세 컨텐츠 정보 상세 조회 API")
 	@GetMapping("/{id}")
-	public ResponseEntity<Response<ContentReadResponse>> read(@PathVariable Long id) {
+	public ResponseEntity<Response<ContentReadResponse>> read(@PathVariable(name = "id") Long id) {
 
 		// 컨텐츠 상세 조회
 		FortuneContent fortuneContent = fortuneContentService.getContentById(id);
