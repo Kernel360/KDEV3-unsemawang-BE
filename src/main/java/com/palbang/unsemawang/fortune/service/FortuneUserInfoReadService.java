@@ -46,7 +46,7 @@ public class FortuneUserInfoReadService {
 			.name(fortuneUserInfo.getNickname())
 			.sex(fortuneUserInfo.getSex())
 			.birthdate(fortuneUserInfo.getBirthdate())
-			.birthtime(String.valueOf(fortuneUserInfo.getBirthtime()))
+			.birthtime(fortuneUserInfo.getBirthtime())
 			.solunar(fortuneUserInfo.getSolunar())
 			.youn(fortuneUserInfo.getYoun())
 			.build();
