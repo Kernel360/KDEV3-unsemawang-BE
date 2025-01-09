@@ -71,15 +71,16 @@ public class FortuneInfoRegisterService {
 
 		// 4. FortuneUserInfo 엔티티 생성
 		FortuneUserInfo fortuneUserInfo = FortuneUserInfo.builder()
-			.member(member) // 회원 정보
-			.relation(relation) // 관계 정보
-			.nickname(dto.getName()) // 닉네임
-			.birthdate(birthdate) // 생년월일
-			.birthtime(birthtime) // 태어난 시간
-			.sex(dto.getSex()) // 성별
-			.registeredAt(LocalDateTime.now()) // 생성 일시
-			.updatedAt(LocalDateTime.now()) // 수정 일시
-			.isDeleted(false) // 삭제 여부 기본값
+			.member(member)
+			.relation(relation)
+			.nickname(dto.getName())
+			.birthdate(birthdate)
+			.birthtime(birthtime)
+			.sex(dto.getSex())
+			.youn(dto.getYoun())
+			.solunar(dto.getSolunar())
+			.registeredAt(LocalDateTime.now())
+			.updatedAt(LocalDateTime.now())
 			.build();
 
 		// 5. 데이터 저장
