@@ -36,9 +36,6 @@ public class FortuneUserInfo extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = true) // 외래 키 매핑
 	private Member member; // Member와의 연관 관계
 
-	@Column(name = "guest_id", nullable = true)
-	private String guestId; // 비회원 ID
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "relation_id", nullable = false)
 	private UserRelation relation;
@@ -62,10 +59,12 @@ public class FortuneUserInfo extends BaseEntity {
 	private String solunar;
 
 	@Column(name = "registered_at", nullable = false, updatable = false)
-	private LocalDateTime registeredAt; // 생성일시
+	@Builder.Default
+	private LocalDateTime registeredAt = LocalDateTime.now(); // 생성일시
 
 	@Column(name = "updated_at", nullable = false)
-	private LocalDateTime updatedAt; // 수정일시
+	@Builder.Default
+	private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
 
 	@Column(name = "is_deleted", nullable = false)
 	@Builder.Default
