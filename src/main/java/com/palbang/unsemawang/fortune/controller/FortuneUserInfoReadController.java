@@ -1,7 +1,5 @@
 package com.palbang.unsemawang.fortune.controller;
 
-import static com.palbang.unsemawang.common.constants.ResponseCode.*;
-
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoReadService;
@@ -21,6 +18,7 @@ import com.palbang.unsemawang.fortune.service.FortuneUserInfoReadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "사주 정보")
@@ -42,11 +40,7 @@ public class FortuneUserInfoReadController {
 	)
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Response<List<FortuneUserInfoReadResponseDto>>> getUserInfoList(
-		@RequestParam String memberId) {
-
-		if (memberId == null || memberId.isBlank()) {
-			throw new GeneralException(NOT_EXIST_ID);
-		}
+		@RequestParam @NotBlank(message = "memberId는 필수 값입니다.") String memberId) {
 
 		List<FortuneUserInfoReadResponseDto> list = readService.fortuneInfoListRead(memberId);
 
