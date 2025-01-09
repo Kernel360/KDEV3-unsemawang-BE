@@ -17,6 +17,7 @@ import lombok.Setter;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FortuneUserInfoReadResponseDto {
+	private Long fortuneUserInfoId;
 	private String relationName;
 	private String name;
 	private char sex; // '남', '여'

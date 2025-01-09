@@ -42,6 +42,7 @@ public class FortuneUserInfoReadService {
 	 */
 	private FortuneUserInfoReadResponseDto toResponseDto(FortuneUserInfo fortuneUserInfo) {
 		return FortuneUserInfoReadResponseDto.builder()
+			.fortuneUserInfoId(fortuneUserInfo.getId())
 			.relationName(fortuneUserInfo.getRelation().getRelationName())
 			.name(fortuneUserInfo.getNickname())
 			.sex(fortuneUserInfo.getSex())
