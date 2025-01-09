@@ -44,7 +44,7 @@ class FortuneUserInfoReadServiceTest {
 			.nickname("홍길동")
 			.sex('남')
 			.birthdate(LocalDate.of(2020, 2, 2))
-			.birthtime("3:30 ~ 5:29")
+			.birthtime(2)
 			.relation(mockUserRelation)
 			.solunar("solar")
 			.youn(0)
@@ -63,7 +63,6 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("홍길동", result.get(0).getName());
 		assertEquals('남', result.get(0).getSex());
 		assertEquals(LocalDate.of(2020, 2, 2), result.get(0).getBirthdate());
-		assertEquals("3:30 ~ 5:29", result.get(0).getBirthtime());
 		assertEquals("solar", result.get(0).getSolunar());
 		assertEquals(0, result.get(0).getYoun());
 
@@ -107,7 +106,7 @@ class FortuneUserInfoReadServiceTest {
 			.nickname("홍길동")
 			.sex('남')
 			.birthdate(LocalDate.of(2020, 2, 2))
-			.birthtime("3:30 ~ 5:29")
+			.birthtime(2)
 			.relation(relation1)
 			.solunar("solar")
 			.youn(0)
@@ -117,7 +116,7 @@ class FortuneUserInfoReadServiceTest {
 			.nickname("김철수")
 			.sex('남')
 			.birthdate(LocalDate.of(1995, 6, 15))
-			.birthtime("7:30 ~ 9:29")
+			.birthtime(2)
 			.relation(relation2)
 			.solunar("lunar")
 			.youn(1)
@@ -138,7 +137,6 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("홍길동", result.get(0).getName());
 		assertEquals('남', result.get(0).getSex());
 		assertEquals(LocalDate.of(2020, 2, 2), result.get(0).getBirthdate());
-		assertEquals("3:30 ~ 5:29", result.get(0).getBirthtime());
 		assertEquals("solar", result.get(0).getSolunar());
 		assertEquals(0, result.get(0).getYoun());
 
@@ -147,7 +145,6 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("김철수", result.get(1).getName());
 		assertEquals('남', result.get(1).getSex());
 		assertEquals(LocalDate.of(1995, 6, 15), result.get(1).getBirthdate());
-		assertEquals("7:30 ~ 9:29", result.get(1).getBirthtime());
 		assertEquals("lunar", result.get(1).getSolunar());
 		assertEquals(1, result.get(1).getYoun());
 
