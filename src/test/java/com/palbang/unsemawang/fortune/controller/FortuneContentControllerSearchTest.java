@@ -55,12 +55,12 @@ class FortuneContentControllerSearchTest {
 		ContentReadListResponse responseDto = ContentReadListResponse.of(List.of(fortuneContent1, fortuneContent2));
 		SearchRequest searchRequest = new SearchRequest(keyword);
 
-		// 2. when - 서비스 동작 등록
-		when(fortuneContentService.getSearchList(searchRequest)).thenReturn(responseDto);
+		// 1-2. 서비스 동작 등록
+		when(fortuneContentService.getSearchList(any())).thenReturn(responseDto);
 
-		// 3. then - 검색 요청 성공 응답 나와야함
+		// 2. when, then - 검색 요청 성공 응답 나와야함
 		mockMvc.perform(get("/fortune-contents/search")
-				.param("keyword", searchRequest.keyword())
+				.param("keyword", searchRequest.getKeyword())
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
@@ -75,10 +75,10 @@ class FortuneContentControllerSearchTest {
 		// 1. given - 키워드, 서비스 반환 리스트 세팅
 		ContentReadListResponse responseDto = ContentReadListResponse.of(new ArrayList<>());
 
-		// 2. when - 서비스 동작 등록
-		when(fortuneContentService.getSearchList(new SearchRequest(null))).thenReturn(responseDto);
+		// 서비스 동작 등록
+		when(fortuneContentService.getSearchList(any())).thenReturn(responseDto);
 
-		// 3. then - 검색 요청 성공 응답 나와야함
+		// 2. when, then - 검색 요청 성공 응답 나와야함
 		mockMvc.perform(get("/fortune-contents/search")
 				.contentType(MediaType.APPLICATION_JSON)
 			)
