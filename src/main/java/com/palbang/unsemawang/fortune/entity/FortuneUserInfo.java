@@ -2,7 +2,6 @@ package com.palbang.unsemawang.fortune.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.Member;
@@ -51,10 +50,16 @@ public class FortuneUserInfo extends BaseEntity {
 	private LocalDate birthdate; // 생년월일
 
 	@Column(name = "birthtime", nullable = true)
-	private LocalTime birthtime; // 태어난 시간
+	private String birthtime; // 태어난 시간
 
 	@Column(name = "sex", nullable = false)
 	private char sex; // 성별 ('F', 'M')
+
+	@Column(name = "youn", nullable = false)
+	private int youn;
+
+	@Column(name = "solunar", nullable = false)
+	private String solunar;
 
 	@Column(name = "registered_at", nullable = false, updatable = false)
 	private LocalDateTime registeredAt; // 생성일시
@@ -63,6 +68,7 @@ public class FortuneUserInfo extends BaseEntity {
 	private LocalDateTime updatedAt; // 수정일시
 
 	@Column(name = "is_deleted", nullable = false)
+	@Builder.Default
 	private Boolean isDeleted = false; // 삭제 여부
 
 	@Column(name = "deleted_at")
