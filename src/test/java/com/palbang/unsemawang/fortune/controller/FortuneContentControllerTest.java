@@ -66,8 +66,8 @@ class FortuneContentControllerTest {
 	}
 
 	@Test
-	@DisplayName("상세 조회 테스트 - GeneralException 발생")
-	public void readDetail_notExistId() throws Exception {
+	@DisplayName("목록 조회 테스트 - 빈 리스트 조회 ")
+	public void read() throws Exception {
 		// 2. when - 서비스의 목록 조회 결과 예외 발생할 때
 		when(fortuneContentService.getList()).thenReturn(new ArrayList<>());
 
@@ -80,16 +80,17 @@ class FortuneContentControllerTest {
 	}
 
 	@Test
-	@DisplayName("목록 조회 테스트 - 빈 리스트 조회 ")
-	public void read() throws Exception {
+	@DisplayName("상세 조회 테스트 - GeneralException 발생")
+	public void readDetail_notExistId() throws Exception {
 		// 1. given - 발생할 예외
+		Long notExistId = -999L;
 		GeneralException e = new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "id: x");
 
 		// 2. when - 서비스의 목록 조회 결과 예외가 발생할 때
-		when(fortuneContentService.getList()).thenThrow(e);
+		when(fortuneContentService.getContentById(notExistId)).thenThrow(e);
 
 		// 3. then - 실패 상태 코드와 함께 ErrorResponse가 응답되어야 한다
-		mockMvc.perform(get("/fortune-contents")
+		mockMvc.perform(get("/fortune-contents/{id}", notExistId)
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isUnauthorized())
