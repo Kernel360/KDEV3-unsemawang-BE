@@ -62,10 +62,12 @@ public class FortuneUserInfo extends BaseEntity {
 	private String solunar;
 
 	@Column(name = "registered_at", nullable = false, updatable = false)
-	private LocalDateTime registeredAt; // 생성일시
+	@Builder.Default
+	private LocalDateTime registeredAt = LocalDateTime.now(); // 생성일시
 
 	@Column(name = "updated_at", nullable = false)
-	private LocalDateTime updatedAt; // 수정일시
+	@Builder.Default
+	private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
 
 	@Column(name = "is_deleted", nullable = false)
 	@Builder.Default
