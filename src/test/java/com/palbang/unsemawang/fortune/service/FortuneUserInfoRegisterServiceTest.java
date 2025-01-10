@@ -3,7 +3,6 @@ package com.palbang.unsemawang.fortune.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +66,9 @@ class FortuneUserInfoRegisterServiceTest {
 			.member(mockMember)
 			.relation(mockUserRelation)
 			.nickname("홍길동")
-			.birthdate(LocalDate.of(1990, 2, 12))
+			.year(1990)
+			.month(2)
+			.day(12)
 			.birthtime(14)
 			.sex('남')
 			.build();
@@ -83,7 +84,9 @@ class FortuneUserInfoRegisterServiceTest {
 		assertNotNull(result);
 		assertEquals("홍길동", result.getName());
 		assertEquals('남', result.getSex()); // 변경: DTO와 일치하도록 검증
-		assertEquals(LocalDate.of(1990, 2, 12), result.getBirthdate());
+		assertEquals(1990, result.getYear());
+		assertEquals(2, result.getMonth());
+		assertEquals(12, result.getDay());
 		verify(memberRepository, times(1)).findById("aaa");
 		verify(userRelationRepository, times(1)).findByRelationName("가족");
 		verify(fortuneUserInfoRepository, times(1)).save(any(FortuneUserInfo.class));
