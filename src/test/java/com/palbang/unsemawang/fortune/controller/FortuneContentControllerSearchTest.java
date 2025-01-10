@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.fortune.dto.request.SearchRequest;
-import com.palbang.unsemawang.fortune.dto.response.ContentReadListResponse;
+import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
@@ -52,7 +52,7 @@ class FortuneContentControllerSearchTest {
 		String keyword = "search-keyword";
 		FortuneContent fortuneContent1 = createFortuneContent(1);
 		FortuneContent fortuneContent2 = createFortuneContent(1000);
-		ContentReadListResponse responseDto = ContentReadListResponse.of(List.of(fortuneContent1, fortuneContent2));
+		List<ContentReadListDto> responseDto = ContentReadListDto.of(List.of(fortuneContent1, fortuneContent2));
 		SearchRequest searchRequest = new SearchRequest(keyword);
 
 		// 1-2. 서비스 동작 등록
@@ -64,8 +64,8 @@ class FortuneContentControllerSearchTest {
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.contentList.size()").value(responseDto.getContentList().size()))
-			.andExpect(jsonPath("$.data.contentList[0].nameEn").value(responseDto.getContentList().get(0).getNameEn()));
+			.andExpect(jsonPath("$.size()").value(responseDto.size()))
+			.andExpect(jsonPath("$[0].nameEn").value(responseDto.get(0).getNameEn()));
 
 	}
 
@@ -73,7 +73,7 @@ class FortuneContentControllerSearchTest {
 	@DisplayName("검색 컨트롤러 테스트 - 키워드가 전달되지 않은 경우 성공 응답")
 	void search_notKeyword() throws Exception {
 		// 1. given - 키워드, 서비스 반환 리스트 세팅
-		ContentReadListResponse responseDto = ContentReadListResponse.of(new ArrayList<>());
+		List<ContentReadListDto> responseDto = ContentReadListDto.of(new ArrayList<>());
 
 		// 서비스 동작 등록
 		when(fortuneContentService.getSearchList(any())).thenReturn(responseDto);
@@ -83,7 +83,7 @@ class FortuneContentControllerSearchTest {
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.contentList.size()").value(0));
+			.andExpect(jsonPath("$.size()").value(0));
 	}
 
 	/* 헬퍼 */

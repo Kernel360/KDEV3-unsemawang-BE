@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.request.SearchRequest;
-import com.palbang.unsemawang.fortune.dto.response.ContentReadListResponse;
-import com.palbang.unsemawang.fortune.dto.response.ContentReadResponse;
-import com.palbang.unsemawang.fortune.entity.FortuneContent;
+import com.palbang.unsemawang.fortune.dto.response.ContentReadDetailDto;
+import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,52 +33,37 @@ public class FortuneContentController {
 		summary = "운세 컨텐츠 검색 API"
 	)
 	@GetMapping("/search")
-	public ResponseEntity<Response<ContentReadListResponse>> search(
+	public ResponseEntity<List<ContentReadListDto>> search(
 		@ParameterObject @ModelAttribute SearchRequest searchRequest
 	) {
 		// 키워드를 포함하는 이름을 가진 컨텐츠 목록 가져오기
-		ContentReadListResponse searchResult = fortuneContentService.getSearchList(searchRequest);
+		List<ContentReadListDto> searchResult = fortuneContentService.getSearchList(searchRequest);
 
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
-					searchResult
-				)
-			);
+			.body(searchResult);
 	}
 
 	@Operation(description = "운세 컨텐츠 목록 전체 조회하는 API 입니다", summary = "운세 컨텐츠 목록 조회 API")
 	@GetMapping
-	public ResponseEntity<Response<ContentReadListResponse>> readList() {
+	public ResponseEntity<List<ContentReadListDto>> readList() {
 
 		// 컨텐츠 목록 조회
-		List<FortuneContent> list = fortuneContentService.getList();
+		List<ContentReadListDto> list = fortuneContentService.getList();
 
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
-					ContentReadListResponse.of(list)
-				)
-			);
+			.body(list);
 	}
 
 	@Operation(description = "운세 컨텐츠 정보 상세 조회하는 API 입니다", summary = "운세 컨텐츠 정보 상세 조회 API")
 	@GetMapping("/{id}")
-	public ResponseEntity<Response<ContentReadResponse>> read(@PathVariable(name = "id") Long id) {
+	public ResponseEntity<ContentReadDetailDto> read(@PathVariable(name = "id") Long id) {
 
 		// 컨텐츠 상세 조회
-		FortuneContent fortuneContent = fortuneContentService.getContentById(id);
+		ContentReadDetailDto fortuneContent = fortuneContentService.getContentById(id);
 
-		return ResponseEntity.ok(
-			Response.success(
-				ResponseCode.SUCCESS_SEARCH,
-				ContentReadResponse.of(fortuneContent)
-			)
-		);
+		return ResponseEntity.ok(fortuneContent);
 
 	}
 
