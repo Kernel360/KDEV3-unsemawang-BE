@@ -54,7 +54,7 @@ public class Member extends BaseEntity {
 	private String nickname;
 
 	@Column(name = "phone_number", nullable = false)
-	private String phoneNumber;
+	private String phoneNudmber;
 
 	@Column(name = "profile_url")
 	private String profileUrl;

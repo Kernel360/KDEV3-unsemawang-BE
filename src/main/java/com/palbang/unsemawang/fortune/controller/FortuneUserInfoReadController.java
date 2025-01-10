@@ -39,7 +39,7 @@ public class FortuneUserInfoReadController {
 		}
 	)
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Response<List<FortuneUserInfoReadResponseDto>>> getUserInfoList(
+	public ResponseEntity<List<FortuneUserInfoReadResponseDto>> getUserInfoList(
 		@RequestParam @NotBlank(message = "memberId는 필수 값입니다.") String memberId) {
 
 		List<FortuneUserInfoReadResponseDto> list = readService.fortuneInfoListRead(memberId);
@@ -47,10 +47,7 @@ public class FortuneUserInfoReadController {
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
 					list
-				)
 			);
 	}
 }

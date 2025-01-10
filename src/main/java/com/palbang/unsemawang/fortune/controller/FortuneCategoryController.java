@@ -38,7 +38,7 @@ public class FortuneCategoryController {
 		}
 	)
 	@GetMapping
-	public ResponseEntity<Response<CategoryReadListResponse>> readList() {
+	public ResponseEntity<List<FortuneCategory>> readList() {
 
 		// 공개 처리 된 카테고리 목록 조회
 		List<FortuneCategory> fortuneCategoryList = fortuneCategoryService.getVisibleList();
@@ -46,10 +46,8 @@ public class FortuneCategoryController {
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
-					CategoryReadListResponse.of(fortuneCategoryList)
-				)
-			);
+				fortuneCategoryList
+				);
 	}
+
 }

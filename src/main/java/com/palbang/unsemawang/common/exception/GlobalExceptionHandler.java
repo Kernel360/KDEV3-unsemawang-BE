@@ -18,12 +18,13 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<Response> handleGeneralException(GeneralException ex) {
 
 		log.error("GeneralException occurred: {}", ex.getMessage(), ex);
-		Response response = Response.error(ex.getErrorCode(), ex);
+		Response response = Response.error(ex.getErrorCode(), ex.getMessage());
 
 		return ResponseEntity
 			.status(ex.getErrorCode().getHttpStatus())
 			.body(response);
 	}
+
 
 	@ExceptionHandler(NullPointerException.class)
 	public ResponseEntity<Response> handleNullPointerException(NullPointerException ex) {
@@ -46,6 +47,8 @@ public class GlobalExceptionHandler {
 			.status(HttpStatus.BAD_REQUEST)
 			.body(response);
 	}
+
+
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Response> handleUnexpectedException(Exception ex) {

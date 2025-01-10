@@ -36,7 +36,7 @@ public class FortuneInfoRegisterController {
 		}
 	)
 	@PostMapping
-	public ResponseEntity<Response<FortuneInfoRegisterResponseDto>> registerFortuneUser(
+	public ResponseEntity<FortuneInfoRegisterResponseDto> registerFortuneUser(
 		@RequestBody FortuneInfoRequestDto requestDto) {
 
 		FortuneInfoRegisterResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
@@ -44,10 +44,7 @@ public class FortuneInfoRegisterController {
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(
-				Response.success(
-					ResponseCode.SUCCESS_INSERT,
 					responseDto
-				)
 			);
 	}
 }

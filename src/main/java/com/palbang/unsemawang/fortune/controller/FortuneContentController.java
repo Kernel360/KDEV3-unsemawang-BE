@@ -35,8 +35,8 @@ public class FortuneContentController {
 	}
 
 	@Operation(description = "운세 컨텐츠 목록 전체 조회하는 API 입니다", summary = "운세 컨텐츠 목록 조회 API")
-	@GetMapping
-	public ResponseEntity<Response<ContentReadListResponse>> readList() {
+	@GetMapping("")
+	public ResponseEntity<List<FortuneContent>> readList() {
 
 		// 컨텐츠 목록 조회
 		List<FortuneContent> list = fortuneContentService.getList();
@@ -44,25 +44,19 @@ public class FortuneContentController {
 		return ResponseEntity.
 			status(HttpStatus.OK)
 			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
-					ContentReadListResponse.of(list)
-				)
-			);
+					list
+				);
 	}
 
 	@Operation(description = "운세 컨텐츠 정보 상세 조회하는 API 입니다", summary = "운세 컨텐츠 정보 상세 조회 API")
 	@GetMapping("/{id}")
-	public ResponseEntity<Response<ContentReadResponse>> read(@PathVariable(name = "id") Long id) {
+	public ResponseEntity<FortuneContent> read(@PathVariable(name = "id") Long id) {
 
 		// 컨텐츠 상세 조회
 		FortuneContent fortuneContent = fortuneContentService.getContentById(id);
 
 		return ResponseEntity.ok(
-			Response.success(
-				ResponseCode.SUCCESS_SEARCH,
-				ContentReadResponse.of(fortuneContent)
-			)
+				fortuneContent
 		);
 
 	}

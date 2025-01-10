@@ -26,7 +26,7 @@ public class UserRelation extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
 	@Column(name = "relation_name", nullable = false)
 	private String relationName; // 관계명
 
