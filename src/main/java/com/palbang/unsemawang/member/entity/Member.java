@@ -59,9 +59,6 @@ public class Member extends BaseEntity {
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	@Column(name = "birth_date", nullable = false)
-	private LocalDateTime birthDate;
-
 	@Column(name = "point")
 	private int point;
 
