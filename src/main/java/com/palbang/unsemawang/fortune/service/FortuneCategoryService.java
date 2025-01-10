@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.palbang.unsemawang.fortune.dto.response.CategoryReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.repository.FortuneCategoryRepository;
 
@@ -14,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 public class FortuneCategoryService {
 	private final FortuneCategoryRepository fortuneCategoryRepository;
 
-	public List<FortuneCategory> getVisibleList() {
-		return fortuneCategoryRepository.findAllByIsVisibleIsTrue();
+	public List<CategoryReadListDto> getVisibleList() {
+
+		List<FortuneCategory> findList = fortuneCategoryRepository.findAllByIsVisibleIsTrue();
+
+		return CategoryReadListDto.of(findList);
 	}
 }
