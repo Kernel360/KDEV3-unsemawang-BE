@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +74,9 @@ class FortuneInfoRegisterControllerTest {
 			.relationName("가족")
 			.name("홍길동")
 			.sex('남')
-			.birthdate(LocalDate.parse("2000-08-16"))
+			.year(2020)
+			.month(8)
+			.day(16)
 			.birthtime(2)
 			.solunar("solar")
 			.youn(1)

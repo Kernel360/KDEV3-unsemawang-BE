@@ -1,14 +1,13 @@
 package com.palbang.unsemawang.fortune.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
@@ -35,8 +34,8 @@ public class FortuneInfoRegisterController {
 			)
 		}
 	)
-	@PostMapping
-	public ResponseEntity<Response<FortuneInfoRegisterResponseDto>> registerFortuneUser(
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<FortuneInfoRegisterResponseDto> registerFortuneUser(
 		@RequestBody FortuneInfoRequestDto requestDto) {
 
 		FortuneInfoRegisterResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
@@ -44,10 +43,7 @@ public class FortuneInfoRegisterController {
 		return ResponseEntity
 			.status(HttpStatus.CREATED)
 			.body(
-				Response.success(
-					ResponseCode.SUCCESS_INSERT,
-					responseDto
-				)
+				responseDto
 			);
 	}
 }
