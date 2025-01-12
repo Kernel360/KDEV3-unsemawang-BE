@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "사주 정보 등록")
+@Tag(name = "사주 정보")
 @RestController
 @RequestMapping("/fortune-users")
 @RequiredArgsConstructor
