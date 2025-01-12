@@ -14,8 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FortuneUserInfoReadResponseDto {
-	private Long fortuneUserInfoId;
+public class FortuneInfoRegisterResponseDto {
+	private String memberId;
 	private String relationName;
 	private String name;
 	private char sex; // '남', '여'

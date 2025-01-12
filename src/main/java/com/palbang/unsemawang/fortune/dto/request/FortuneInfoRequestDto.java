@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.fortune.dto.response;
+package com.palbang.unsemawang.fortune.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -14,15 +14,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FortuneUserInfoReadResponseDto {
-	private Long fortuneUserInfoId;
+public class FortuneInfoRequestDto {
+	private String memberId;
 	private String relationName;
 	private String name;
-	private char sex; // '남', '여'
+	private char sex; // "남", "여"
 	private int year;
 	private int month;
 	private int day;
-	private int birthtime;
+	private int hour;
 	private String solunar; // "solar", "lunar"
 	private int youn;
 }

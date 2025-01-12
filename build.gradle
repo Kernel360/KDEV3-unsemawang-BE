@@ -34,7 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // Spring Security
-	  implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // Spring Data
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -65,6 +65,9 @@ dependencies {
 
     // Swagger
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
+
+    // json
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     //QueryDSL
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"

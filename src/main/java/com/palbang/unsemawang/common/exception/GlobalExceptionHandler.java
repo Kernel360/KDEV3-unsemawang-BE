@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.response.Response;
+import com.palbang.unsemawang.common.response.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,10 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(GeneralException.class)
-	public ResponseEntity<Response> handleGeneralException(GeneralException ex) {
+	public ResponseEntity<ErrorResponse> handleGeneralException(GeneralException ex) {
 
 		log.error("GeneralException occurred: {}", ex.getMessage(), ex);
-		Response response = Response.error(ex.getErrorCode(), ex);
+		ErrorResponse response = ErrorResponse.of(ex.getErrorCode());
 
 		return ResponseEntity
 			.status(ex.getErrorCode().getHttpStatus())
@@ -26,10 +26,10 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(NullPointerException.class)
-	public ResponseEntity<Response> handleNullPointerException(NullPointerException ex) {
+	public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex) {
 
 		log.error("NullPointerException occurred: {}", ex.getMessage(), ex);
-		Response response = Response.error(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR);
+		ErrorResponse response = ErrorResponse.of(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR);
 
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -37,10 +37,10 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<Response> handleIllegalArgumentException(IllegalArgumentException ex) {
+	public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
 
 		log.error("IllegalArgumentException occurred: {}", ex.getMessage(), ex);
-		Response response = Response.error(ResponseCode.DEFAULT_BAD_REQUEST);
+		ErrorResponse response = ErrorResponse.of(ResponseCode.DEFAULT_BAD_REQUEST);
 
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
@@ -48,10 +48,10 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Response> handleUnexpectedException(Exception ex) {
+	public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex) {
 
 		log.error("Unexpected exception occurred: {}", ex.getMessage(), ex);
-		Response response = Response.error(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR);
+		ErrorResponse response = ErrorResponse.of(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR);
 
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)

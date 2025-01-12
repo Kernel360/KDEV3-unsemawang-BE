@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.response.Response;
-import com.palbang.unsemawang.fortune.dto.response.CategoryReadListResponse;
-import com.palbang.unsemawang.fortune.entity.FortuneCategory;
+import com.palbang.unsemawang.fortune.dto.response.CategoryReadListDto;
 import com.palbang.unsemawang.fortune.service.FortuneCategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,18 +35,13 @@ public class FortuneCategoryController {
 		}
 	)
 	@GetMapping
-	public ResponseEntity<Response<CategoryReadListResponse>> readList() {
+	public ResponseEntity<List<CategoryReadListDto>> readList() {
 
 		// 공개 처리 된 카테고리 목록 조회
-		List<FortuneCategory> fortuneCategoryList = fortuneCategoryService.getVisibleList();
+		List<CategoryReadListDto> fortuneCategoryList = fortuneCategoryService.getVisibleList();
 
 		return ResponseEntity
 			.status(HttpStatus.OK)
-			.body(
-				Response.success(
-					ResponseCode.SUCCESS_SEARCH,
-					CategoryReadListResponse.of(fortuneCategoryList)
-				)
-			);
+			.body(fortuneCategoryList);
 	}
 }

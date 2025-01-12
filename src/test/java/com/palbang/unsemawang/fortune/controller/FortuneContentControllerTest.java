@@ -11,8 +11,9 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,18 +21,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(
+	controllers = FortuneContentController.class,
+	excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class FortuneContentControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc; // 실제 테스트는 MockMvc를 통해 이루어짐
 
 	@MockBean
-	private FortuneContentService fortuneContentService;
+	private FortuneContentService fortuneContentService; // 서비스 모킹
 
 	@Autowired
 	private ObjectMapper objectMapper; // JSON 직렬화에 사용
@@ -55,14 +60,14 @@ class FortuneContentControllerTest {
 		List<FortuneContent> contentList = List.of(fortuneContent1, fortuneContent2, fortuneContent3);
 
 		// 2. when - 서비스의 목록 조회 메서드가 리스트를 반환할 때
-		when(fortuneContentService.getList()).thenReturn(contentList);
+		when(fortuneContentService.getList()).thenReturn(ContentReadListDto.of(contentList));
 
 		// 3. then - 성공 상태 코드와 함께 DataResponse가 응답되어야 한다
 		mockMvc.perform(get("/fortune-contents")
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.contentList[0].id").value(fortuneContent1.getId()));
+			.andExpect(jsonPath("$[0].id").value(fortuneContent1.getId()));
 	}
 
 	@Test
@@ -76,7 +81,7 @@ class FortuneContentControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.contentList.size()").value(0));
+			.andExpect(jsonPath("$.size()").value(0));
 	}
 
 	@Test
@@ -84,7 +89,8 @@ class FortuneContentControllerTest {
 	public void readDetail_notExistId() throws Exception {
 		// 1. given - 발생할 예외
 		Long notExistId = -999L;
-		GeneralException e = new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "id: x");
+		ResponseCode responseCode = ResponseCode.NOT_EXIST_UNIQUE_NO;
+		GeneralException e = new GeneralException(responseCode);
 
 		// 2. when - 서비스의 목록 조회 결과 예외가 발생할 때
 		when(fortuneContentService.getContentById(notExistId)).thenThrow(e);
@@ -94,8 +100,7 @@ class FortuneContentControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isUnauthorized())
-			.andExpect(jsonPath("$.success").value(false))
-			.andExpect(jsonPath("$.message").value("유효하지 않은 고유번호 - id: x"));
+			.andExpect(jsonPath("$.responseCode").value(responseCode.getCode()));
 	}
 
 	/* 헬퍼 */

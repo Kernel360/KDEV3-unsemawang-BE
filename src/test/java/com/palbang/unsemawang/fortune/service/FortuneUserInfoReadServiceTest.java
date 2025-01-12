@@ -3,7 +3,6 @@ package com.palbang.unsemawang.fortune.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +16,6 @@ import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDt
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
-import com.palbang.unsemawang.member.repository.MemberRepository;
 
 @SpringBootTest(classes = FortuneUserInfoReadService.class)
 class FortuneUserInfoReadServiceTest {
@@ -26,9 +24,6 @@ class FortuneUserInfoReadServiceTest {
 
 	@MockBean
 	private FortuneUserInfoRepository fortuneUserInfoRepository;
-
-	@MockBean
-	private MemberRepository memberRepository;
 
 	@Test
 	@DisplayName("특정 사용자 ID로 사주 정보 조회 성공 테스트")
@@ -43,7 +38,9 @@ class FortuneUserInfoReadServiceTest {
 		FortuneUserInfo mockFortuneUserInfo = FortuneUserInfo.builder()
 			.nickname("홍길동")
 			.sex('남')
-			.birthdate(LocalDate.of(2020, 2, 2))
+			.year(2020)
+			.month(2)
+			.day(2)
 			.birthtime(2)
 			.relation(mockUserRelation)
 			.solunar("solar")
@@ -62,7 +59,9 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("가족", result.get(0).getRelationName());
 		assertEquals("홍길동", result.get(0).getName());
 		assertEquals('남', result.get(0).getSex());
-		assertEquals(LocalDate.of(2020, 2, 2), result.get(0).getBirthdate());
+		assertEquals(2020, result.get(0).getYear());
+		assertEquals(2, result.get(0).getMonth());
+		assertEquals(2, result.get(0).getDay());
 		assertEquals("solar", result.get(0).getSolunar());
 		assertEquals(0, result.get(0).getYoun());
 
@@ -105,7 +104,9 @@ class FortuneUserInfoReadServiceTest {
 		FortuneUserInfo fortuneInfo1 = FortuneUserInfo.builder()
 			.nickname("홍길동")
 			.sex('남')
-			.birthdate(LocalDate.of(2020, 2, 2))
+			.year(2020)
+			.month(2)
+			.day(2)
 			.birthtime(2)
 			.relation(relation1)
 			.solunar("solar")
@@ -115,7 +116,9 @@ class FortuneUserInfoReadServiceTest {
 		FortuneUserInfo fortuneInfo2 = FortuneUserInfo.builder()
 			.nickname("김철수")
 			.sex('남')
-			.birthdate(LocalDate.of(1995, 6, 15))
+			.year(1965)
+			.month(6)
+			.day(15)
 			.birthtime(2)
 			.relation(relation2)
 			.solunar("lunar")
@@ -136,7 +139,9 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("가족", result.get(0).getRelationName());
 		assertEquals("홍길동", result.get(0).getName());
 		assertEquals('남', result.get(0).getSex());
-		assertEquals(LocalDate.of(2020, 2, 2), result.get(0).getBirthdate());
+		assertEquals(2020, result.get(0).getYear());
+		assertEquals(2, result.get(0).getMonth());
+		assertEquals(2, result.get(0).getDay());
 		assertEquals("solar", result.get(0).getSolunar());
 		assertEquals(0, result.get(0).getYoun());
 
@@ -144,7 +149,9 @@ class FortuneUserInfoReadServiceTest {
 		assertEquals("친구", result.get(1).getRelationName());
 		assertEquals("김철수", result.get(1).getName());
 		assertEquals('남', result.get(1).getSex());
-		assertEquals(LocalDate.of(1995, 6, 15), result.get(1).getBirthdate());
+		assertEquals(1965, result.get(1).getYear());
+		assertEquals(6, result.get(1).getMonth());
+		assertEquals(15, result.get(1).getDay());
 		assertEquals("lunar", result.get(1).getSolunar());
 		assertEquals(1, result.get(1).getYoun());
 

@@ -20,7 +20,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContentDetailDto implements Serializable {
+public class ContentReadDetailDto implements Serializable {
 	Long id;
 	String nameEn;
 	String nameKo;
@@ -34,8 +34,8 @@ public class ContentDetailDto implements Serializable {
 	Boolean isDeleted;
 	LocalDateTime deletedAt;
 
-	public static ContentDetailDto of(FortuneContent fortuneContent) {
-		return ContentDetailDto.builder()
+	public static ContentReadDetailDto of(FortuneContent fortuneContent) {
+		return ContentReadDetailDto.builder()
 			.id(fortuneContent.getId())
 			.nameEn(fortuneContent.getNameEn())
 			.nameKo(fortuneContent.getNameKo())

@@ -10,7 +10,6 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
-import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FortuneUserInfoReadService {
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
-	private final MemberRepository memberRepository;
 
 	/**
 	 * 특정 사용자 ID로 사주 정보 조회
@@ -42,10 +40,13 @@ public class FortuneUserInfoReadService {
 	 */
 	private FortuneUserInfoReadResponseDto toResponseDto(FortuneUserInfo fortuneUserInfo) {
 		return FortuneUserInfoReadResponseDto.builder()
+			.fortuneUserInfoId(fortuneUserInfo.getId())
 			.relationName(fortuneUserInfo.getRelation().getRelationName())
 			.name(fortuneUserInfo.getNickname())
 			.sex(fortuneUserInfo.getSex())
-			.birthdate(fortuneUserInfo.getBirthdate())
+			.year(fortuneUserInfo.getYear())
+			.month(fortuneUserInfo.getMonth())
+			.day(fortuneUserInfo.getDay())
 			.birthtime(fortuneUserInfo.getBirthtime())
 			.solunar(fortuneUserInfo.getSolunar())
 			.youn(fortuneUserInfo.getYoun())
