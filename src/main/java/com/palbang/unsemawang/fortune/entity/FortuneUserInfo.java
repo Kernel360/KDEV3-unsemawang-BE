@@ -80,4 +80,27 @@ public class FortuneUserInfo extends BaseEntity {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
 	}
+
+	public void updateFortuneInfo(
+		UserRelation relation,
+		String nickname,
+		int year,
+		int month,
+		int day,
+		Integer birthtime,
+		char sex,
+		int youn,
+		String solunar
+	) {
+		this.relation = relation; // 관계 변경
+		this.nickname = nickname; // 닉네임 수정
+		this.year = year; // 생년 수정
+		this.month = month; // 생월 수정
+		this.day = day; // 생일 수정
+		this.birthtime = birthtime; // 태어난 시간 수정
+		this.sex = sex; // 성별 수정
+		this.youn = youn; // 윤년 여부 수정
+		this.solunar = solunar; // 양력/음력 수정
+		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+	}
 }
