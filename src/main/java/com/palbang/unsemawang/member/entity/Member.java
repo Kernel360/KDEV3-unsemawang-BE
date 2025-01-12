@@ -17,8 +17,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -54,7 +54,7 @@ public class Member extends BaseEntity {
 	@Column(name = "nickname")
 	private String nickname;
 
-	@Column(name = "birth_date")
+	@Column(name = "birth_date", nullable = false)
 	private LocalDate birthdate;
 
 	@Column(name = "phone_number", nullable = false)
@@ -110,7 +110,7 @@ public class Member extends BaseEntity {
 
 	private String detailBio; // 상세소개
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private FortuneCategory fortuneCategory;
 
 	@OneToMany(mappedBy = "target", cascade = CascadeType.ALL, orphanRemoval = true)
