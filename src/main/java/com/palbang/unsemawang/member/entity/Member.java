@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.member.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,6 +53,9 @@ public class Member extends BaseEntity {
 
 	@Column(name = "nickname")
 	private String nickname;
+
+	@Column(name = "birth_date")
+	private LocalDate birthdate;
 
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
