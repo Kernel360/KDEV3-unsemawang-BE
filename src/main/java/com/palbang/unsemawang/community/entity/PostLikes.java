@@ -2,6 +2,7 @@ package com.palbang.unsemawang.community.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.community.constant.TargetType;
 import com.palbang.unsemawang.member.entity.Member;
 
@@ -30,8 +31,8 @@ import lombok.ToString;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "like")
-public class Like {
+@Table(name = "post_likes")
+public class PostLikes extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -45,7 +46,7 @@ public class Like {
 	private TargetType targetType; // 대상 유형 (POST, COMMENT)
 
 	@Column(name = "target_id", nullable = false)
-	private Long targetId; // 대상 ID (게시글 또는 댓글)
+	private Long targetId; // 외래키 매핑 없음
 
 	@Column(name = "is_liked", nullable = false)
 	@Builder.Default

@@ -2,6 +2,7 @@ package com.palbang.unsemawang.community.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.community.constant.ReportReason;
 import com.palbang.unsemawang.community.constant.ReportStatus;
 import com.palbang.unsemawang.community.constant.TargetType;
@@ -32,7 +33,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "report")
-public class Report {
+public class Report extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,6 +2,7 @@ package com.palbang.unsemawang.community.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.member.entity.Member;
 
@@ -31,7 +32,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "post")
-public class Post {
+public class Post extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
