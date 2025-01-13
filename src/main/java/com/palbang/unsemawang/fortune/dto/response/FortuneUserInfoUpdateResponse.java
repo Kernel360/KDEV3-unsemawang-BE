@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties
-public class UpdateResponse {
+public class FortuneUserInfoUpdateResponse {
 	@Schema(required = true)
 	private String relationName;
 

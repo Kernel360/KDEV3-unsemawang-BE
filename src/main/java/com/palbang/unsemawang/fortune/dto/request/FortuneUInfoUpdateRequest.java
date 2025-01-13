@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +52,7 @@ public class FortuneUInfoUpdateRequest {
 
 	@Schema(required = true)
 	@NotNull(message = "sex는 필수 값입니다.")
+	@Pattern(regexp = "^(남|여)$", message = "solunar는 'solar' 또는 'lunar'만 가능합니다.")
 	private char sex;
 
 	@Schema(required = true)
@@ -59,5 +61,6 @@ public class FortuneUInfoUpdateRequest {
 
 	@Schema(required = true)
 	@NotBlank(message = "solunar는 필수 값입니다.")
+	@Pattern(regexp = "^(solar|lunar)$", message = "solunar는 'solar' 또는 'lunar'만 가능합니다.")
 	private String solunar;
 }
