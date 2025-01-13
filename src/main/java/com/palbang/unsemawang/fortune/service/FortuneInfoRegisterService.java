@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.fortune.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
@@ -43,16 +42,14 @@ public class FortuneInfoRegisterService {
 		UserRelation relation = userRelationRepository.findByRelationName(dto.getRelationName())
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관계입니다."));
 
-		// 3. 생년월일
-		LocalDate birthdate = LocalDate.of(dto.getYear(), dto.getMonth(),
-			dto.getDay());
-
-		// 4. FortuneUserInfo 엔티티 생성
+		// 3. FortuneUserInfo 엔티티 생성
 		FortuneUserInfo fortuneUserInfo = FortuneUserInfo.builder()
 			.member(member)
 			.relation(relation)
 			.nickname(dto.getName())
-			.birthdate(birthdate)
+			.year(dto.getYear())
+			.month(dto.getMonth())
+			.day(dto.getDay())
 			.birthtime(dto.getHour())
 			.sex(dto.getSex())
 			.youn(dto.getYoun())
@@ -69,7 +66,9 @@ public class FortuneInfoRegisterService {
 			.memberId(member != null ? member.getId() : null)
 			.relationName(relation.getRelationName())
 			.name(fortuneUserInfo.getNickname())
-			.birthdate(birthdate)
+			.year(fortuneUserInfo.getYear())
+			.month(fortuneUserInfo.getMonth())
+			.day(fortuneUserInfo.getDay())
 			.birthtime(dto.getHour())
 			.sex(fortuneUserInfo.getSex())
 			.solunar(dto.getSolunar())

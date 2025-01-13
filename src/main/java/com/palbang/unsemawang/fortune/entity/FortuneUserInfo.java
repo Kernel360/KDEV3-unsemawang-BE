@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.fortune.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
@@ -19,10 +18,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
-@ToString
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,23 +27,29 @@ import lombok.ToString;
 public class FortuneUserInfo extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id; // 기본 키
+	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY) // 다대일 관계 설정
-	@JoinColumn(name = "member_id", nullable = true) // 외래 키 매핑
-	private Member member; // Member와의 연관 관계
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id")
+	private Member member;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "relation_id", nullable = false)
 	private UserRelation relation;
 
 	@Column(name = "nickname", nullable = false)
-	private String nickname; // 닉네임
+	private String nickname;
 
-	@Column(name = "birthdate", nullable = false)
-	private LocalDate birthdate; // 생년월일
+	@Column(name = "year", nullable = false)
+	private int year;
 
-	@Column(name = "birthtime", nullable = true)
+	@Column(name = "month", nullable = false)
+	private int month;
+
+	@Column(name = "day", nullable = false)
+	private int day;
+
+	@Column(name = "birthtime")
 	private int birthtime; // 태어난 시간
 
 	@Column(name = "sex", nullable = false)

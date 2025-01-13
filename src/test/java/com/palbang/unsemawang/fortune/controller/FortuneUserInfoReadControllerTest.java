@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -45,12 +44,14 @@ class FortuneUserInfoReadControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data[0].relationName").value("가족"))
-			.andExpect(jsonPath("$.data[0].name").value("홍길동"))
-			.andExpect(jsonPath("$.data[0].sex").value("남"))
-			.andExpect(jsonPath("$.data[0].birthdate").value("2020-02-02"))
-			.andExpect(jsonPath("$.data[0].solunar").value("solar"))
-			.andExpect(jsonPath("$.data[0].youn").value(0));
+			.andExpect(jsonPath("$[0].relationName").value("가족"))
+			.andExpect(jsonPath("$[0].name").value("홍길동"))
+			.andExpect(jsonPath("$[0].sex").value("남"))
+			.andExpect(jsonPath("$[0].year").value(2020))
+			.andExpect(jsonPath("$[0].month").value(2))
+			.andExpect(jsonPath("$[0].day").value(2))
+			.andExpect(jsonPath("$[0].solunar").value("solar"))
+			.andExpect(jsonPath("$[0].youn").value(0));
 
 		verify(readService, times(1)).fortuneInfoListRead(memberId);
 	}
@@ -70,7 +71,7 @@ class FortuneUserInfoReadControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isBadRequest()) // HTTP 400
-			.andExpect(jsonPath("$.message").value("유효하지 않은 요청 id - 유효하지 않은 요청 id"));
+			.andExpect(jsonPath("$.message").value("유효하지 않은 요청 id"));
 
 		verify(readService, times(1)).fortuneInfoListRead(memberId);
 	}
@@ -81,7 +82,9 @@ class FortuneUserInfoReadControllerTest {
 				.relationName("가족")
 				.name("홍길동")
 				.sex('남')
-				.birthdate(LocalDate.of(2020, 2, 2))
+				.year(2020)
+				.month(2)
+				.day(2)
 				.birthtime(0)
 				.solunar("solar")
 				.youn(0)
@@ -90,7 +93,9 @@ class FortuneUserInfoReadControllerTest {
 				.relationName("친구")
 				.name("김철수")
 				.sex('남')
-				.birthdate(LocalDate.of(1995, 6, 15))
+				.year(1965)
+				.month(6)
+				.day(15)
 				.birthtime(0)
 				.solunar("lunar")
 				.youn(1)
