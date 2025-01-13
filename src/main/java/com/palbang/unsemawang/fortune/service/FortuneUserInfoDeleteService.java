@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.response.DeleteResponseDto;
+import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoDeleteResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
@@ -20,7 +20,7 @@ public class FortuneUserInfoDeleteService {
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
 	private final MemberRepository memberRepository;
 
-	public DeleteResponseDto deleteFortuneUserInfo(String memberId, Long relationId) {
+	public FortuneUserInfoDeleteResponseDto deleteFortuneUserInfo(String memberId, Long relationId) {
 
 		// 1. Member 조회
 		Member member = memberRepository.findById(memberId)
@@ -34,13 +34,13 @@ public class FortuneUserInfoDeleteService {
 		if (!fortuneUserInfo.getIsDeleted()) {
 			fortuneUserInfo.deleted();
 		} else {
-			return DeleteResponseDto.builder()
+			return FortuneUserInfoDeleteResponseDto.builder()
 				.message("이미 삭제된 사주 정보입니다.")
 				.build();
 		}
 
 		// 성공 응답 반환
-		return DeleteResponseDto.builder()
+		return FortuneUserInfoDeleteResponseDto.builder()
 			.message("사주 정보 삭제 성공")
 			.build();
 	}
