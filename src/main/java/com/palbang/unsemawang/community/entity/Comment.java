@@ -1,69 +1,65 @@
 package com.palbang.unsemawang.community.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.palbang.unsemawang.community.constant.CommunityCategory;
+import com.palbang.unsemawang.member.entity.Member;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
-@ToString
 @Entity
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "post")
-public class Post {
+@Table(name = "comment")
+public class Comment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "member_id", nullable = false)
-	private String memberId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_id")
+	private Post post;
 
-	@Column(name = "is_anonymous", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_comment_id")
+	private Comment parentComment; // 부모 댓글 (Self-Referencing)
+
+	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> childComments = new ArrayList<>(); // 대댓글 목록
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member memberId;
+
+	@Column(name = "content", columnDefinition = "TEXT", nullable = false)
+	private String content;
+
+	@Column(name = "is_anonymous")
 	@Builder.Default
 	private Boolean isAnonymous = false;
 
-	@Column(nullable = false)
-	private String title = "빈 제목";
-
-	@Column(columnDefinition = "TEXT", nullable = false)
-	private String content = "빈 내용";
-
-	@Column(name = "view_count")
-	@Builder.Default
-	private Integer viewCount = 0;
-
-	@Column(name = "like_count")
-	@Builder.Default
-	private Integer likeCount = 0;
-
-	@Column(name = "comment_count")
-	@Builder.Default
-	private Integer commentCount = 0;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CommunityCategory communityCategory;
-
 	@Column(name = "is_visible")
 	@Builder.Default
-	private Boolean isVisible = false;
+	private Boolean isVisible = true;
 
 	@Column(name = "is_deleted")
 	@Builder.Default
@@ -79,8 +75,9 @@ public class Post {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	public void deletePost() {
+	public void deleteComment() {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
 	}
+
 }
