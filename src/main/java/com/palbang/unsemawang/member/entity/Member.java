@@ -48,16 +48,16 @@ public class Member extends BaseEntity {
 	@Column(name = "email", nullable = false)
 	private String email;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name")
 	private String name;
 
 	@Column(name = "nickname")
 	private String nickname;
 
-	@Column(name = "birth_date", nullable = false)
+	@Column(name = "birth_date")
 	private LocalDate birthdate;
 
-	@Column(name = "phone_number", nullable = false)
+	@Column(name = "phone_number")
 	private String phoneNumber;
 
 	@Column(name = "profile_url")
@@ -66,7 +66,7 @@ public class Member extends BaseEntity {
 	@Column(name = "point")
 	private int point;
 
-	@Column(name = "gender", nullable = false)
+	@Column(name = "gender")
 	private char gender;  // 성별 (F, M)
 
 	@Column(name = "last_login_at")
@@ -89,7 +89,7 @@ public class Member extends BaseEntity {
 	private List<Favorite> favorites; // 사용자가 찜한 목록
 
 	// 일반 회원&관리자 전용 컬럼
-	@Column(name = "oauth_id")
+	@Column(name = "oauth_id", nullable = false)
 	private String oauthId; //oauth에게 제공받은 id
 
 	@Column(name = "oauth_provider")
