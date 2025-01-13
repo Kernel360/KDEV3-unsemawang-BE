@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,18 +22,42 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContentReadDetailDto implements Serializable {
-	Long id;
-	String nameEn;
-	String nameKo;
-	String shortDescription;
-	String longDescription;
-	String thumbnailUrl;
-	String path;
-	LocalDateTime registeredAt;
-	LocalDateTime updatedAt;
-	Boolean isVisible;
-	Boolean isDeleted;
-	LocalDateTime deletedAt;
+
+	@Schema(description = "운세 컨텐츠 ID", required = true)
+	private Long id;
+
+	@Schema(description = "운세 컨텐츠 영어표기명", required = true)
+	private String nameEn;
+
+	@Schema(description = "운세 컨텐츠 한글표기명", required = true)
+	private String nameKo;
+
+	@Schema(description = "운세 컨텐츠 짧은 설명", required = false)
+	private String shortDescription;
+
+	@Schema(description = "운세 컨텐츠 긴 설명", required = false)
+	private String longDescription;
+
+	@Schema(description = "운세 컨텐츠 썸네일 이미지", required = false)
+	private String thumbnailUrl;
+
+	@Schema(description = "운세 컨텐츠 api 경로", required = true)
+	private String path;
+
+	@Schema(description = "운세 컨텐츠 등록 일시", required = true)
+	private LocalDateTime registeredAt;
+
+	@Schema(description = "운세 컨텐츠 변경 일시", required = true)
+	private LocalDateTime updatedAt;
+
+	@Schema(description = "운세 컨텐츠 표시 여부", required = true)
+	private Boolean isVisible;
+
+	@Schema(description = "운세 컨텐츠 삭제 여부", required = true)
+	private Boolean isDeleted;
+
+	@Schema(description = "운세 컨텐츠 삭제 일시", required = false)
+	private LocalDateTime deletedAt;
 
 	public static ContentReadDetailDto of(FortuneContent fortuneContent) {
 		return ContentReadDetailDto.builder()

@@ -17,6 +17,7 @@ import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -56,7 +57,11 @@ public class FortuneContentController {
 			.body(list);
 	}
 
-	@Operation(description = "운세 컨텐츠 정보 상세 조회하는 API 입니다", summary = "운세 컨텐츠 정보 상세 조회 API")
+	@Operation(
+		description = "운세 컨텐츠 정보 상세 조회하는 API 입니다",
+		summary = "운세 컨텐츠 정보 상세 조회 API",
+		parameters = {@Parameter(name = "id", description = "운세 컨텐츠 ID", required = true)}
+	)
 	@GetMapping("/{id}")
 	public ResponseEntity<ContentReadDetailDto> read(@PathVariable(name = "id") Long id) {
 
