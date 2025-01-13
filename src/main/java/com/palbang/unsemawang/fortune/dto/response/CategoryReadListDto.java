@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryReadListDto {
+
+	@Schema(description = "운세 분야 ID", required = true)
 	private Long id;
+
+	@Schema(description = "운세 분야명", required = true)
 	private String name;
 
 	// 운세 카테고리 엔티티를 CategorySummery 객체로 변경

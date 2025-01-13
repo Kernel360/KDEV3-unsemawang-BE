@@ -1,18 +1,16 @@
 package com.palbang.unsemawang.fortune.dto.request;
 
-import lombok.Builder;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Builder
 @Getter
-@NoArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class SearchRequest {
 
+	@Schema(description = "검색할 컨텐츠명 키워드", required = false)
 	private String keyword;
 
 	public SearchRequest(String keyword) {
