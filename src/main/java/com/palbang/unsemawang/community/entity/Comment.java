@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "comment")
-public class Comment {
+public class Comment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +45,7 @@ public class Comment {
 	private Comment parentComment; // 부모 댓글 (Self-Referencing)
 
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<Comment> childComments = new ArrayList<>(); // 대댓글 목록
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
