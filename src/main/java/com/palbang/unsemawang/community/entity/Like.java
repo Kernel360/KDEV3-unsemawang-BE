@@ -51,7 +51,7 @@ public class Like {
 	@Builder.Default
 	private Boolean isLiked = true; // 좋아요 상태
 
-	@Column(name = "registered_at")
+	@Column(name = "registered_at", updatable = false)
 	@Builder.Default
 	private LocalDateTime registeredAt = LocalDateTime.now();
 
