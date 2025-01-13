@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "운세 조회")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/unsepuri")
+@RequestMapping("/unsepuri")
 public class UnsepuriController {
 
 	private final UnsepuriService unsepuriseService;

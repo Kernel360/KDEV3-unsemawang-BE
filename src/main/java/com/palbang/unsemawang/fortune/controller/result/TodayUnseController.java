@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "운세 조회")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/todayunse")
+@RequestMapping("/todayunse")
 public class TodayUnseController {
 
 	private final TodayUnseService todayunseService;
