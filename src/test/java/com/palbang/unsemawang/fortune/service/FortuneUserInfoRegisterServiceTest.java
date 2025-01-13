@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
@@ -40,7 +40,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_성공테스트")
 	void registerSuccess() {
 		// Given
-		FortuneInfoRequestDto fortuneInfoRequestDto = FortuneInfoRequestDto.builder()
+		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
 			.memberId("aaa")
 			.relationName("가족")
 			.name("홍길동")
@@ -69,7 +69,7 @@ class FortuneUserInfoRegisterServiceTest {
 			.year(1990)
 			.month(2)
 			.day(12)
-			.birthtime(14)
+			.hour(14)
 			.sex('남')
 			.build();
 
@@ -78,7 +78,7 @@ class FortuneUserInfoRegisterServiceTest {
 		when(fortuneUserInfoRepository.save(any(FortuneUserInfo.class))).thenReturn(savedUserInfo);
 
 		// When
-		FortuneInfoRegisterResponseDto result = registerService.registerFortuneInfo(fortuneInfoRequestDto);
+		FortuneInfoRegisterResponseDto result = registerService.registerFortuneInfo(fortuneInfoRegisterRequestDto);
 
 		// Then
 		assertNotNull(result);
@@ -96,7 +96,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_실패테스트 - 회원 정보 없음")
 	void registerFail_MemberNotFound() {
 		// Given
-		FortuneInfoRequestDto fortuneInfoRequestDto = FortuneInfoRequestDto.builder()
+		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
 			.memberId("nonexistent") // 존재하지 않는 회원 ID
 			.relationName("가족")
 			.name("홍길동")
@@ -113,7 +113,7 @@ class FortuneUserInfoRegisterServiceTest {
 
 		// When & Then
 		GeneralException exception = assertThrows(GeneralException.class,
-			() -> registerService.registerFortuneInfo(fortuneInfoRequestDto));
+			() -> registerService.registerFortuneInfo(fortuneInfoRegisterRequestDto));
 
 		assertEquals("회원을 찾지 못했습니다.", exception.getMessage());
 		verify(memberRepository, times(1)).findById("nonexistent");
@@ -125,7 +125,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_실패테스트 - 관계 정보 없음")
 	void registerFail_RelationNotFound() {
 		// Given
-		FortuneInfoRequestDto fortuneInfoRequestDto = FortuneInfoRequestDto.builder()
+		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
 			.memberId("aaa")
 			.relationName("존재하지 않는 관계") // 존재하지 않는 관계명
 			.name("홍길동")
@@ -147,7 +147,7 @@ class FortuneUserInfoRegisterServiceTest {
 
 		// When & Then
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-			() -> registerService.registerFortuneInfo(fortuneInfoRequestDto));
+			() -> registerService.registerFortuneInfo(fortuneInfoRegisterRequestDto));
 
 		assertEquals("존재하지 않는 관계입니다.", exception.getMessage());
 		verify(memberRepository, times(1)).findById("aaa");

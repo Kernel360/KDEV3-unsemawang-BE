@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.request.UpdateRequest;
-import com.palbang.unsemawang.fortune.dto.response.UpdateResponse;
+import com.palbang.unsemawang.fortune.dto.request.FortuneUInfoUpdateRequest;
+import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoUpdateResponse;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
@@ -24,7 +24,7 @@ public class FortuneUserInfoUpdateService {
 	private final MemberRepository memberRepository;
 	private final UserRelationRepository userRelationRepository;
 
-	public UpdateResponse updateFortuneUserInfo(UpdateRequest req) {
+	public FortuneUserInfoUpdateResponse updateFortuneUserInfo(FortuneUInfoUpdateRequest req) {
 		// Member 조회
 		Member member = memberRepository.findById(req.getMemberId())
 			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "회원을 찾지 못했습니다."));
@@ -44,20 +44,20 @@ public class FortuneUserInfoUpdateService {
 			req.getYear(),
 			req.getMonth(),
 			req.getDay(),
-			req.getBirthtime(),
+			req.getHour(),
 			req.getSex(),
 			req.getYoun(),
 			req.getSolunar()
 		);
 
 		// 4. 응답 생성
-		return UpdateResponse.builder()
+		return FortuneUserInfoUpdateResponse.builder()
 			.relationName(fortuneUserInfo.getRelation().getRelationName())
 			.nickname(fortuneUserInfo.getNickname())
 			.year(fortuneUserInfo.getYear())
 			.month(fortuneUserInfo.getMonth())
 			.day(fortuneUserInfo.getDay())
-			.birthtime(fortuneUserInfo.getBirthtime())
+			.hour(fortuneUserInfo.getHour())
 			.sex(fortuneUserInfo.getSex())
 			.youn(fortuneUserInfo.getYoun())
 			.solunar(fortuneUserInfo.getSolunar())

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.response.DeleteResponseDto;
+import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoDeleteResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoDeleteService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,11 +34,11 @@ public class FortuneUserInfoDeleteController {
 		}
 	)
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<DeleteResponseDto> deleteFortuneUserInfo(
+	public ResponseEntity<FortuneUserInfoDeleteResponseDto> deleteFortuneUserInfo(
 		@RequestParam @NotBlank(message = "memberId는 필수 값입니다.") String memberId,
 		@RequestParam @NotNull(message = "relationId는 필수 값입니다.") Long relationId) {
 
-		DeleteResponseDto response = deleteService.deleteFortuneUserInfo(memberId, relationId);
+		FortuneUserInfoDeleteResponseDto response = deleteService.deleteFortuneUserInfo(memberId, relationId);
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(response);
