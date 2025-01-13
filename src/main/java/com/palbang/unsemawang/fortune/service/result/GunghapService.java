@@ -8,6 +8,9 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.GunghapResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalGunghapResponse;
 import com.palbang.unsemawang.fortune.dto.result.GunghapApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class GunghapService {
 
@@ -25,7 +28,25 @@ public class GunghapService {
 	}
 
 	private ExternalGunghapResponse callExternalApi(GunghapApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalGunghapResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalGunghapResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalGunghapResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	private GunghapResponse processApiResponse(ExternalGunghapResponse apiResponse) {

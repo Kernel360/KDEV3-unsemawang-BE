@@ -8,6 +8,9 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class TodayUnseService {
 
@@ -26,7 +29,25 @@ public class TodayUnseService {
 
 	// 외부 API 호출 메서드
 	private ExternalTodayUnseResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalTodayUnseResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalTodayUnseResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalTodayUnseResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// 외부 API 응답 데이터를 처리하여 TodayUnseResponse로 변환

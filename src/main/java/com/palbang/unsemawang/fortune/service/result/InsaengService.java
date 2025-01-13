@@ -10,6 +10,9 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.InsaengResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalInsaengResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class InsaengService {
 
@@ -28,7 +31,25 @@ public class InsaengService {
 
 	// 외부 API 호출
 	private ExternalInsaengResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalInsaengResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalInsaengResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalInsaengResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// API 응답 데이터를 처리하여 응답 DTO로 변환

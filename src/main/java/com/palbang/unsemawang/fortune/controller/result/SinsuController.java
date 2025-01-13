@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag(name = "운세 조회")
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +28,15 @@ public class SinsuController {
 	@Operation(summary = "새해 신수 API")
 	@PostMapping
 	public ResponseEntity<SinsuResponse> SinsuApiHandler(@Valid @RequestBody FortuneApiRequest request) {
+		log.info("Received request for Sinsu API: {}", request);
+
+		// 서비스 호출 후 결과를 처리
 		SinsuResponse response = sinsuService.getSinsuResult(request);
+
+		// 응답 데이터 로깅
+		log.info("Responding with data for Sinsu API: {}", response);
+
+		// 성공적인 응답 반환
 		return ResponseEntity.ok(response);
 	}
 }

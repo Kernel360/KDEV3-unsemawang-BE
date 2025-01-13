@@ -10,6 +10,9 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.SinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalSinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class SinsuService {
 
@@ -30,7 +33,25 @@ public class SinsuService {
 
 	// 외부 API 호출 메서드
 	private ExternalSinsuResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalSinsuResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalSinsuResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalSinsuResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// API 응답 데이터를 처리하여 SinsuResponse로 변환
