@@ -50,8 +50,9 @@ public class Report {
 	@Column(name = "report_category")
 	private ReportReason reportCategory;
 
-	@Column(name = "registered_at")
-	private LocalDateTime registeredAt; // 신고 등록 시간
+	@Column(name = "registered_at", updatable = false)
+	@Builder.Default
+	private LocalDateTime registeredAt = LocalDateTime.now(); // 신고 등록 시간
 
 	@Column(name = "report_status")
 	private ReportStatus reportStatus; // 신고 상태 : 처리 중, 처리 완료 등
