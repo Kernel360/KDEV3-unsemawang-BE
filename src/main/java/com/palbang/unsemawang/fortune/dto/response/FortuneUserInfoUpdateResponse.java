@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fortune.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class FortuneUserInfoUpdateResponse {
 	private String relationName;
 
 	@Schema(required = true)
+	@JsonProperty("name")
 	private String nickname;
 
 	@Schema(required = true)
