@@ -60,6 +60,7 @@ public class Report {
 	@Builder.Default
 	private LocalDateTime registeredAt = LocalDateTime.now(); // 신고 등록 시간
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "report_status")
 	private ReportStatus reportStatus; // 신고 상태 : 처리 중, 처리 완료 등
 }
