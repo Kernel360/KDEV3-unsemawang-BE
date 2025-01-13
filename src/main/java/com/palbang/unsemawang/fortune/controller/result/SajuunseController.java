@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.SajuunseService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class SajuunseController {
 
 	@Operation(summary = "사주 운세 API")
 	@PostMapping
-	public ResponseEntity<SajuunseResponse> SajuunseApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<SajuunseResponse> SajuunseApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		SajuunseResponse response = sajuunseService.getSajuunseResult(request);
 		return ResponseEntity.ok(response);
 	}

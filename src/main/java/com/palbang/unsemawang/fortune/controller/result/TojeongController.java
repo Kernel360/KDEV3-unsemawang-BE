@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.TojeongService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class TojeongController {
 
 	@Operation(summary = "토정비결 API")
 	@PostMapping
-	public ResponseEntity<TojeongResponse> TojeongApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<TojeongResponse> TojeongApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		TojeongResponse response = tojeongseService.getTojeongResult(request);
 		return ResponseEntity.ok(response);
 	}

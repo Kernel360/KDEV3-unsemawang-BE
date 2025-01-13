@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.UnsepuriService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class UnsepuriController {
 
 	@Operation(summary = "운세 풀이 API")
 	@PostMapping
-	public ResponseEntity<UnsepuriResponse> UnsepuriApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<UnsepuriResponse> UnsepuriApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		UnsepuriResponse response = unsepuriseService.getUnsepuriResult(request);
 		return ResponseEntity.ok(response);
 	}

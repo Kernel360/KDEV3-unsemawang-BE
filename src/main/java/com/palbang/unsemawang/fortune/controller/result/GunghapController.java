@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.GunghapService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class GunghapController {
 
 	@Operation(summary = "궁합 API")
 	@PostMapping
-	public ResponseEntity<GunghapResponse> GunghapApiHandler(@RequestBody GunghapApiRequest request) {
+	public ResponseEntity<GunghapResponse> GunghapApiHandler(@Valid @RequestBody GunghapApiRequest request) {
 		GunghapResponse response = gunghapService.getGunghapResult(request);
 		return ResponseEntity.ok(response);
 	}

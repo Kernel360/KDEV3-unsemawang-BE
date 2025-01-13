@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.TodayUnseService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class TodayUnseController {
 
 	@Operation(summary = "오늘의 운세 API")
 	@PostMapping
-	public ResponseEntity<TodayUnseResponse> TodayUnseApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<TodayUnseResponse> TodayUnseApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		TodayUnseResponse response = todayunseService.getTodayUnseResult(request);
 		return ResponseEntity.ok(response);
 	}

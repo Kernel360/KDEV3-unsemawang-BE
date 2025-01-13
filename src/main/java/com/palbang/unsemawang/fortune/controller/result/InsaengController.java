@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.InsaengService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class InsaengController {
 
 	@Operation(summary = "인생 풀이 API")
 	@PostMapping
-	public ResponseEntity<InsaengResponse> InsaengApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<InsaengResponse> InsaengApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		InsaengResponse response = insaengService.getInsaengResult(request);
 		return ResponseEntity.ok(response);
 	}

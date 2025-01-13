@@ -1,6 +1,9 @@
 package com.palbang.unsemawang.fortune.dto.result;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -15,15 +18,15 @@ import lombok.NoArgsConstructor;
 @Schema(description = "궁합 요청 객체")
 public class GunghapApiRequest {
 	@Schema(description = "본인 정보", required = true)
-	private UserInfo me;
+	private UserInfoDto me;
 
 	@Schema(description = "상대 정보", required = true)
-	private UserInfo other;
+	private UserInfoDto other;
 
 	@Getter
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static class UserInfo {
+	public static class UserInfoDto {
 
 		@Schema(description = "사용자 이름", example = "이몽룡", required = true)
 		@NotBlank(message = "name must not be empty")
@@ -48,8 +51,6 @@ public class GunghapApiRequest {
 		private int day;
 
 		@Schema(description = "출생 시", example = "10", required = true)
-		@Min(value = 0, message = "hour must not be less than 0")
-		@Max(value = 12, message = "hour must not be greater than 12")
 		private int hour;
 
 		@Schema(description = "양력(solar)/음력(lunar)", example = "solar", required = true)
@@ -61,5 +62,9 @@ public class GunghapApiRequest {
 		@Max(value = 1, message = "youn must not be greater than 1")
 		private int youn;
 
+		@AssertTrue(message = "hour must be one of the following values: 0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22")
+		private boolean isValidHour() {
+			return List.of(0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22).contains(hour);
+		}
 	}
 }

@@ -12,6 +12,7 @@ import com.palbang.unsemawang.fortune.service.result.SinsuService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "운세 조회")
@@ -24,7 +25,7 @@ public class SinsuController {
 
 	@Operation(summary = "새해 신수 API")
 	@PostMapping
-	public ResponseEntity<SinsuResponse> SinsuApiHandler(@RequestBody FortuneApiRequest request) {
+	public ResponseEntity<SinsuResponse> SinsuApiHandler(@Valid @RequestBody FortuneApiRequest request) {
 		SinsuResponse response = sinsuService.getSinsuResult(request);
 		return ResponseEntity.ok(response);
 	}
