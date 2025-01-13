@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fortune.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,7 @@ public class FortuneUInfoUpdateRequest {
 
 	@Schema(required = true)
 	@NotBlank(message = "nickname은 필수 값입니다.")
+	@JsonProperty("name")
 	private String nickname;
 
 	@Schema(required = true)
