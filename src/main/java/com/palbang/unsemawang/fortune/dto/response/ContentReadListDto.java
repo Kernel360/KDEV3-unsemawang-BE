@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +17,20 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ContentReadListDto {
+
+	@Schema(description = "운세 컨텐츠 ID", required = true)
 	private Long id;
+
+	@Schema(description = "운세 컨텐츠 영어표기명", required = true)
 	private String nameEn;
+
+	@Schema(description = "운세 컨텐츠 한글표기명", required = true)
 	private String nameKo;
+
+	@Schema(description = "운세 컨텐츠 짧은 설명", required = false)
 	private String shortDescription;
+
+	@Schema(description = "운세 컨텐츠 썸네일 URL", required = false)
 	private String thumbnailUrl;
 
 	public static ContentReadListDto of(FortuneContent fortuneContent) {
@@ -28,6 +39,7 @@ public class ContentReadListDto {
 			.nameEn(fortuneContent.getNameEn())
 			.nameKo(fortuneContent.getNameKo())
 			.shortDescription(fortuneContent.getShortDescription())
+			.thumbnailUrl(fortuneContent.getThumbnailUrl())
 			.build();
 	}
 
