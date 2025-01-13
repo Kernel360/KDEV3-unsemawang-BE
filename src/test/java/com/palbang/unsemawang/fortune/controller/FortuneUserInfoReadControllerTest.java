@@ -85,7 +85,7 @@ class FortuneUserInfoReadControllerTest {
 				.year(2020)
 				.month(2)
 				.day(2)
-				.birthtime(0)
+				.hour(0)
 				.solunar("solar")
 				.youn(0)
 				.build(),
@@ -96,7 +96,7 @@ class FortuneUserInfoReadControllerTest {
 				.year(1965)
 				.month(6)
 				.day(15)
-				.birthtime(0)
+				.hour(0)
 				.solunar("lunar")
 				.youn(1)
 				.build()

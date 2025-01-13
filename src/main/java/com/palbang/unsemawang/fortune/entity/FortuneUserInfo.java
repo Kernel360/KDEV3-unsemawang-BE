@@ -49,8 +49,8 @@ public class FortuneUserInfo extends BaseEntity {
 	@Column(name = "day", nullable = false)
 	private int day;
 
-	@Column(name = "birthtime")
-	private int birthtime; // 태어난 시간
+	@Column(name = "hour")
+	private int hour; // 태어난 시간
 
 	@Column(name = "sex", nullable = false)
 	private char sex; // 성별 ('F', 'M')
@@ -87,7 +87,7 @@ public class FortuneUserInfo extends BaseEntity {
 		int year,
 		int month,
 		int day,
-		Integer birthtime,
+		int hour,
 		char sex,
 		int youn,
 		String solunar
@@ -97,7 +97,7 @@ public class FortuneUserInfo extends BaseEntity {
 		this.year = year; // 생년 수정
 		this.month = month; // 생월 수정
 		this.day = day; // 생일 수정
-		this.birthtime = birthtime; // 태어난 시간 수정
+		this.hour = hour; // 태어난 시간 수정
 		this.sex = sex; // 성별 수정
 		this.youn = youn; // 윤년 여부 수정
 		this.solunar = solunar; // 양력/음력 수정

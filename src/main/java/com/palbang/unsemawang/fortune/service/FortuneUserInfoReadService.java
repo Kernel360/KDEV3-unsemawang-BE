@@ -40,14 +40,14 @@ public class FortuneUserInfoReadService {
 	 */
 	private FortuneUserInfoReadResponseDto toResponseDto(FortuneUserInfo fortuneUserInfo) {
 		return FortuneUserInfoReadResponseDto.builder()
-			.fortuneUserInfoId(fortuneUserInfo.getId())
+			.relationId(fortuneUserInfo.getId())
 			.relationName(fortuneUserInfo.getRelation().getRelationName())
 			.name(fortuneUserInfo.getNickname())
 			.sex(fortuneUserInfo.getSex())
 			.year(fortuneUserInfo.getYear())
 			.month(fortuneUserInfo.getMonth())
 			.day(fortuneUserInfo.getDay())
-			.birthtime(fortuneUserInfo.getBirthtime())
+			.hour(fortuneUserInfo.getHour())
 			.solunar(fortuneUserInfo.getSolunar())
 			.youn(fortuneUserInfo.getYoun())
 			.build();

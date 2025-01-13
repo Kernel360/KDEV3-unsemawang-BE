@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
 
@@ -36,7 +36,7 @@ public class FortuneInfoRegisterController {
 	)
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<FortuneInfoRegisterResponseDto> registerFortuneUser(
-		@RequestBody FortuneInfoRequestDto requestDto) {
+		@RequestBody FortuneInfoRegisterRequestDto requestDto) {
 
 		FortuneInfoRegisterResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
 

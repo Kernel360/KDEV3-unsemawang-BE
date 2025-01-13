@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.request.UpdateRequest;
+import com.palbang.unsemawang.fortune.dto.request.FortuneUInfoUpdateRequest;
 import com.palbang.unsemawang.fortune.dto.response.UpdateResponse;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
 
@@ -35,7 +35,7 @@ public class FortuneUserInfoUpdateController {
 	)
 	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UpdateResponse> updateFortuneUserInfo(
-		@RequestBody @Valid UpdateRequest requestDto) {
+		@RequestBody @Valid FortuneUInfoUpdateRequest requestDto) {
 
 		UpdateResponse response = updateService.updateFortuneUserInfo(requestDto);
 		return ResponseEntity

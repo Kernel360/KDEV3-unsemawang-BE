@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
@@ -30,7 +30,7 @@ public class FortuneInfoRegisterService {
 	/**
 	 * 사주정보 등록
 	 */
-	public FortuneInfoRegisterResponseDto registerFortuneInfo(FortuneInfoRequestDto dto) {
+	public FortuneInfoRegisterResponseDto registerFortuneInfo(FortuneInfoRegisterRequestDto dto) {
 		// 1. Member 조회
 		Member member = null;
 		if (dto.getMemberId() != null) {
@@ -50,7 +50,7 @@ public class FortuneInfoRegisterService {
 			.year(dto.getYear())
 			.month(dto.getMonth())
 			.day(dto.getDay())
-			.birthtime(dto.getHour())
+			.hour(dto.getHour())
 			.sex(dto.getSex())
 			.youn(dto.getYoun())
 			.solunar(dto.getSolunar())
@@ -69,7 +69,7 @@ public class FortuneInfoRegisterService {
 			.year(fortuneUserInfo.getYear())
 			.month(fortuneUserInfo.getMonth())
 			.day(fortuneUserInfo.getDay())
-			.birthtime(dto.getHour())
+			.hour(dto.getHour())
 			.sex(fortuneUserInfo.getSex())
 			.solunar(dto.getSolunar())
 			.youn(dto.getYoun())

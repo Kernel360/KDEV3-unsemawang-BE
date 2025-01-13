@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
 
@@ -35,10 +35,10 @@ class FortuneInfoRegisterControllerTest {
 	@DisplayName("사주 정보 등록_성공")
 	void registerSuccess() throws Exception {
 		// Given
-		FortuneInfoRequestDto reqDto = createReq();
+		FortuneInfoRegisterRequestDto reqDto = createReq();
 		FortuneInfoRegisterResponseDto respDto = createResp();
 
-		when(registerService.registerFortuneInfo(any(FortuneInfoRequestDto.class))).thenReturn(respDto);
+		when(registerService.registerFortuneInfo(any(FortuneInfoRegisterRequestDto.class))).thenReturn(respDto);
 
 		// When
 		mockMvc.perform(post("/fortune-users")
@@ -50,11 +50,11 @@ class FortuneInfoRegisterControllerTest {
 			.andDo(print());
 
 		// Then
-		verify(registerService, times(1)).registerFortuneInfo(any(FortuneInfoRequestDto.class));
+		verify(registerService, times(1)).registerFortuneInfo(any(FortuneInfoRegisterRequestDto.class));
 	}
 
-	private FortuneInfoRequestDto createReq() throws Exception {
-		return FortuneInfoRequestDto.builder()
+	private FortuneInfoRegisterRequestDto createReq() throws Exception {
+		return FortuneInfoRegisterRequestDto.builder()
 			.memberId("aaa")
 			.relationName("가족")
 			.name("홍길동")
@@ -77,7 +77,7 @@ class FortuneInfoRegisterControllerTest {
 			.year(2020)
 			.month(8)
 			.day(16)
-			.birthtime(2)
+			.hour(2)
 			.solunar("solar")
 			.youn(1)
 			.build();

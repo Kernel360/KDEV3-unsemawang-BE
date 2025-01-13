@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FortuneInfoRequestDto {
+public class FortuneInfoRegisterRequestDto {
 	@Schema(required = true)
 	private String memberId;
 
