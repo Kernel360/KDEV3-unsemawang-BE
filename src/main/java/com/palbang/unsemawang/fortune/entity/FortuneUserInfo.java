@@ -75,4 +75,9 @@ public class FortuneUserInfo extends BaseEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt; // 삭제 일시
+
+	public void deleted() {
+		this.isDeleted = true;
+		this.deletedAt = LocalDateTime.now();
+	}
 }
