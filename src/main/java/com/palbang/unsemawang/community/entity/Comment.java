@@ -48,7 +48,7 @@ public class Comment {
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "member_id", nullable = false)
-	private Member memberId;
+	private Member member;
 
 	@Column(name = "content", columnDefinition = "TEXT", nullable = false)
 	private String content;
@@ -80,5 +80,4 @@ public class Comment {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
 	}
-
 }

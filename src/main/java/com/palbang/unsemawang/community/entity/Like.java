@@ -38,7 +38,7 @@ public class Like {
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "member_id", nullable = false)
-	private Member memberId;
+	private Member member;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "target_type", nullable = false)
