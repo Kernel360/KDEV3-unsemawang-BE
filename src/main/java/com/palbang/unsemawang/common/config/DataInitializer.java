@@ -83,6 +83,13 @@ public class DataInitializer {
 						.build(),
 
 					UserRelation.builder()
+						.relationName("연인")
+						.registeredAt(now)
+						.updatedAt(now)
+						.isDeleted(false)
+						.build(),
+
+					UserRelation.builder()
 						.relationName("미설정")
 						.registeredAt(now)
 						.updatedAt(now)

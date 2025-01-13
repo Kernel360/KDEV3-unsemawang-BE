@@ -54,7 +54,6 @@ public class FortuneUInfoUpdateRequest {
 
 	@Schema(required = true)
 	@NotNull(message = "sex는 필수 값입니다.")
-	@Pattern(regexp = "^(남|여)$", message = "solunar는 'solar' 또는 'lunar'만 가능합니다.")
 	private char sex;
 
 	@Schema(required = true)
