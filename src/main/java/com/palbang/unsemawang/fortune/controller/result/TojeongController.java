@@ -14,19 +14,30 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag(name = "운세 조회")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tojeong")
 public class TojeongController {
 
-	private final TojeongService tojeongseService;
+	private final TojeongService tojeongService;
 
 	@Operation(summary = "토정비결 API")
 	@PostMapping
-	public ResponseEntity<TojeongResponse> TojeongApiHandler(@Valid @RequestBody FortuneApiRequest request) {
-		TojeongResponse response = tojeongseService.getTojeongResult(request);
+	public ResponseEntity<TojeongResponse> TojeongApiHandler(
+		@Valid @RequestBody FortuneApiRequest request) {// 요청 데이터 로깅
+		log.info("Received request for Tojeong API: {}", request);
+
+		// 서비스 호출 후 결과를 처리
+		TojeongResponse response = tojeongService.getTojeongResult(request);
+
+		// 응답 데이터 로깅
+		log.info("Responding with data for Tojeong API: {}", response);
+
+		// 성공적인 응답 반환
 		return ResponseEntity.ok(response);
 	}
 }

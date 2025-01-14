@@ -8,13 +8,17 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.UnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalUnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UnsepuriService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // REST API 호출
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public UnsepuriService(@Value("${external.api.unsepuri.url}") String apiUrl) {
+	public UnsepuriService(RestTemplate restTemplate, @Value("${external.api.unsepuri.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 
@@ -26,7 +30,25 @@ public class UnsepuriService {
 
 	// 외부 API 호출 메서드
 	private ExternalUnsepuriResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalUnsepuriResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalUnsepuriResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalUnsepuriResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// 외부 API 응답 데이터를 처리하여 내부 응답 DTO로 변환
