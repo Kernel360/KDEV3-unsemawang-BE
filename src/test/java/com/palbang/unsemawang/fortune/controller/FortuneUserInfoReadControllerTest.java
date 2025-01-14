@@ -10,8 +10,9 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,8 +21,11 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoReadService;
 
-@SpringBootTest()
-@AutoConfigureMockMvc(addFilters = false) // Security 필터 비활성화
+@WebMvcTest(
+	controllers = FortuneUserInfoReadController.class,
+	excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class FortuneUserInfoReadControllerTest {
 	@Autowired
 	MockMvc mockMvc;
