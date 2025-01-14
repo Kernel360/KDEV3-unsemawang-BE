@@ -1,7 +1,7 @@
 package com.palbang.unsemawang.fortune.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.palbang.unsemawang.member.dto.SignupExtraInfoDto;
+import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -62,7 +62,7 @@ public class FortuneInfoRegisterRequest {
 	@Pattern(regexp = "^(solar|lunar)$", message = "solunar는 'solar' 또는 'lunar'만 가능합니다.")
 	private String solunar;
 
-	public static FortuneInfoRegisterRequest from(SignupExtraInfoDto signupExtraInfoDto) {
+	public static FortuneInfoRegisterRequest from(SignupExtraInfoRequest signupExtraInfoDto) {
 		return FortuneInfoRegisterRequest.builder()
 			.memberId(signupExtraInfoDto.getId())
 			.name(signupExtraInfoDto.getNickname())
@@ -72,6 +72,8 @@ public class FortuneInfoRegisterRequest {
 			.hour(signupExtraInfoDto.getHour())
 			.solunar(signupExtraInfoDto.getSolunar())
 			.youn(signupExtraInfoDto.getYoun())
+			.sex(signupExtraInfoDto.getSex())
+			.relationName("본인")
 			.build();
 	}
 }
