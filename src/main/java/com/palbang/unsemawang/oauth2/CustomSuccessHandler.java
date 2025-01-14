@@ -7,7 +7,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -27,7 +26,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        System.out.println("로그인성공: onAuthenticationSuccess");
         //OAuth2User
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
@@ -44,7 +42,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // ResponseCookie 추가
         ResponseCookie responseCookie = createResponseCookie("Authorization", token, 60 * 60 * 60);
 
-        response.sendRedirect("https://deploy-kdev-3-unsemawang-fe.vercel.app/signup");
+        response.sendRedirect("https://www.unsemawang.com/signup");
         //response.sendRedirect("http://localhost:8080/join");
     }
     private Cookie createCookie(String key, String value) {
@@ -61,7 +59,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // ResponseCookie 생성 시 SameSite=None 설정
         return ResponseCookie.from(key, value)
                 .path("/")
-                .domain("deploy-kdev-3-unsemawang-fe.vercel.app") // 도메인 지정 (필요한 경우 설정)
+                .domain("unsemawang.com/") // 도메인 지정 (필요한 경우 설정)
                 .sameSite("None") // SameSite=None 설정
                 .secure(true)     // HTTPS에서만 전송
                 .httpOnly(true)   // JavaScript 접근 불가
