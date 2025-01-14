@@ -54,29 +54,36 @@ public class InsaengResponse {
 	public static class Total {
 		@Schema(required = true)
 		private String label;
-		@Schema(required = true)
-		private Text text;
-		@Schema(required = true)
-		private Value value;
+		private List<Children> children;
 
 		@Data
 		@NoArgsConstructor
 		@AllArgsConstructor
-		public static class Text {
+		public static class Children {
 			@Schema(required = true)
-			private String labe;
+			private Text text;
 			@Schema(required = true)
-			private String value;
-		}
+			private Value value;
 
-		@Data
-		@NoArgsConstructor
-		@AllArgsConstructor
-		public static class Value {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private int value;
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Text {
+				@Schema(required = true)
+				private String labe;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Value {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private int value;
+			}
 		}
 	}
 
@@ -86,29 +93,35 @@ public class InsaengResponse {
 	public static class Gunghap {
 		@Schema(required = true)
 		private String label;
-		@Schema(required = true)
-		private Text text;
-		@Schema(required = true)
-		private Value value;
+		private List<Children> children;
 
 		@Data
 		@NoArgsConstructor
 		@AllArgsConstructor
-		public static class Text {
+		public static class Children {
+			private Text text;
 			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private String value;
-		}
+			private Value value;
 
-		@Data
-		@NoArgsConstructor
-		@AllArgsConstructor
-		public static class Value {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private int value;
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Text {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Value {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private int value;
+			}
 		}
 	}
 
@@ -118,29 +131,36 @@ public class InsaengResponse {
 	public static class MarryGung {
 		@Schema(required = true)
 		private String label;
-		@Schema(required = true)
-		private Text text;
-		@Schema(required = true)
-		private Value value;
+		private List<Children> children;
 
 		@Data
 		@NoArgsConstructor
 		@AllArgsConstructor
-		public static class Text {
+		public static class Children {
 			@Schema(required = true)
-			private String label;
+			private Text text;
 			@Schema(required = true)
-			private String value;
-		}
+			private Value value;
 
-		@Data
-		@NoArgsConstructor
-		@AllArgsConstructor
-		public static class Value {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private int value;
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Text {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Value {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private int value;
+			}
 		}
 	}
 

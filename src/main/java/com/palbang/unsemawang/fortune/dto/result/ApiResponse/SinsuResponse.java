@@ -21,98 +21,106 @@ public class SinsuResponse {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class ThisYearLuck {
-		@Schema(required = true)
-		private Total total;
-		@Schema(required = true)
-		private Business business;
-		@Schema(required = true)
-		private Love love;
-		@Schema(required = true)
-		private Health health;
-		@Schema(required = true)
-		private TravelMoving travelMoving;
-		@Schema(required = true)
-		private Work work;
-		@Schema(required = true)
-		private MonthlyLuck monthlyLuck;
+		private String label;
+		private List<Children> children;
 
 		@Data
 		@AllArgsConstructor
 		@NoArgsConstructor
-		public static class Total {
+		public static class Children {
 			@Schema(required = true)
-			private String label;
+			private Total total;
 			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class Business {
+			private Business business;
 			@Schema(required = true)
-			private String label;
+			private Love love;
 			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class Love {
+			private Health health;
 			@Schema(required = true)
-			private String label;
+			private TravelMoving travelMoving;
 			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class Health {
+			private Work work;
 			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class TravelMoving {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class Work {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private String value;
-		}
-
-		@Data
-		@AllArgsConstructor
-		@NoArgsConstructor
-		public static class MonthlyLuck {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private List<Month> month;
+			private MonthlyLuck monthlyLuck;
 
 			@Data
 			@AllArgsConstructor
 			@NoArgsConstructor
-			public static class Month {
+			public static class Total {
 				@Schema(required = true)
 				private String label;
 				@Schema(required = true)
 				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class Business {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class Love {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class Health {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class TravelMoving {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class Work {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@AllArgsConstructor
+			@NoArgsConstructor
+			public static class MonthlyLuck {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private List<Month> month;
+
+				@Data
+				@AllArgsConstructor
+				@NoArgsConstructor
+				public static class Month {
+					@Schema(required = true)
+					private String label;
+					@Schema(required = true)
+					private String value;
+				}
 			}
 		}
 	}

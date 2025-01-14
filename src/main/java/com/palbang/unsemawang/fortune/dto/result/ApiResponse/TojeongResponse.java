@@ -50,29 +50,36 @@ public class TojeongResponse {
 	public static class CurrentLuckAnalysis {
 		@Schema(required = true)
 		private String label;
-		@Schema(required = true)
-		private Text text;
-		@Schema(required = true)
-		private Value value;
+		private List<Children> children;
 
 		@Data
 		@NoArgsConstructor
 		@AllArgsConstructor
-		public static class Text {
+		public static class Children {
 			@Schema(required = true)
-			private String label;
+			private Text text;
 			@Schema(required = true)
-			private String value;
-		}
+			private Value value;
 
-		@Data
-		@NoArgsConstructor
-		@AllArgsConstructor
-		public static class Value {
-			@Schema(required = true)
-			private String label;
-			@Schema(required = true)
-			private int value;
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Text {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private String value;
+			}
+
+			@Data
+			@NoArgsConstructor
+			@AllArgsConstructor
+			public static class Value {
+				@Schema(required = true)
+				private String label;
+				@Schema(required = true)
+				private int value;
+			}
 		}
 	}
 

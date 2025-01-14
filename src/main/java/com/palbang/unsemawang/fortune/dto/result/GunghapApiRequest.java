@@ -3,6 +3,7 @@ package com.palbang.unsemawang.fortune.dto.result;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -18,9 +19,11 @@ import lombok.NoArgsConstructor;
 @Schema(description = "궁합 요청 객체")
 public class GunghapApiRequest {
 	@Schema(description = "본인 정보", required = true)
+	@Valid
 	private UserInfoDto me;
 
 	@Schema(description = "상대 정보", required = true)
+	@Valid
 	private UserInfoDto other;
 
 	@Getter
@@ -38,6 +41,7 @@ public class GunghapApiRequest {
 
 		@Schema(description = "출생 연도", example = "1990", required = true)
 		@Min(value = 1, message = "year must not be less than 1")
+		@Max(value = Integer.MAX_VALUE, message = "year must not exceed maximum integer value")
 		private int year;
 
 		@Schema(description = "출생 월", example = "3", required = true)

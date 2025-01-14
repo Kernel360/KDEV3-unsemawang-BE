@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TojeongService {
 
-	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
+	private final RestTemplate restTemplate;
 	private final String apiUrl;
 
 	public TojeongService(RestTemplate restTemplate, @Value("${external.api.tojeong.url}") String apiUrl) {
@@ -26,26 +26,20 @@ public class TojeongService {
 
 	public TojeongResponse getTojeongResult(FortuneApiRequest request) {
 		ExternalTojeongResponse apiResponse = callExternalApi(request);
-		// 데이터를 TojeongResponse로 변환하여 반환
 		return processApiResponse(apiResponse);
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {
 		try {
-			// 요청 데이터 로그
 			log.info("Requesting external API with data: {}", request);
 
-			// API 호출
 			ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
 				ExternalTojeongResponse.class);
 
-			// 응답 데이터 로그
 			log.info("Received response from external API: {}", response);
 
 			return response;
-
 		} catch (Exception e) {
-			// 예외 발생 시 상세 정보 로깅
 			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
 				e.getMessage(), e);
 			throw e;
@@ -56,14 +50,15 @@ public class TojeongService {
 		ExternalTojeongResponse.Result result = apiResponse.getResult();
 
 		return new TojeongResponse(
-			buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()), // 현재 나의 운 분석
-			buildThisYearLuck(result.getThisYearLuck()), // 올해의 운세
-			buildTojeongSecret(result.getTojeongSecret()), // 토정비결
-			buildWealth(result.getWealth()), // 재물
-			new TojeongResponse.NatureCharacter("타고난 성품", result.getNatureCharacter()),
-			new TojeongResponse.CurrentBehavior("현재 지켜야 할 처세", result.getCurrentBehavior()),
-			new TojeongResponse.CurrentHumanRelationship("현재 대인 관계", result.getCurrentHumanRelationship()),
-			new TojeongResponse.AvoidPeople("피해야 할 상대", result.getAvoidPeople())
+			buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()),
+			buildThisYearLuck(result.getThisYearLuck()),
+			buildTojeongSecret(result.getTojeongSecret()),
+			buildWealth(result.getWealth()),
+			buildNatureCharacter("타고난 성품", result.getNatureCharacter()),
+			buildSimpleField("현재 지켜야 할 처세", result.getCurrentBehavior(), TojeongResponse.CurrentBehavior.class),
+			buildSimpleField("현재 대인 관계", result.getCurrentHumanRelationship(),
+				TojeongResponse.CurrentHumanRelationship.class),
+			buildSimpleField("피해야 할 상대", result.getAvoidPeople(), TojeongResponse.AvoidPeople.class)
 		);
 	}
 
@@ -72,10 +67,18 @@ public class TojeongService {
 		if (external == null)
 			return null;
 
+		// children 생성 (Text 및 Value를 포함하는 리스트)
+		List<TojeongResponse.CurrentLuckAnalysis.Children> children = List.of(
+			new TojeongResponse.CurrentLuckAnalysis.Children(
+				new TojeongResponse.CurrentLuckAnalysis.Children.Text("운세 설명", external.getText()),
+				new TojeongResponse.CurrentLuckAnalysis.Children.Value("운세 값", external.getValue())
+			)
+		);
+
+		// CurrentLuckAnalysis 반환
 		return new TojeongResponse.CurrentLuckAnalysis(
 			"현재 나의 운 분석",
-			new TojeongResponse.CurrentLuckAnalysis.Text("운세 설명", external.getText()),
-			new TojeongResponse.CurrentLuckAnalysis.Value("운세 값", external.getValue())
+			children
 		);
 	}
 
@@ -83,13 +86,9 @@ public class TojeongService {
 		if (external == null)
 			return null;
 
-		// 1월~12월 데이터 매핑 (Month 객체 리스트 생성)
-		List<TojeongResponse.ThisYearLuck.Children.MonthlyLuck.Month> monthList = external.getMonth()
-			.stream()
-			.map(month -> new TojeongResponse.ThisYearLuck.Children.MonthlyLuck.Month(
-				month.getMonth(),  // 1월, 2월 형식으로 label 생성
-				month.getValue()
-			))
+		List<TojeongResponse.ThisYearLuck.Children.MonthlyLuck.Month> monthList = external.getMonth().stream()
+			.map(month -> new TojeongResponse.ThisYearLuck.Children.MonthlyLuck.Month(month.getMonth(),
+				month.getValue()))
 			.toList();
 
 		TojeongResponse.ThisYearLuck.Children.MonthlyLuck monthlyLuck = new TojeongResponse.ThisYearLuck.Children.MonthlyLuck(
@@ -97,7 +96,6 @@ public class TojeongService {
 			monthList
 		);
 
-		// ThisYearLuck 반환
 		return new TojeongResponse.ThisYearLuck(
 			"올해의 운세",
 			List.of(new TojeongResponse.ThisYearLuck.Children(
@@ -138,5 +136,25 @@ public class TojeongService {
 				new TojeongResponse.Wealth.Children.CurrentLuck("현재 재물운", external.getCurrentLuck())
 			))
 		);
+	}
+
+	private <T> T buildSimpleField(String label, String value, Class<T> clazz) {
+		if (value == null)
+			return null;
+
+		try {
+			// Reflection을 사용해 기본 String 기반 생성자 호출
+			return clazz.getConstructor(String.class, String.class).newInstance(label, value);
+		} catch (Exception e) {
+			log.error("Error while building simple field for {}: {}", clazz.getSimpleName(), e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private TojeongResponse.NatureCharacter buildNatureCharacter(String label, String value) {
+		if (value == null)
+			return null;
+
+		return new TojeongResponse.NatureCharacter(label, value);
 	}
 }
