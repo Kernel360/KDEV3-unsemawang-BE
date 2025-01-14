@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fortune.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.palbang.unsemawang.member.dto.SignupExtraInfoDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FortuneInfoRegisterRequestDto {
+public class FortuneInfoRegisterRequest {
 	@Schema(required = true)
 	@NotBlank(message = "memberId는 필수 값입니다.")
 	private String memberId;
@@ -60,4 +61,17 @@ public class FortuneInfoRegisterRequestDto {
 	@NotBlank(message = "solunar는 필수 값입니다.")
 	@Pattern(regexp = "^(solar|lunar)$", message = "solunar는 'solar' 또는 'lunar'만 가능합니다.")
 	private String solunar;
+
+	public static FortuneInfoRegisterRequest from(SignupExtraInfoDto signupExtraInfoDto) {
+		return FortuneInfoRegisterRequest.builder()
+			.memberId(signupExtraInfoDto.getId())
+			.name(signupExtraInfoDto.getNickname())
+			.year(signupExtraInfoDto.getYear())
+			.month(signupExtraInfoDto.getMonth())
+			.day(signupExtraInfoDto.getDay())
+			.hour(signupExtraInfoDto.getHour())
+			.solunar(signupExtraInfoDto.getSolunar())
+			.youn(signupExtraInfoDto.getYoun())
+			.build();
+	}
 }
