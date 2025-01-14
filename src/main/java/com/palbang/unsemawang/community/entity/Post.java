@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
+import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
@@ -92,5 +93,14 @@ public class Post extends BaseEntity {
 	public void deletePost() {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
+	}
+
+	public static Post from(PostRegisterRequest postRegisterRequest) {
+		return Post.builder()
+			.content(postRegisterRequest.getContent())
+			.title(postRegisterRequest.getTitle())
+			.isAnonymous(postRegisterRequest.getIsAnonymous())
+			.communityCategory(postRegisterRequest.getCategory())
+			.build();
 	}
 }
