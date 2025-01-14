@@ -19,6 +19,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	Optional<Member> findByOauthId(@Param("oauthId") String oauthId);
 
 	//닉네임으로 회원 조회
-	@Query("SELECT m FROM Member m WHERE m.nickname = :nickname and m.isDeleted = false")
-	Optional<Member> findByNickname(String nickname);
+	@Query(value = "SELECT * FROM member m WHERE BINARY m.nickname = :nickname AND m.is_deleted = false", nativeQuery = true)
+	Optional<Member> findByNickname(@Param("nickname") String nickname);
+
 }
