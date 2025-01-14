@@ -89,7 +89,7 @@ public class Member extends BaseEntity {
 	private List<Favorite> favorites; // 사용자가 찜한 목록
 
 	// 일반 회원&관리자 전용 컬럼
-	@Column(name = "oauth_id", nullable = false)
+	@Column(name = "oauth_id")
 	private String oauthId; //oauth에게 제공받은 id
 
 	@Column(name = "oauth_provider")
