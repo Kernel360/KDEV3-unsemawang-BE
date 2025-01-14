@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
@@ -21,11 +21,11 @@ import com.palbang.unsemawang.fortune.repository.UserRelationRepository;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
-@SpringBootTest(classes = FortuneInfoRegisterService.class)
+@SpringBootTest(classes = FortuneUserInfoRegisterService.class)
 class FortuneUserInfoRegisterServiceTest {
 
 	@Autowired
-	FortuneInfoRegisterService registerService;
+	FortuneUserInfoRegisterService registerService;
 
 	@MockBean
 	MemberRepository memberRepository;
@@ -40,7 +40,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_성공테스트")
 	void registerSuccess() {
 		// Given
-		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
+		FortuneInfoRegisterRequest fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequest.builder()
 			.memberId("aaa")
 			.relationName("가족")
 			.name("홍길동")
@@ -96,7 +96,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_실패테스트 - 회원 정보 없음")
 	void registerFail_MemberNotFound() {
 		// Given
-		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
+		FortuneInfoRegisterRequest fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequest.builder()
 			.memberId("nonexistent") // 존재하지 않는 회원 ID
 			.relationName("가족")
 			.name("홍길동")
@@ -125,7 +125,7 @@ class FortuneUserInfoRegisterServiceTest {
 	@DisplayName("회원_사주정보_등록_실패테스트 - 관계 정보 없음")
 	void registerFail_RelationNotFound() {
 		// Given
-		FortuneInfoRegisterRequestDto fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequestDto.builder()
+		FortuneInfoRegisterRequest fortuneInfoRegisterRequestDto = FortuneInfoRegisterRequest.builder()
 			.memberId("aaa")
 			.relationName("존재하지 않는 관계") // 존재하지 않는 관계명
 			.name("홍길동")
