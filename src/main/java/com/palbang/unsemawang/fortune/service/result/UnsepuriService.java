@@ -1,11 +1,10 @@
 package com.palbang.unsemawang.fortune.service.result;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.UnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalUnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
@@ -50,49 +49,15 @@ public class UnsepuriService {
 		ExternalUnsepuriResponse.Result result = apiResponse.getResult();
 
 		return new UnsepuriResponse(
-			buildAvoidPeople(result.getAvoidPeople()), // 피해야 할 상대
-			buildCurrentUnsepuri(result.getCurrentUnsepuri()), // 현재 운세 풀이
-			buildLuckElement(result.getLuckElement()) // 행운의 요소
+			buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()), // 피해야 할 상대
+			buildSimpleResponse("현재 운세 풀이", result.getCurrentUnsepuri().getText()), // 현재 운세 풀이
+			buildSimpleResponse("행운의 요소", result.getLuckElement().getText()) // 행운의 요소
 		);
 	}
 
-	// 피해야 할 상대 처리
-	private UnsepuriResponse.AvoidPeople buildAvoidPeople(String avoidPeople) {
-		if (avoidPeople == null)
+	private CommonResponse buildSimpleResponse(String label, String value) {
+		if (value == null)
 			return null;
-
-		return new UnsepuriResponse.AvoidPeople("피해야 할 상대", avoidPeople);
-	}
-
-	// 현재 운세 풀이 처리
-	private UnsepuriResponse.CurrentUnsepuri buildCurrentUnsepuri(ExternalUnsepuriResponse.CurrentUnsepuri external) {
-		if (external == null)
-			return null;
-
-		// children 리스트 생성
-		List<UnsepuriResponse.CurrentUnsepuri.Children> children = List.of(
-			new UnsepuriResponse.CurrentUnsepuri.Children(
-				new UnsepuriResponse.CurrentUnsepuri.Children.Text("풀이 설명", external.getText()),
-				new UnsepuriResponse.CurrentUnsepuri.Children.Value("운세 점수", external.getValue())
-			)
-		);
-
-		return new UnsepuriResponse.CurrentUnsepuri("현재 운세 풀이", children);
-	}
-
-	// 행운의 요소 처리
-	private UnsepuriResponse.LuckElement buildLuckElement(ExternalUnsepuriResponse.LuckElement external) {
-		if (external == null)
-			return null;
-
-		// children 리스트 생성
-		List<UnsepuriResponse.LuckElement.Children> children = List.of(
-			new UnsepuriResponse.LuckElement.Children(
-				new UnsepuriResponse.LuckElement.Children.Text("행운 요소 설명", external.getText()),
-				new UnsepuriResponse.LuckElement.Children.Value("행운 점수", external.getValue())
-			)
-		);
-
-		return new UnsepuriResponse.LuckElement("행운의 요소", children);
+		return new CommonResponse(label, value, null);
 	}
 }

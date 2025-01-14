@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
@@ -51,26 +52,21 @@ public class TodayUnseService {
 		);
 	}
 
-	private TodayUnseResponse.Luck buildLuck(ExternalTodayUnseResponse.Luck externalLuck) {
+	private CommonResponse buildLuck(ExternalTodayUnseResponse.Luck externalLuck) {
 		if (externalLuck == null)
 			return null;
 
 		// `Children` 객체 생성
-		List<TodayUnseResponse.Luck.Children> children = List.of(
-			new TodayUnseResponse.Luck.Children(
-				new TodayUnseResponse.Luck.Children.Total("전체 운세", externalLuck.getTotal()),
-				new TodayUnseResponse.Luck.Children.Love("연애운", externalLuck.getLove()),
-				new TodayUnseResponse.Luck.Children.Hope("소망운", externalLuck.getHope()),
-				new TodayUnseResponse.Luck.Children.Business("사업운", externalLuck.getBusiness()),
-				new TodayUnseResponse.Luck.Children.Direction("방향 운세", externalLuck.getDirection()),
-				new TodayUnseResponse.Luck.Children.Money("재물운", externalLuck.getMoney())
-			)
+		List<CommonResponse> children = List.of(
+			new CommonResponse("전체 운세", externalLuck.getTotal(), null),
+			new CommonResponse("연애운", externalLuck.getLove(), null),
+			new CommonResponse("소망운", externalLuck.getHope(), null),
+			new CommonResponse("사업운", externalLuck.getBusiness(), null),
+			new CommonResponse("방향 운세", externalLuck.getDirection(), null),
+			new CommonResponse("재물운", externalLuck.getMoney(), null)
 		);
 
 		// `Luck` 생성
-		return new TodayUnseResponse.Luck(
-			"오늘의 운세", // label 값 설정
-			children
-		);
+		return new CommonResponse("오늘의 운세", "", children);
 	}
 }
