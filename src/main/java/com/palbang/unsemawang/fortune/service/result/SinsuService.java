@@ -10,14 +10,17 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.SinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalSinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class SinsuService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // REST API 호출
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	// 생성자를 통해 외부 API URL 주입
-	public SinsuService(@Value("${external.api.sinsu.url}") String apiUrl) {
+	public SinsuService(RestTemplate restTemplate, @Value("${external.api.sinsu.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 
@@ -30,7 +33,25 @@ public class SinsuService {
 
 	// 외부 API 호출 메서드
 	private ExternalSinsuResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalSinsuResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalSinsuResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalSinsuResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// API 응답 데이터를 처리하여 SinsuResponse로 변환
