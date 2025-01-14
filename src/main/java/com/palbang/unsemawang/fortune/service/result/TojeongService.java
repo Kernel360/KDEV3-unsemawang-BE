@@ -10,13 +10,17 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class TojeongService {
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public TojeongService(@Value("${external.api.tojeong.url}") String apiUrl) {
+	public TojeongService(RestTemplate restTemplate, @Value("${external.api.tojeong.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 
@@ -27,7 +31,25 @@ public class TojeongService {
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {
-		return restTemplate.postForObject(apiUrl, request, ExternalTojeongResponse.class);
+		try {
+			// 요청 데이터 로그
+			log.info("Requesting external API with data: {}", request);
+
+			// API 호출
+			ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
+				ExternalTojeongResponse.class);
+
+			// 응답 데이터 로그
+			log.info("Received response from external API: {}", response);
+
+			return response;
+
+		} catch (Exception e) {
+			// 예외 발생 시 상세 정보 로깅
+			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
+				e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	private TojeongResponse processApiResponse(ExternalTojeongResponse apiResponse) {

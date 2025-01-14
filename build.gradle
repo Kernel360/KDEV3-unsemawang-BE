@@ -79,14 +79,16 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j:9.1.0'
     runtimeOnly 'com.h2database:h2'
 
-	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     //OAuth2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
+    implementation 'org.apache.httpcomponents.core5:httpcore5:5.2'
 }
 
 tasks.named('test') {
