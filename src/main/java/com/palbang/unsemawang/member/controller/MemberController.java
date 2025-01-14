@@ -1,8 +1,5 @@
 package com.palbang.unsemawang.member.controller;
 
-import java.util.Map;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,8 +7,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.member.dto.SignupExtraInfoDTO;
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.response.Response;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
+import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
+import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
+
+import org.springframework.http.HttpStatus;
 import com.palbang.unsemawang.member.service.MemberService;
+
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberController {
 	private final MemberService memberService;
+	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
 
 	@Operation(
 		summary = "회원 닉네임 중복 체크",
@@ -47,16 +53,19 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	//회원가입 추가정보 입력
+	// 회원 가입 추가정보 입력
 	@PostMapping("/signup/extra-info")
-	public ResponseEntity<Map<String, String>> signupExtraInfo(@RequestBody SignupExtraInfoDTO signupExtraInfoDTO) {
+	public ResponseEntity<Response> signupExtraInfo(@Valid @RequestBody SignupExtraInfoRequest signupExtraInfo) {
 
-		memberService.signupExtraInfo(signupExtraInfoDTO);
+		// 추가 정보 업데이트
+		memberService.signupExtraInfo(signupExtraInfo);
 
-		return ResponseEntity.ok(Map.of(
-			"status", "success",
-			"message", "회원가입 완료."
-		));
+		// 사주 정보 등록
+		fortuneInfoRegisterService.registerFortuneInfo(FortuneInfoRegisterRequest.from(signupExtraInfo));
+
+		return ResponseEntity.ok(
+			Response.success(ResponseCode.SUCCESS_INSERT)
+		);
 	}
 
 }
