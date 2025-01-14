@@ -16,6 +16,8 @@ import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 import org.springframework.http.HttpStatus;
 import com.palbang.unsemawang.member.service.MemberService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "회원")
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -53,6 +56,10 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
+	@Operation(
+		description = "회원가입 과정 중 추가정보 입력을 위한 api 입니다. 쿠키 문제가 해결될 때 까지 요청 body에 회원 ID를 포함해주세요!",
+		summary = "회원가입 - 추가정보 입력"
+	)
 	// 회원 가입 추가정보 입력
 	@PostMapping("/signup/extra-info")
 	public ResponseEntity<Response> signupExtraInfo(@Valid @RequestBody SignupExtraInfoRequest signupExtraInfo) {
