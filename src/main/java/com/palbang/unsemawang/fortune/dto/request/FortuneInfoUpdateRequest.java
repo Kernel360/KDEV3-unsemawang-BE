@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties
-public class FortuneUInfoUpdateRequest {
+public class FortuneInfoUpdateRequest {
 	@Schema(required = true)
 	@NotBlank(message = "memberId는 필수 값입니다.")
 	private String memberId;
