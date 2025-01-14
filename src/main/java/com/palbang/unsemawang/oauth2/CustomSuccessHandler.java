@@ -59,7 +59,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // ResponseCookie 생성 시 SameSite=None 설정
         return ResponseCookie.from(key, value)
                 .path("/")
-                .domain("unsemawang.com/") // 도메인 지정 (필요한 경우 설정)
+                .domain("unsemawang.com") // 도메인 지정 (필요한 경우 설정)
                 .sameSite("None") // SameSite=None 설정
                 .secure(true)     // HTTPS에서만 전송
                 .httpOnly(true)   // JavaScript 접근 불가
