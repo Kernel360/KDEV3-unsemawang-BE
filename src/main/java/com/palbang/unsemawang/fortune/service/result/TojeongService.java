@@ -16,10 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TojeongService {
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public TojeongService(@Value("${external.api.tojeong.url}") String apiUrl) {
+	public TojeongService(RestTemplate restTemplate, @Value("${external.api.tojeong.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 

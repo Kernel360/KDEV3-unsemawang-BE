@@ -1,43 +1,72 @@
 package com.palbang.unsemawang.fortune.config;
 
-import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import javax.net.ssl.SSLContext;
+
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class RestTemplateConfig {
 
-	private static final Logger log = LoggerFactory.getLogger(RestTemplateConfig.class);
-
+	// HttpClient 구성
 	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
-		return restTemplateBuilder
-			.additionalInterceptors(logRequestResponseInterceptor()) // Interceptor 추가
+	public CloseableHttpClient httpClient() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+		// 모든 인증서를 신뢰하도록 TrustStrategy 설정
+		TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+
+		// SSLContext 설정
+		SSLContext sslContext = SSLContexts.custom()
+			.loadTrustMaterial(null, acceptingTrustStrategy)
+			.build();
+
+		// SSLConnectionSocketFactory 설정
+		SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+			sslContext, NoopHostnameVerifier.INSTANCE);
+
+		// 소켓 팩토리 레지스트리 구성
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+			.register("https", sslSocketFactory)
+			.register("http", new PlainConnectionSocketFactory())
+			.build();
+
+		// 연결 풀 관리
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
+			socketFactoryRegistry);
+
+		// HttpClient 생성
+		return HttpClients.custom()
+			.setConnectionManager(connectionManager)
 			.build();
 	}
 
-	private ClientHttpRequestInterceptor logRequestResponseInterceptor() {
-		return (request, body, execution) -> {
-			// 요청 정보 로깅
-			log.debug("Request URI: {}", request.getURI());
-			log.debug("Request Method: {}", request.getMethod());
-			log.debug("Request Headers: {}", request.getHeaders());
-			log.debug("Request Body: {}", new String(body, StandardCharsets.UTF_8));
+	// HttpComponentsClientHttpRequestFactory 구성
+	@Bean
+	public HttpComponentsClientHttpRequestFactory factory(CloseableHttpClient httpClient) {
+		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+		factory.setConnectTimeout(3000); // 연결 타임아웃 설정
+		return factory;
+	}
 
-			// 응답 처리
-			var response = execution.execute(request, body);
-
-			// 응답 정보 로깅
-			log.debug("Response Status Code: {}", response.getStatusCode());
-			log.debug("Response Headers: {}", response.getHeaders());
-
-			return response;
-		};
+	// RestTemplate 구성
+	@Bean
+	public RestTemplate restTemplate(HttpComponentsClientHttpRequestFactory factory) {
+		return new RestTemplate(factory);
 	}
 }

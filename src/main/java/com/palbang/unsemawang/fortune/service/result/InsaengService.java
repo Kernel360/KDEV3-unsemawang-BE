@@ -16,10 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class InsaengService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // API 호출용
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public InsaengService(@Value("${external.api.insaeng.url}") String apiUrl) {
+	public InsaengService(RestTemplate restTemplate, @Value("${external.api.insaeng.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 

@@ -14,10 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class GunghapService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // REST API 호출용
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public GunghapService(@Value("${external.api.gunghap.url}") String apiUrl) {
+	public GunghapService(RestTemplate restTemplate, @Value("${external.api.gunghap.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 

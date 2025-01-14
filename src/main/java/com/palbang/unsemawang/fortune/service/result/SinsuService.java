@@ -16,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SinsuService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // REST API 호출
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	// 생성자를 통해 외부 API URL 주입
-	public SinsuService(@Value("${external.api.sinsu.url}") String apiUrl) {
+	public SinsuService(RestTemplate restTemplate, @Value("${external.api.sinsu.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 

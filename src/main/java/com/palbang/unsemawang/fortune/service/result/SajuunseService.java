@@ -16,10 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SajuunseService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // 외부 API 호출용
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public SajuunseService(@Value("${external.api.sajuunse.url}") String apiUrl) {
+	public SajuunseService(RestTemplate restTemplate, @Value("${external.api.sajuunse.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 

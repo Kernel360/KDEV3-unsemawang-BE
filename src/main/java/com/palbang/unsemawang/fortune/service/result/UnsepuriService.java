@@ -14,10 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class UnsepuriService {
 
-	private final RestTemplate restTemplate = new RestTemplate(); // REST API 호출
+	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
 	private final String apiUrl;
 
-	public UnsepuriService(@Value("${external.api.unsepuri.url}") String apiUrl) {
+	public UnsepuriService(RestTemplate restTemplate, @Value("${external.api.unsepuri.url}") String apiUrl) {
+		this.restTemplate = restTemplate;
 		this.apiUrl = apiUrl;
 	}
 
