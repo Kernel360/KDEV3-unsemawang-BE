@@ -29,6 +29,7 @@ public class PostService {
 
 		// 1. 게시글 등록
 		Post post = Post.from(postRegisterRequest);
+		post.updateMember(member);
 		Post savedPost = postRepository.save(post);
 
 		// 2. 저장이 안됐다면 예외 발생
