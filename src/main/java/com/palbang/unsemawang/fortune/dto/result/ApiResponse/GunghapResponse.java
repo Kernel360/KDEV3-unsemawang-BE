@@ -12,57 +12,17 @@ import lombok.NoArgsConstructor;
 public class GunghapResponse {
 	// 속궁합
 	@Schema(required = true)
-	private InnerGunghap innerGunghap;
+	private CommonResponse innerGunghap;
 
 	// 남여 운명
 	@Schema(required = true)
-	private ManFemaleFate manFemaleFate;
+	private CommonResponse manFemaleFate;
 
 	// 겉궁합
 	@Schema(required = true)
-	private OuterGunghap outerGunghap;
+	private CommonResponse outerGunghap;
 
 	// 타입 분석
 	@Schema(required = true)
-	private TypeAnalysis typeAnalysis;
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class InnerGunghap {
-		@Schema(required = true)
-		private String label;
-		@Schema(required = true)
-		private String value;
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class ManFemaleFate {
-		@Schema(required = true)
-		private String label;
-		@Schema(required = true)
-		private String value;
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class OuterGunghap {
-		@Schema(required = true)
-		private String label;
-		@Schema(required = true)
-		private String value;
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class TypeAnalysis {
-		@Schema(required = true)
-		private String label;
-		@Schema(required = true)
-		private String value;
-	}
+	private CommonResponse typeAnalysis;
 }
