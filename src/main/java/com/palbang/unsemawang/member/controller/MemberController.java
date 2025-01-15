@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.member.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,15 +14,18 @@ import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 import com.palbang.unsemawang.member.service.MemberService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "회원")
+@SecurityRequirement(name = "JWT_COOKIE_AUTH")
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -58,7 +62,12 @@ public class MemberController {
 	)
 	// 회원 가입 추가정보 입력
 	@PostMapping("/signup/extra-info")
-	public ResponseEntity<Response> signupExtraInfo(@Valid @RequestBody SignupExtraInfoRequest signupExtraInfo) {
+	public ResponseEntity<Response> signupExtraInfo(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@Valid @RequestBody SignupExtraInfoRequest signupExtraInfo
+	) {
+		// 인증 객체로부터 회원 id 값 가져와 세팅
+		signupExtraInfo.updateMemberId(auth.getId());
 
 		// 추가 정보 업데이트
 		memberService.signupExtraInfo(signupExtraInfo);
