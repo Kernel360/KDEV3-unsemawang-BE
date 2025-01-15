@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,8 +30,7 @@ public class GunghapApiRequest {
 	@NoArgsConstructor
 	public static class UserInfoDto {
 
-		@Schema(description = "사용자 이름", example = "이몽룡", required = true)
-		@NotBlank(message = "name must not be empty")
+		@Schema(description = "사용자 이름", example = "이몽룡", required = false)
 		private String name;
 
 		@Schema(description = "성별", example = "남", required = true)
@@ -41,7 +39,7 @@ public class GunghapApiRequest {
 
 		@Schema(description = "출생 연도", example = "1990", required = true)
 		@Min(value = 1, message = "year must not be less than 1")
-		@Max(value = Integer.MAX_VALUE, message = "year must not exceed maximum integer value")
+		@Max(value = 2100, message = "year must not be less than 2100")
 		private int year;
 
 		@Schema(description = "출생 월", example = "3", required = true)

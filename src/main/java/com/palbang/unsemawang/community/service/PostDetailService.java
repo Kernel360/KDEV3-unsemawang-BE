@@ -8,15 +8,13 @@ import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class PostDetailService {
 
 	private final PostRepository postRepository;
-
-	// PostRepository를 생성자 주입
-	public PostDetailService(PostRepository postRepository) {
-		this.postRepository = postRepository;
-	}
 
 	// getPostDetail 메서드 구현
 	public PostDetailResponse getPostDetail(Long postId) {

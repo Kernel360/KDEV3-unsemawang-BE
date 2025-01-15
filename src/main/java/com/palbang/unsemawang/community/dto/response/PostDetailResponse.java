@@ -28,7 +28,7 @@ public class PostDetailResponse {
 	@Schema(description = "작성자 이름 (익명일 경우 '익명')", required = true, example = "작성자 이름")
 	private String author;
 
-	@Schema(description = "익명 여부", required = true, example = "false")
+	@Schema(description = "익명 여부(익명 O : true / 익명 X : false)", required = true, example = "false")
 	private Boolean isAnonymous;
 
 	@Schema(description = "조회수", required = true, example = "123")
