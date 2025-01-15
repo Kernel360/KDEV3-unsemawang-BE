@@ -28,7 +28,7 @@ public class SajuunseController {
 
 	@Operation(summary = "사주 운세 API")
 	@PostMapping
-	public ResponseEntity<Object> SajuunseApiHandler(
+	public ResponseEntity<SajuunseResponse> SajuunseApiHandler(
 		@Valid @RequestBody FortuneApiRequest request,
 		@RequestParam(required = false) String field) {
 
@@ -40,28 +40,26 @@ public class SajuunseController {
 		// 응답 데이터 로깅
 		log.info("Responding with data for Sajuunse API: {}", response);
 
-		// 조건별 필드 반환
-		switch (field != null ? field.toLowerCase() : "all") {
-			case "bornseasonluck":
-				return ResponseEntity.ok(response.getBornSeasonLuck());
-			case "luck":
-				return ResponseEntity.ok(response.getLuck());
-			case "naturecharacter":
-				return ResponseEntity.ok(response.getNatureCharacter());
-			case "socialcharacter":
-				return ResponseEntity.ok(response.getSocialCharacter());
-			case "socialpersonality":
-				return ResponseEntity.ok(response.getSocialPersonality());
-			case "avoidpeople":
-				return ResponseEntity.ok(response.getAvoidPeople());
-			case "currentluckanalysis":
-				return ResponseEntity.ok(response.getCurrentLuckAnalysis());
-			default:
-				// 쿼리 파라미터가 없거나 잘못된 경우, 전체 반환
-				return ResponseEntity.ok(response);
-		}
+		// 성공 응답 반환
+		return ResponseEntity.ok(response);
 	}
 
+	// 	// 조건별 필드 반환
+	// 	switch (field != null ? field.toLowerCase() : "all") {
+	// 	case "bornseasonluck":
+	// 		return ResponseEntity.ok(response.getBornSeasonLuck());
+	// 	case "luck":
+	// 		return ResponseEntity.ok(response.getLuck());
+	// 	case "naturecharacter":
+	// 		return ResponseEntity.ok(response.getNatureCharacter());
+	// 	case "socialcharacter":
+	// 		return ResponseEntity.ok(response.getSocialCharacter());
+	// 	case "socialpersonality":
+	// 		return ResponseEntity.ok(response.getSocialPersonality());
+	// 	case "avoidpeople":
+	// 		return ResponseEntity.ok(response.getAvoidPeople());
+	// 	case "currentluckanalysis":
+	// 		return ResponseEntity.ok(response.getCurrentLuckAnalysis());
 	// 	default:
 	// 		// 쿼리 파라미터가 없거나 잘못된 경우, 예외 발생
 	// 		throw new IllegalArgumentException();

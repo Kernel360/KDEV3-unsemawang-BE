@@ -52,6 +52,7 @@ dependencies {
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
@@ -87,6 +88,7 @@ dependencies {
     //OAuth2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    // Apache 5.2
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
     implementation 'org.apache.httpcomponents.core5:httpcore5:5.2'
 }

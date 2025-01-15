@@ -11,13 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
 import com.palbang.unsemawang.member.entity.Member;
-
-import jakarta.persistence.EntityNotFoundException;
 
 class PostDetailServiceTest {
 
@@ -86,7 +85,7 @@ class PostDetailServiceTest {
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
 		// when
-		Exception exception = assertThrows(EntityNotFoundException.class, () ->
+		Exception exception = assertThrows(GeneralException.class, () ->
 			postDetailService.getPostDetail(1L));
 
 		// then
