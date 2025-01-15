@@ -22,6 +22,7 @@ public enum ResponseCode implements Codable {
 	DEFAULT_OK("0000", HttpStatus.OK, "Ok"),
 
 	DEFAULT_BAD_REQUEST("4000", HttpStatus.BAD_REQUEST, "잘못된 요청입니다. 요청을 확인해주세요."),
+	RESOURCE_NOT_FOUND("4040", HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 
 	// 서버 오류 (500번대 서버 오류, 500 Internal Server Error)
 	DEFAULT_INTERNAL_SERVER_ERROR("5000", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류 발생"),

@@ -2,11 +2,11 @@ package com.palbang.unsemawang.community.service;
 
 import org.springframework.stereotype.Service;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
-
-import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class PostDetailService {
@@ -21,7 +21,7 @@ public class PostDetailService {
 	// getPostDetail 메서드 구현
 	public PostDetailResponse getPostDetail(Long postId) {
 		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND, "게시글을 찾을 수 없습니다."));
 
 		return PostDetailResponse.builder()
 			.id(post.getId())
