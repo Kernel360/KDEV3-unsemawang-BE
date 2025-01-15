@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,8 +30,7 @@ public class GunghapApiRequest {
 	@NoArgsConstructor
 	public static class UserInfoDto {
 
-		@Schema(description = "사용자 이름", example = "이몽룡", required = true)
-		@NotBlank(message = "name must not be empty")
+		@Schema(description = "사용자 이름", example = "이몽룡", required = false)
 		private String name;
 
 		@Schema(description = "성별", example = "남", required = true)

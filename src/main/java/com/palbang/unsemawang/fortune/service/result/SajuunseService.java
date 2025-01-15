@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SajuunseService {
 
-	private final RestTemplate restTemplate; // 인증서 무시 설정이 적용된 RestTemplate
+	private final RestTemplate restTemplate;
 	private final String apiUrl;
 
 	public SajuunseService(RestTemplate restTemplate, @Value("${external.api.sajuunse.url}") String apiUrl) {

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,8 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Schema(description = "운세 요청 객체")
 public class FortuneApiRequest {
-	@Schema(description = "사용자 이름", example = "홍길동", required = true)
-	@NotBlank(message = "name must not be empty")
+	@Schema(description = "사용자 이름", example = "홍길동", required = false)
 	private String name;
 
 	@Schema(description = "성별", example = "남", required = true)
