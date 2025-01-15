@@ -95,6 +95,10 @@ public class Post extends BaseEntity {
 		this.deletedAt = LocalDateTime.now();
 	}
 
+	public void updateMember(Member member) {
+		this.member = member;
+	}
+
 	public static Post from(PostRegisterRequest postRegisterRequest) {
 		return Post.builder()
 			.content(postRegisterRequest.getContent())
