@@ -18,14 +18,12 @@ import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "회원")
-@SecurityRequirement(name = "JWT_COOKIE_AUTH")
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -57,7 +55,7 @@ public class MemberController {
 	}
 
 	@Operation(
-		description = "회원가입 과정 중 추가정보 입력을 위한 api 입니다. 쿠키 문제가 해결될 때 까지 요청 body에 회원 ID를 포함해주세요!",
+		description = "회원가입 과정 중 추가정보 입력을 위한 api 입니다. 인증 토큰이 담긴 쿠키를 직접 보내셔야 테스트가 가능합니다!",
 		summary = "회원가입 - 추가정보 입력"
 	)
 	// 회원 가입 추가정보 입력
