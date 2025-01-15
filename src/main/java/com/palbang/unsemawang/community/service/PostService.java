@@ -9,6 +9,8 @@ import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
+import com.palbang.unsemawang.member.entity.Member;
+import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,9 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
+	private final MemberRepository memberRepository;
 
 	@Transactional(rollbackFor = Exception.class)
 	public PostRegisterResponse register(PostRegisterRequest postRegisterRequest) {
+
+		// 0. 유효한 회원인지 확인
+		Member member = memberRepository.findById(postRegisterRequest.getMemberId())
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않은 회원 ID 입니다"));
 
 		// 1. 게시글 등록
 		Post post = Post.from(postRegisterRequest);
