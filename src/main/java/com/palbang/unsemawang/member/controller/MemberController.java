@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.member.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +40,7 @@ public class MemberController {
 		}
 	)
 	@GetMapping("/check-nickname")
-	public ResponseEntity<Void> checkNickname(
+	public ResponseEntity<Response> checkNickname(
 		@Pattern(
 			regexp = "^[A-Za-z\\d가-힣_]{2,15}$",
 			message = "닉네임은 2~15자 이내의 문자(한글, 영어 대소문자, 숫자, 언더바)여야 합니다."
@@ -50,7 +49,9 @@ public class MemberController {
 
 		memberService.duplicateNicknameCheck(nickname);
 
-		return ResponseEntity.status(HttpStatus.OK).build();
+		return ResponseEntity.ok(
+			Response.success(ResponseCode.SUCCESS_REQUEST)
+		);
 	}
 
 	@Operation(
