@@ -80,7 +80,9 @@ public class Member extends BaseEntity {
 	@Column(name = "memberStatus")
 	public MemberStatus memberStatus; //계정상태
 
-	private Boolean isDeleted;
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean isDeleted = false;
 
 	private LocalDateTime deletedAt;
 
