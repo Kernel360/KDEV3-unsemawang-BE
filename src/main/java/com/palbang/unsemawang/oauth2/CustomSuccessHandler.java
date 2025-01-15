@@ -38,18 +38,21 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String email = customOAuth2User.getEmail();
         String token = jwtUtil.createJTwt(id,email,role,60*60*60L);
 
-        //response.addCookie(createCookie("Authorization", token));
+        //response.addCookie(createCookie("Authorization2", token));
         // ResponseCookie 추가
         ResponseCookie responseCookie = createResponseCookie("Authorization", token, 60 * 60 * 60);
-
+        //response.setHeader("Set-Cookie", responseCookie.toString());
+        response.addHeader("Set-Cookie",responseCookie.toString());
+        //response.sendRedirect("https://dev.unsemawang.com");
         response.sendRedirect("https://www.unsemawang.com/signup");
         //response.sendRedirect("http://localhost:8080/join");
     }
     private Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(60*60*60);
-        //cookie.setSecure(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
+        cookie.setDomain("unsemawang.com");
         cookie.setHttpOnly(true);
 
         return cookie;

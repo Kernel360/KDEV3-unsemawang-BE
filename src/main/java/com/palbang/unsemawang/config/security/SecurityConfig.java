@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -32,10 +33,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("https://www.unsemawang.com"); // 허용할 도메인
+        configuration.addAllowedOrigin("https://dev.unsemawang.com"); // 허용할 도메인
+        configuration.addAllowedOrigin("http://localhost:8080");
         configuration.setAllowCredentials(true); // 쿠키 전송 허용
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.addExposedHeader("Set-Cookie"); // 클라이언트에서 쿠키 확인 가능
+        configuration.addExposedHeader("Authorization"); // 클라이언트에서 쿠키 확인 가능
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // 모든 경로에 CORS 설정 적용
         return source;
@@ -46,7 +51,7 @@ public class SecurityConfig {
         //csrf disable
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf((auth) -> auth.disable());
 
         //기본 Form 로그인 방식 disable
@@ -59,6 +64,7 @@ public class SecurityConfig {
 
         //JWTFilter 추가
         http
+                .addFilterBefore(corsFilter(), OAuth2LoginAuthenticationFilter.class) // CORS 필터 추가
                 .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
         //oauth2
@@ -93,6 +99,11 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        return new CorsFilter(corsConfigurationSource()); // CorsConfigurationSource를 기반으로 CorsFilter 생성
     }
 
 }
