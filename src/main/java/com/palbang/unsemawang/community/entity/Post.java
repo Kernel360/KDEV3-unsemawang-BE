@@ -116,4 +116,16 @@ public class Post extends BaseEntity {
 			.communityCategory(postRegisterRequest.getCategory())
 			.build();
 	}
+
+	public void increaseViewCount() {
+		this.viewCount += 1;
+	}
+
+	public void increaseLikeCount() {
+		this.likeCount += 1;
+	}
+
+	public void increaseCommentCount() {
+		this.commentCount += 1;
+	}
 }

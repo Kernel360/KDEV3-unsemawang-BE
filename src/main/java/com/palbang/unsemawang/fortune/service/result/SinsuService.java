@@ -33,16 +33,10 @@ public class SinsuService {
 
 	// 외부 API 호출 메서드
 	private ExternalSinsuResponse callExternalApi(FortuneApiRequest request) {
-		try {
-			log.info("Requesting external API with data: {}", request);
-			ExternalSinsuResponse response = restTemplate.postForObject(apiUrl, request, ExternalSinsuResponse.class);
-			log.info("Received response from external API: {}", response);
-			return response;
-		} catch (Exception e) {
-			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
-				e.getMessage(), e);
-			throw e;
-		}
+		ExternalSinsuResponse response = restTemplate.postForObject(apiUrl, request,
+			ExternalSinsuResponse.class);
+
+		return response;
 	}
 
 	// API 응답 데이터를 처리

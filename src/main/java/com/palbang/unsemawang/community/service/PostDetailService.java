@@ -8,6 +8,7 @@ import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,11 +17,24 @@ public class PostDetailService {
 
 	private final PostRepository postRepository;
 
-	// getPostDetail 메서드 구현
+	@Transactional
 	public PostDetailResponse getPostDetail(Long postId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND, "게시글을 찾을 수 없습니다."));
 
+		handleViewCount(post);
+
+		return toResponseDto(post);
+	}
+
+	// 조회수 증가
+	private void handleViewCount(Post post) {
+		post.increaseViewCount();
+		postRepository.save(post);
+	}
+
+	// Dto 컨버터
+	private PostDetailResponse toResponseDto(Post post) {
 		return PostDetailResponse.builder()
 			.id(post.getId())
 			.title(post.getTitle())

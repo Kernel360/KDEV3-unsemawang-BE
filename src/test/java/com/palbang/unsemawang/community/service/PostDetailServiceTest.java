@@ -68,15 +68,32 @@ class PostDetailServiceTest {
 		assertEquals("테스트 게시글 내용", response.getContent());
 		assertEquals("테스트 작성자", response.getAuthor());
 		assertFalse(response.getIsAnonymous());
-		assertEquals(123, response.getViewCount());
+		assertEquals(124, response.getViewCount()); // 기존 조회수를 검사
 		assertEquals(10, response.getLikeCount());
 		assertEquals(5, response.getCommentCount());
 		assertEquals(CommunityCategory.FREE_BOARD, response.getCommunityCategory());
 		assertEquals(java.time.LocalDateTime.of(2023, 12, 1, 10, 0), response.getPostedAt());
 		assertEquals(java.time.LocalDateTime.of(2023, 12, 2, 10, 0), response.getLastUpdatedAt());
 
-		// verify
+		// verify - 필수 메서드들이 호출되었는지 확인
 		verify(postRepository, times(1)).findById(1L);
+		verify(postRepository, times(1)).save(post); // handleViewCount가 호출되었는지 확인
+	}
+
+	@Test
+	void testGetPostDetail_ViewCountIncreased() {
+		// given
+		when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+
+		// when
+		postDetailService.getPostDetail(1L);
+
+		// then
+		// 조회수가 증가했는지 확인
+		assertEquals(124, post.getViewCount());
+
+		// verify - 조회수 증가를 저장했는지 확인
+		verify(postRepository, times(1)).save(post);
 	}
 
 	@Test
@@ -85,13 +102,13 @@ class PostDetailServiceTest {
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
 		// when
-		Exception exception = assertThrows(GeneralException.class, () ->
-			postDetailService.getPostDetail(1L));
+		Exception exception = assertThrows(GeneralException.class, () -> postDetailService.getPostDetail(1L));
 
 		// then
 		assertEquals("게시글을 찾을 수 없습니다.", exception.getMessage());
 
 		// verify
 		verify(postRepository, times(1)).findById(1L);
+		verify(postRepository, times(0)).save(any(Post.class)); // save는 호출되지 않아야 함
 	}
 }
