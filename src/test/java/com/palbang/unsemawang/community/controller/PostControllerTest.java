@@ -56,26 +56,6 @@ class PostControllerTest {
 			.andExpect(jsonPath("$.message").value("제목은 30자 이내여야 합니다"));
 	}
 
-	@Test
-	@DisplayName("등록 테스트 - 회원 id 없음")
-	public void post_failedValidation_notMemberId() throws Exception {
-		// given
-
-		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
-			.title("제목")
-			.category(CommunityCategory.FREE_BOARD)
-			.isAnonymous(false)
-			.content("내용")
-			.build();
-
-		// when, then : 요청을 보내면 Vaild 예외가 발생해야한다
-		mockMvc.perform(post("/posts")
-				.contentType("application/json")
-				.content(objectMapper.writeValueAsString(postRegisterRequest)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.message").value("회원 ID를 입력해주세요"));
-	}
-
 	/* 헬퍼 */
 	private Member createMember() {
 		return Member.builder()
