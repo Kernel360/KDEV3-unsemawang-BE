@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.service.PostService;
+import com.palbang.unsemawang.member.constant.MemberRole;
+import com.palbang.unsemawang.member.entity.Member;
 
 @WebMvcTest(
 	controllers = PostController.class,
@@ -34,13 +36,16 @@ class PostControllerTest {
 
 	@Test
 	@DisplayName("등록 테스트 - 제목 글자 수 초과")
-	public void post_failedValidation() throws Exception {
+	public void post_failedValidation_titleSize() throws Exception {
 		// given
+		Member member = createMember();
+
 		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
 			.title("제목이란다라림쥐안녕하세요30자넘기기위해서제가이렇게노력하는모습을봐주세요로로라리리이히히히힣히히힣ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ")
 			.category(CommunityCategory.FREE_BOARD)
 			.isAnonymous(false)
 			.content("hello")
+			.memberId(member.getId())
 			.build();
 
 		// when, then : 요청을 보내면 Vaild 예외가 발생해야한다
@@ -49,5 +54,35 @@ class PostControllerTest {
 				.content(objectMapper.writeValueAsString(postRegisterRequest)))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("제목은 30자 이내여야 합니다"));
+	}
+
+	@Test
+	@DisplayName("등록 테스트 - 회원 id 없음")
+	public void post_failedValidation_notMemberId() throws Exception {
+		// given
+
+		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
+			.title("제목")
+			.category(CommunityCategory.FREE_BOARD)
+			.isAnonymous(false)
+			.content("내용")
+			.build();
+
+		// when, then : 요청을 보내면 Vaild 예외가 발생해야한다
+		mockMvc.perform(post("/posts")
+				.contentType("application/json")
+				.content(objectMapper.writeValueAsString(postRegisterRequest)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("회원 ID를 입력해주세요"));
+	}
+
+	/* 헬퍼 */
+	private Member createMember() {
+		return Member.builder()
+			.id("test-user")
+			.role(MemberRole.GENERAL)
+			.email("test@unsemawang.com")
+			.isJoin(true)
+			.build();
 	}
 }

@@ -3,6 +3,8 @@ package com.palbang.unsemawang.community.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
+import com.palbang.unsemawang.member.constant.MemberRole;
+import com.palbang.unsemawang.member.entity.Member;
+import com.palbang.unsemawang.member.repository.MemberRepository;
 
 @SpringBootTest(classes = PostService.class)
 class PostServiceTest {
@@ -25,15 +30,22 @@ class PostServiceTest {
 	@MockBean
 	private PostRepository postRepository;
 
+	@MockBean
+	private MemberRepository memberRepository;
+
 	@Test
 	@DisplayName(value = "게시글 등록 - 모든 값이 정상적으로 들어온 경우")
 	public void postRegisterTest() {
 		// given
+
+		Member member = createMember();
+
 		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
 			.title("test-title")
 			.category(CommunityCategory.FREE_BOARD)
 			.content("test-content")
 			.isAnonymous(false)
+			.memberId(member.getId())
 			.build();
 
 		Post post = Post.builder()
@@ -42,9 +54,11 @@ class PostServiceTest {
 			.title(postRegisterRequest.getTitle())
 			.content(postRegisterRequest.getContent())
 			.isAnonymous(postRegisterRequest.getIsAnonymous())
+			.member(member)
 			.build();
 
 		// when
+		when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 		when(postRepository.save(any(Post.class))).thenReturn(post);
 
 		// then
@@ -58,10 +72,12 @@ class PostServiceTest {
 	@DisplayName(value = "게시글 등록 - 저장이 안됐을 경우")
 	public void postRegisterTest_saveFailure() {
 		// given
+		Member member = createMember();
 		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
 			.category(CommunityCategory.FREE_BOARD)
 			.content("test-content")
 			.isAnonymous(false)
+			.memberId(member.getId())
 			.build();
 
 		Post post = Post.builder()
@@ -72,12 +88,43 @@ class PostServiceTest {
 			.build();
 
 		// when
+		when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 		when(postRepository.save(any(Post.class))).thenReturn(post);
 
 		// then
 		assertThrows(GeneralException.class, () -> postService.register(postRegisterRequest));
 
 		verify(postRepository, times(1)).save(any());
+	}
+
+	@Test
+	@DisplayName(value = "게시글 등록 - 존재하지 않는 회원일 경우")
+	public void postRegisterTest_notExistMember() {
+		// given
+		String memberId = "not-exist-member";
+		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
+			.title("test-title")
+			.category(CommunityCategory.FREE_BOARD)
+			.content("test-content")
+			.isAnonymous(false)
+			.memberId(memberId)
+			.build();
+
+		when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+		assertThrows(GeneralException.class, () -> postService.register(postRegisterRequest));
+
+		verify(memberRepository, times(1)).findById(memberId);
+		verify(postRepository, times(0)).save(any());
+	}
+
+	/* 헬퍼 */
+	private Member createMember() {
+		return Member.builder()
+			.id("test-user")
+			.role(MemberRole.GENERAL)
+			.email("test@unsemawang.com")
+			.isJoin(true)
+			.build();
 	}
 
 }
