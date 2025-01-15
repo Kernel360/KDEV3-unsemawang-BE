@@ -2,6 +2,8 @@ package com.palbang.unsemawang.member.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -20,9 +22,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignupExtraInfoRequest {
 
-	@Schema(description = "회원 ID(쿠키 문제 해결 후 사라질 예정)")
-	@NotBlank(message = "아이디를 입력해 주세요")
-	private String id;
+	@JsonIgnore
+	String id;
 
 	@Schema(description = "닉네임")
 	@NotBlank
@@ -78,6 +79,7 @@ public class SignupExtraInfoRequest {
 	@Max(value = 1, message = "평달(1) 또는 윤달(0)을 입력해 주세요")
 	private Integer youn; //윤달여부?
 
+	/* 검증 */
 	@AssertTrue(message = "생시는 반드시 다음 숫자만 입력되어야 합니다: 0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22")
 	private boolean isValidHour() {
 		return List.of(0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22).contains(hour);
@@ -101,4 +103,7 @@ public class SignupExtraInfoRequest {
 		return this.day >= 1 && this.day <= daysInMonth[this.month - 1];
 	}
 
+	public void updateMemberId(String id) {
+		this.id = id;
+	}
 }
