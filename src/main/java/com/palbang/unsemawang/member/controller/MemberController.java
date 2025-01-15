@@ -40,7 +40,7 @@ public class MemberController {
 		}
 	)
 	@GetMapping("/check-nickname")
-	public ResponseEntity<Response> checkNickname(
+	public ResponseEntity<Void> checkNickname(
 		@Pattern(
 			regexp = "^[A-Za-z\\d가-힣_]{2,15}$",
 			message = "닉네임은 2~15자 이내의 문자(한글, 영어 대소문자, 숫자, 언더바)여야 합니다."
@@ -49,9 +49,7 @@ public class MemberController {
 
 		memberService.duplicateNicknameCheck(nickname);
 
-		return ResponseEntity.ok(
-			Response.success(ResponseCode.SUCCESS_REQUEST)
-		);
+		return ResponseEntity.ok().build();
 	}
 
 	@Operation(
