@@ -55,7 +55,7 @@ public enum ResponseCode implements Codable {
 	NOT_SUPPORT_PHONE_FORMAT("6216", HttpStatus.BAD_REQUEST, "지원하지 않는 연락처 형식"),
 	MIN_VALUE("6221", HttpStatus.BAD_REQUEST, "최소 값 기준치 미달"),
 	MAX_VALUE("6222", HttpStatus.BAD_REQUEST, "최대 값 기준치 초과"),
-	DUPLICATED_VALUE("6223", HttpStatus.CONFLICT, "중복값 존재"),
+	DUPLICATED_VALUE("6223", HttpStatus.CONFLICT, "이미 사용 중인 닉네임 입니다."),
 
 	// 유효성 검사 오류 (값: 63xx)
 	EMPTY_PARAM_BLANK_OR_NULL("6300", HttpStatus.BAD_REQUEST, "Request Parameter 빈 값, NULL 또는 공백"),
