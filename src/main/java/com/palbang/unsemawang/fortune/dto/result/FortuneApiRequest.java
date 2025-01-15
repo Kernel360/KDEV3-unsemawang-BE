@@ -25,7 +25,7 @@ public class FortuneApiRequest {
 
 	@Schema(description = "출생 연도", example = "1990", required = true)
 	@Min(value = 1, message = "year must not be less than 1")
-	@Max(value = Integer.MAX_VALUE, message = "year must not exceed maximum integer value")
+	@Max(value = 2100, message = "year must not be less than 2100")
 	private int year;
 
 	@Schema(description = "출생 월", example = "3", required = true)
