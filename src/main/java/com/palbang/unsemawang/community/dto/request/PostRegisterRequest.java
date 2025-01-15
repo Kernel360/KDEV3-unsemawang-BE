@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostRegisterRequest {
 
-	@NotBlank(message = "회원 ID를 입력해주세요")
+	@JsonIgnore
 	private String memberId;
 
 	@NotBlank(message = "제목을 입력해 주세요")
@@ -36,5 +37,9 @@ public class PostRegisterRequest {
 
 	@NotNull(message = "익명 여부를 입력해 주세요")
 	private Boolean isAnonymous;
+
+	public void updateMemberId(String memberId) {
+		this.memberId = memberId;
+	}
 
 }
