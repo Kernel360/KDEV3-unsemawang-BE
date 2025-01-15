@@ -20,6 +20,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostRegisterRequest {
 
+	@NotBlank(message = "회원 ID를 입력해주세요")
+	private String memberId;
+
 	@NotBlank(message = "제목을 입력해 주세요")
 	@Size(min = 1, max = 30, message = "제목은 30자 이내여야 합니다")
 	private String title;
