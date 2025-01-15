@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class FortuneInfoRegisterService {
+public class FortuneUserInfoRegisterService {
 
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
 	private final MemberRepository memberRepository;
@@ -30,7 +30,7 @@ public class FortuneInfoRegisterService {
 	/**
 	 * 사주정보 등록
 	 */
-	public FortuneInfoRegisterResponseDto registerFortuneInfo(FortuneInfoRegisterRequestDto dto) {
+	public FortuneInfoRegisterResponseDto registerFortuneInfo(FortuneInfoRegisterRequest dto) {
 		// 1. Member 조회
 		Member member = null;
 		if (dto.getMemberId() != null) {

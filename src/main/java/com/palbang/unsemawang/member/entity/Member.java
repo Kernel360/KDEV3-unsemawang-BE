@@ -9,6 +9,7 @@ import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.constant.MemberStatus;
 import com.palbang.unsemawang.member.constant.OauthProvider;
+import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -89,7 +90,7 @@ public class Member extends BaseEntity {
 	private List<Favorite> favorites; // 사용자가 찜한 목록
 
 	// 일반 회원&관리자 전용 컬럼
-	@Column(name = "oauth_id", nullable = false)
+	@Column(name = "oauth_id")
 	private String oauthId; //oauth에게 제공받은 id
 
 	@Column(name = "oauth_provider")
@@ -115,4 +116,10 @@ public class Member extends BaseEntity {
 
 	@OneToMany(mappedBy = "target", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Favorite> favoritedBy; // 사용자가 찜받은 목록
+
+	public void updateExtraInfo(SignupExtraInfoRequest signupExtraInfoDto) {
+		this.phoneNumber = signupExtraInfoDto.getPhone();
+		this.nickname = signupExtraInfoDto.getNickname();
+		this.changedAt = LocalDateTime.now();
+	}
 }

@@ -8,25 +8,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
-import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
+import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 
-@SpringBootTest()
-@AutoConfigureMockMvc(addFilters = false) // Security 필터 비활성화
+@WebMvcTest(
+	controllers = FortuneInfoRegisterController.class,
+	excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class FortuneInfoRegisterControllerTest {
 	@Autowired
 	MockMvc mockMvc;
 
 	@MockBean
-	private FortuneInfoRegisterService registerService;
+	private FortuneUserInfoRegisterService registerService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -35,10 +39,10 @@ class FortuneInfoRegisterControllerTest {
 	@DisplayName("사주 정보 등록_성공")
 	void registerSuccess() throws Exception {
 		// Given
-		FortuneInfoRegisterRequestDto reqDto = createReq();
+		FortuneInfoRegisterRequest reqDto = createReq();
 		FortuneInfoRegisterResponseDto respDto = createResp();
 
-		when(registerService.registerFortuneInfo(any(FortuneInfoRegisterRequestDto.class))).thenReturn(respDto);
+		when(registerService.registerFortuneInfo(any(FortuneInfoRegisterRequest.class))).thenReturn(respDto);
 
 		// When
 		mockMvc.perform(post("/fortune-users")
@@ -50,11 +54,11 @@ class FortuneInfoRegisterControllerTest {
 			.andDo(print());
 
 		// Then
-		verify(registerService, times(1)).registerFortuneInfo(any(FortuneInfoRegisterRequestDto.class));
+		verify(registerService, times(1)).registerFortuneInfo(any(FortuneInfoRegisterRequest.class));
 	}
 
-	private FortuneInfoRegisterRequestDto createReq() throws Exception {
-		return FortuneInfoRegisterRequestDto.builder()
+	private FortuneInfoRegisterRequest createReq() throws Exception {
+		return FortuneInfoRegisterRequest.builder()
 			.memberId("aaa")
 			.relationName("가족")
 			.name("홍길동")

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequestDto;
+import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
-import com.palbang.unsemawang.fortune.service.FortuneInfoRegisterService;
+import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/fortune-users")
 @RequiredArgsConstructor
 public class FortuneInfoRegisterController {
-	private final FortuneInfoRegisterService registerService;
+	private final FortuneUserInfoRegisterService registerService;
 
 	@Operation(
 		summary = "사주 정보 등록",
@@ -36,7 +36,7 @@ public class FortuneInfoRegisterController {
 	)
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<FortuneInfoRegisterResponseDto> registerFortuneUser(
-		@RequestBody FortuneInfoRegisterRequestDto requestDto) {
+		@RequestBody FortuneInfoRegisterRequest requestDto) {
 
 		FortuneInfoRegisterResponseDto responseDto = registerService.registerFortuneInfo(requestDto);
 

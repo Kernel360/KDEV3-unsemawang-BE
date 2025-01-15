@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.GunghapResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalGunghapResponse;
 import com.palbang.unsemawang.fortune.dto.result.GunghapApiRequest;
@@ -54,30 +55,16 @@ public class GunghapService {
 		ExternalGunghapResponse.Result result = apiResponse.getResult();
 
 		return new GunghapResponse(
-			buildInnerGunghap(result.getInnerGunghap()), // 속궁합
-			buildManFemaleFate(result.getManFemaleFate()), // 남녀 운명
-			buildOuterGunghap(result.getOuterGunghap()), // 겉궁합
-			buildTypeAnalysis(result.getTypeAnalysis()) // 타입 분석
+			buildSimpleResponse("속궁합", result.getInnerGunghap()), // 속궁합
+			buildSimpleResponse("남녀 운명", result.getManFemaleFate()), // 남녀 운명
+			buildSimpleResponse("겉궁합", result.getOuterGunghap()), // 겉궁합
+			buildSimpleResponse("타입 분석", result.getTypeAnalysis()) // 타입 분석
 		);
 	}
 
-	// 속궁합 처리
-	private GunghapResponse.InnerGunghap buildInnerGunghap(String innerGunghap) {
-		return new GunghapResponse.InnerGunghap("속궁합", innerGunghap);
-	}
-
-	// 남녀 운명 처리
-	private GunghapResponse.ManFemaleFate buildManFemaleFate(String manFemaleFate) {
-		return new GunghapResponse.ManFemaleFate("남녀 운명", manFemaleFate);
-	}
-
-	// 겉궁합 처리
-	private GunghapResponse.OuterGunghap buildOuterGunghap(String outerGunghap) {
-		return new GunghapResponse.OuterGunghap("겉궁합", outerGunghap);
-	}
-
-	// 타입 분석 처리
-	private GunghapResponse.TypeAnalysis buildTypeAnalysis(String typeAnalysis) {
-		return new GunghapResponse.TypeAnalysis("타입 분석", typeAnalysis);
+	private CommonResponse buildSimpleResponse(String label, String value) {
+		if (value == null)
+			return null;
+		return new CommonResponse(label, value, null);
 	}
 }

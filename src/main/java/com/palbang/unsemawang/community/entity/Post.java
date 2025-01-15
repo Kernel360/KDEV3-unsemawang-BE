@@ -47,9 +47,11 @@ public class Post extends BaseEntity {
 	private Boolean isAnonymous = false;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private String title = "빈 제목";
 
 	@Column(columnDefinition = "TEXT", nullable = false)
+	@Builder.Default
 	private String content = "빈 내용";
 
 	@Column(name = "view_count")
