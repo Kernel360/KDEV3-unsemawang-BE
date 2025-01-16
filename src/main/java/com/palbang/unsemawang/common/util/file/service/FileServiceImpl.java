@@ -32,11 +32,6 @@ public class FileServiceImpl implements FileService {
 	final FileRepository fileRepository;
 	final S3Service s3Service;
 
-    /*
-    ----------------------------------------------------------------------------------------
-    upload 업로드
-     */
-
 	@Override
 	public void uploadImage(MultipartFile file, FileRequest fileRequest) {
 

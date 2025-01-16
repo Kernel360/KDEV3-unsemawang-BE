@@ -27,11 +27,14 @@ public interface ProfileImageController {
 		responses = {
 			@ApiResponse(responseCode = "200", description = "프로필 이미지 업로드 성공"),
 			@ApiResponse(responseCode = "400", description = "잘못된 요청 (파일 형식 오류)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "413", description = "파일 크기 초과 (File Too Large)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "500", description = "서버 오류 (파일 업로드 실패)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
 	@PostMapping(value = "/{memberId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -45,11 +48,14 @@ public interface ProfileImageController {
 		responses = {
 			@ApiResponse(responseCode = "200"),
 			@ApiResponse(responseCode = "400", description = "잘못된 요청 (파일 형식 오류)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "413", description = "파일 크기 초과 (File Too Large)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "500", description = "서버 오류 (파일 수정 실패)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
 	@PutMapping(value = "/{memberId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -63,9 +69,11 @@ public interface ProfileImageController {
 		responses = {
 			@ApiResponse(responseCode = "200", description = "프로필 이미지 삭제 성공"),
 			@ApiResponse(responseCode = "404", description = "프로필 이미지 없음 (File Not Found)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "500", description = "서버 오류 (파일 삭제 실패)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
 	@DeleteMapping("/{memberId}/profile-image")
@@ -77,9 +85,11 @@ public interface ProfileImageController {
 		responses = {
 			@ApiResponse(responseCode = "200", description = "프로필 이미지 가져오기 성공"),
 			@ApiResponse(responseCode = "404", description = "프로필 이미지 없음 (File Not Found)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "500", description = "서버 오류 (파일 조회 실패)",
-				content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+				content = @Content(mediaType = "application/json",
+					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
 	@GetMapping("/{memberId}/profile-image")
