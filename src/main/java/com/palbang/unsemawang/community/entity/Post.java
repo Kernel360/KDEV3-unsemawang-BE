@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
+import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
@@ -99,11 +100,19 @@ public class Post extends BaseEntity {
 		this.member = member;
 	}
 
+	public void updateFrom(PostUpdateRequest postUpdateRequest) {
+		this.title = postUpdateRequest.getTitle();
+		this.content = postUpdateRequest.getContent();
+		this.communityCategory = postUpdateRequest.getCategory();
+		this.isAnonymous = postUpdateRequest.getCategory() == CommunityCategory.ANONYMOUS_BOARD;
+		this.updatedAt = LocalDateTime.now();
+	}
+
 	public static Post from(PostRegisterRequest postRegisterRequest) {
 		return Post.builder()
 			.content(postRegisterRequest.getContent())
 			.title(postRegisterRequest.getTitle())
-			.isAnonymous(postRegisterRequest.getIsAnonymous())
+			.isAnonymous(postRegisterRequest.getCategory() == CommunityCategory.ANONYMOUS_BOARD)
 			.communityCategory(postRegisterRequest.getCategory())
 			.build();
 	}
