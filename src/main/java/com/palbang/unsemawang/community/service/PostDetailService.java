@@ -18,19 +18,24 @@ public class PostDetailService {
 	private final PostRepository postRepository;
 
 	@Transactional
-	public PostDetailResponse getPostDetail(Long postId) {
+	public PostDetailResponse getPostDetail(String memberId, Long postId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		handleViewCount(post);
+		// 비공개 접근 권한 확인
+		if (post.getIsVisible() && !post.getMember().getId().equals(memberId)) {
+			throw new GeneralException(ResponseCode.FORBIDDEN); // 적절한 응답 코드 사용
+		}
+
+		// DB 레벨에서 조회수 증가
+		incrementViewCount(postId);
 
 		return toResponseDto(post);
 	}
 
-	// 조회수 증가
-	private void handleViewCount(Post post) {
-		post.increaseViewCount();
-		postRepository.save(post);
+	// 조회수 증가 - DB 레벨 처리
+	private void incrementViewCount(Long postId) {
+		postRepository.incrementViewCount(postId);
 	}
 
 	// Dto 컨버터
@@ -42,6 +47,7 @@ public class PostDetailService {
 			.content(post.getContent())
 			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())
 			.isAnonymous(post.getIsAnonymous())
+			.isVisible(post.getIsVisible())
 			.viewCount(post.getViewCount())
 			.likeCount(post.getLikeCount())
 			.commentCount(post.getCommentCount())

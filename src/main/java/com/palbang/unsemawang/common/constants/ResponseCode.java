@@ -49,6 +49,7 @@ public enum ResponseCode implements Codable {
 	NOT_EXIST_GROUP("6111", HttpStatus.BAD_REQUEST, "유효하지 않은 요청 group"),
 	NOT_EXIST_ID("6112", HttpStatus.BAD_REQUEST, "유효하지 않은 요청 id"),
 	NOT_EXIST_TYPE("6113", HttpStatus.BAD_REQUEST, "유효하지 않은 요청 type"),
+	FORBIDDEN("6114", HttpStatus.FORBIDDEN, "접근 권한 없음"),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
