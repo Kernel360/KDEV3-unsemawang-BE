@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.community.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 
 import jakarta.validation.constraints.NotBlank;
@@ -11,18 +10,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO for {@link com.palbang.unsemawang.community.entity.Post}
- */
-
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostRegisterRequest {
+public class PostUpdateRequest {
 
-	@JsonIgnore
-	private String memberId;
+	@NotNull(message = "게시글 ID를 입력해 주세요")
+	private Long postId;
 
 	@NotBlank(message = "제목을 입력해 주세요")
 	@Size(min = 1, max = 30, message = "제목은 30자 이내여야 합니다")
@@ -34,9 +29,5 @@ public class PostRegisterRequest {
 
 	@NotNull(message = "카테고리를 입력해 주세요")
 	private CommunityCategory category;
-
-	public void updateMemberId(String memberId) {
-		this.memberId = memberId;
-	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
@@ -22,7 +23,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag(name = "회원")
 @RestController
 @RequestMapping("/member")
@@ -64,6 +67,13 @@ public class MemberController {
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@Valid @RequestBody SignupExtraInfoRequest signupExtraInfo
 	) {
+		log.info("[MemberController - signupExtraInfo] 요청 바디: {}", signupExtraInfo);
+		log.info("[MemberController - signupExtraInfo] 요청 회원 정보: {}", auth);
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
 		// 인증 객체로부터 회원 id 값 가져와 세팅
 		signupExtraInfo.updateMemberId(auth.getId());
 

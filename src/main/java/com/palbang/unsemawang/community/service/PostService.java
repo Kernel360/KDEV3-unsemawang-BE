@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
+import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
@@ -38,6 +39,23 @@ public class PostService {
 		}
 
 		return PostRegisterResponse.of("게시글 등록이 성공했습니다!");
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public Void update(String memberId, PostUpdateRequest postUpdateRequest) {
+
+		// 0. 유효한 회원인지 확인
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않은 회원 ID 입니다"));
+
+		// 1. 회원 ID, 게시글 ID가 일치하는 게시글 조회
+		Post post = postRepository.findByIdAndMember(postUpdateRequest.getPostId(), member)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않는 게시글 입니다"));
+
+		// 2. 게시글 업데이트
+		post.updateFrom(postUpdateRequest);
+
+		return null;
 	}
 
 }
