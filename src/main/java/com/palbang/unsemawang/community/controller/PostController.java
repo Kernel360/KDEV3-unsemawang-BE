@@ -51,6 +51,10 @@ public class PostController {
 		return ResponseEntity.ok(postRegisterResponse);
 	}
 
+	@Operation(
+		description = "커뮤니티 게시글 수정 API 입니다. 인증 토큰이 담긴 쿠키를 보내셔야 테스트가 가능합니다!",
+		summary = "커뮤니티 게시글 수정"
+	)
 	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity modify(
 		@AuthenticationPrincipal CustomOAuth2User auth,
