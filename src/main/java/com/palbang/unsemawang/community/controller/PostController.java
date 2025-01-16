@@ -4,11 +4,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
+import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.service.PostService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
@@ -33,13 +37,32 @@ public class PostController {
 	)
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PostRegisterResponse> write(
-		@NotNull(message = "인증 객체가 없습니다") @AuthenticationPrincipal CustomOAuth2User auth,
+		@AuthenticationPrincipal CustomOAuth2User auth,
 		@Valid @RequestBody PostRegisterRequest postRegisterRequest
 	) {
+		if (auth == null && auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
 		postRegisterRequest.updateMemberId(auth.getId());
 
 		PostRegisterResponse postRegisterResponse = postService.register(postRegisterRequest);
 
 		return ResponseEntity.ok(postRegisterResponse);
+	}
+
+	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity modify(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@Valid @NotNull @RequestBody PostUpdateRequest postUpdateRequest
+	) {
+		if (auth == null && auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		// 게시글 업데이트
+		postService.update(auth.getId(), postUpdateRequest);
+
+		return ResponseEntity.ok().build();
 	}
 }
