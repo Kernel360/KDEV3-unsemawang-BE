@@ -70,7 +70,7 @@ public class MemberController {
 		log.info("[MemberController - signupExtraInfo] 요청 바디: {}", signupExtraInfo);
 		log.info("[MemberController - signupExtraInfo] 요청 회원 정보: {}", auth);
 
-		if (auth == null && auth.getId() == null) {
+		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 

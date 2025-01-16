@@ -20,7 +20,6 @@ import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "커뮤니티 게시글")
@@ -40,7 +39,7 @@ public class PostController {
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@Valid @RequestBody PostRegisterRequest postRegisterRequest
 	) {
-		if (auth == null && auth.getId() == null) {
+		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
@@ -58,9 +57,9 @@ public class PostController {
 	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity modify(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@Valid @NotNull @RequestBody PostUpdateRequest postUpdateRequest
+		@Valid @RequestBody PostUpdateRequest postUpdateRequest
 	) {
-		if (auth == null && auth.getId() == null) {
+		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
