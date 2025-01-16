@@ -120,7 +120,6 @@ public class Member extends BaseEntity {
 	private List<Favorite> favoritedBy; // 사용자가 찜받은 목록
 
 	public void updateExtraInfo(SignupExtraInfoRequest signupExtraInfoDto) {
-		this.phoneNumber = signupExtraInfoDto.getPhone();
 		this.nickname = signupExtraInfoDto.getNickname();
 		this.changedAt = LocalDateTime.now();
 	}

@@ -33,14 +33,6 @@ public class SignupExtraInfoRequest {
 	)
 	private String nickname;
 
-	@Schema(description = "휴대폰 번호")
-	@NotBlank(message = "휴대폰 번호를 입력해 주세요")
-	@Pattern(
-		regexp = "^01[0-9]-\\d{4}-\\d{4}$",
-		message = "유효하지 않은 휴대폰 번호 형식 입니다. ex) 010-1234-1234"
-	)
-	private String phone;
-
 	@Schema(description = "성별", defaultValue = "남", requiredProperties = {"남", "여"})
 	@NotNull(message = "성별을 입력해 주세요")
 	private Character sex;
