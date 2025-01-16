@@ -35,9 +35,6 @@ public class PostRegisterRequest {
 	@NotNull(message = "카테고리를 입력해 주세요")
 	private CommunityCategory category;
 
-	@NotNull(message = "익명 여부를 입력해 주세요")
-	private Boolean isAnonymous;
-
 	public void updateMemberId(String memberId) {
 		this.memberId = memberId;
 	}
