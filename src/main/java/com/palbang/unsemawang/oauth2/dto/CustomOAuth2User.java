@@ -45,4 +45,7 @@ public class CustomOAuth2User implements OAuth2User {
 		return userDto.getEmail();
 	}
 
+	public Boolean getIsJoin() {
+		return userDto.getIsJoin();
+	}
 }

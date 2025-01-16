@@ -9,4 +9,5 @@ public class UserDto {
 	private String id;
 	private String role;
 	private String email;
+	private Boolean isJoin;
 }

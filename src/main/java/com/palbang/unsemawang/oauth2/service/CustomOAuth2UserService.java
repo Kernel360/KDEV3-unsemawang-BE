@@ -66,6 +66,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			userDto.setId(member.getId());
 			userDto.setEmail(oAuth2Response.getEmail());
 			userDto.setRole("" + GENERAL);
+			userDto.setIsJoin(member.getIsJoin());
 			return new CustomOAuth2User(userDto);
 
 		} else {
@@ -77,6 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			userDto.setId(existData.getId());
 			userDto.setEmail(oAuth2Response.getEmail());
 			userDto.setRole("" + existData.getRole());
+			userDto.setIsJoin(existData.getIsJoin());
 
 			return new CustomOAuth2User(userDto);
 		}
