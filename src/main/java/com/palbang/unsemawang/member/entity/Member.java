@@ -99,8 +99,9 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private OauthProvider oauthProvider;
 
-	@Column
-	private Boolean isJoin; // OAuth 로그인 후 추가 입력까지 완료한 상태인지
+	@Column(name = "is_join", nullable = false)
+	@Builder.Default
+	private Boolean isJoin = false; // OAuth 로그인 후 추가 입력까지 완료한 상태인지
 
 	// 전문가 전용 컬럼
 	private String password;

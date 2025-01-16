@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	//닉네임으로 회원 조회
 	@Query("SELECT m FROM Member m WHERE m.nickname = :nickname AND m.isDeleted = false")
 	Optional<Member> findByNickname(@Param("nickname") String nickname);
+
+	Optional<Member> findById(String id);
 }

@@ -12,6 +12,7 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
+import com.palbang.unsemawang.member.dto.MemberProfileDto;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 import com.palbang.unsemawang.member.service.MemberService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
@@ -76,6 +77,26 @@ public class MemberController {
 		return ResponseEntity.ok(
 			Response.success(ResponseCode.SUCCESS_INSERT)
 		);
+	}
+
+	@Operation(
+		summary = "회원 정보 조회 api",
+		description = "회원 정보를 조회합니다",
+		responses = {
+			@ApiResponse(
+				description = "Success",
+				responseCode = "200"
+			)
+		}
+	)
+	@GetMapping("/profile")
+	public ResponseEntity<MemberProfileDto> getProfile(
+		@AuthenticationPrincipal CustomOAuth2User auth) {
+		System.out.println("auth:" + auth);
+		//회원정보에 해당하는 프로필 조회
+		MemberProfileDto memberProfile = memberService.getMemberProfile(auth.getId());
+
+		return ResponseEntity.ok(memberProfile);
 	}
 
 }
