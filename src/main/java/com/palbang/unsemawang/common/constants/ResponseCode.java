@@ -21,6 +21,10 @@ public enum ResponseCode implements Codable {
 
 	DEFAULT_OK("0000", HttpStatus.OK, "Ok"),
 
+	// JWT 오류
+	JWT_EXPIRED("3001", HttpStatus.UNAUTHORIZED, "만료된 JWT"),
+	JWT_INVALID("3002", HttpStatus.BAD_REQUEST, "유효하지 않은 JWT"),
+
 	DEFAULT_BAD_REQUEST("4000", HttpStatus.BAD_REQUEST, "잘못된 요청입니다. 요청을 확인해주세요."),
 	RESOURCE_NOT_FOUND("4040", HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
 
