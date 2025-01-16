@@ -28,18 +28,10 @@ public class SignupExtraInfoRequest {
 	@Schema(description = "닉네임")
 	@NotBlank
 	@Pattern(
-		regexp = "^[가-힣a-zA-Z0-9_]{2,15}$",
-		message = "닉네임은 2~15자의 한글, 영어, 숫자, '_'만 입력 가능합니다."
+		regexp = "^[가-힣a-zA-Z0-9]{2,10}$",
+		message = "닉네임은 2~10자의 한글, 영어, 숫자만 입력 가능합니다."
 	)
 	private String nickname;
-
-	@Schema(description = "휴대폰 번호")
-	@NotBlank(message = "휴대폰 번호를 입력해 주세요")
-	@Pattern(
-		regexp = "^01[0-9]-\\d{4}-\\d{4}$",
-		message = "유효하지 않은 휴대폰 번호 형식 입니다. ex) 010-1234-1234"
-	)
-	private String phone;
 
 	@Schema(description = "성별", defaultValue = "남", requiredProperties = {"남", "여"})
 	@NotNull(message = "성별을 입력해 주세요")
