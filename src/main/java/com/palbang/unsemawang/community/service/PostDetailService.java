@@ -20,7 +20,7 @@ public class PostDetailService {
 	@Transactional
 	public PostDetailResponse getPostDetail(Long postId) {
 		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND, "게시글을 찾을 수 없습니다."));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
 		handleViewCount(post);
 
@@ -37,16 +37,17 @@ public class PostDetailService {
 	private PostDetailResponse toResponseDto(Post post) {
 		return PostDetailResponse.builder()
 			.id(post.getId())
+			.userId(post.getMember().getId())
 			.title(post.getTitle())
 			.content(post.getContent())
-			.author(post.getIsAnonymous() ? "익명" : post.getMember().getName())
+			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())
 			.isAnonymous(post.getIsAnonymous())
 			.viewCount(post.getViewCount())
 			.likeCount(post.getLikeCount())
 			.commentCount(post.getCommentCount())
 			.communityCategory(post.getCommunityCategory())
-			.postedAt(post.getRegisteredAt())
-			.lastUpdatedAt(post.getUpdatedAt())
+			.registeredAt(post.getRegisteredAt())
+			.updatedAt(post.getUpdatedAt())
 			.build();
 	}
 }
