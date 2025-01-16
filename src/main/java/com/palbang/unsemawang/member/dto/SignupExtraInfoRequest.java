@@ -28,8 +28,8 @@ public class SignupExtraInfoRequest {
 	@Schema(description = "닉네임")
 	@NotBlank
 	@Pattern(
-		regexp = "^[가-힣a-zA-Z0-9_]{2,15}$",
-		message = "닉네임은 2~15자의 한글, 영어, 숫자, '_'만 입력 가능합니다."
+		regexp = "^[가-힣a-zA-Z0-9]{2,10}$",
+		message = "닉네임은 2~10자의 한글, 영어, 숫자만 입력 가능합니다."
 	)
 	private String nickname;
 
