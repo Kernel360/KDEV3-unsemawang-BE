@@ -118,8 +118,8 @@ class PostServiceTest {
 	public void postUpdateTest_notPostOfMember() {
 		// given - 회원 엔티티, 게시글 수정 DTO 객체 생성
 		Member member = createMember();
+		Long postId = 100L;
 		PostUpdateRequest postUpdateRequest = PostUpdateRequest.builder()
-			.postId(100L)
 			.title("test-title")
 			.category(CommunityCategory.FREE_BOARD)
 			.content("test-content")
@@ -127,11 +127,11 @@ class PostServiceTest {
 
 		// when, then - 회원이 작성한 게시글이 아닐 경우, GeneralException이 발생한다
 		when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
-		when(postRepository.findByIdAndMember(postUpdateRequest.getPostId(), member)).thenReturn(Optional.empty());
-		assertThrows(GeneralException.class, () -> postService.update(member.getId(), postUpdateRequest));
+		when(postRepository.findByIdAndMember(postId, member)).thenReturn(Optional.empty());
+		assertThrows(GeneralException.class, () -> postService.update(member.getId(), postId, postUpdateRequest));
 
 		verify(memberRepository, times(1)).findById(member.getId());
-		verify(postRepository, times(1)).findByIdAndMember(postUpdateRequest.getPostId(), member);
+		verify(postRepository, times(1)).findByIdAndMember(postId, member);
 	}
 
 	/* 헬퍼 */
