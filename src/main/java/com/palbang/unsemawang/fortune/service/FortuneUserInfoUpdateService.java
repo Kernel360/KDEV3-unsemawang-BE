@@ -10,7 +10,6 @@ import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.entity.UserRelation;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.fortune.repository.UserRelationRepository;
-import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import jakarta.transaction.Transactional;
@@ -26,7 +25,7 @@ public class FortuneUserInfoUpdateService {
 
 	public FortuneUserInfoUpdateResponse updateFortuneUserInfo(FortuneInfoUpdateRequest req) {
 		// Member 조회
-		Member member = memberRepository.findById(req.getMemberId())
+		memberRepository.findById(req.getMemberId())
 			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "회원을 찾지 못했습니다."));
 
 		// 사주 정보 조회
@@ -49,6 +48,7 @@ public class FortuneUserInfoUpdateService {
 			req.getYoun(),
 			req.getSolunar()
 		);
+		fortuneUserInfoRepository.save(fortuneUserInfo);
 
 		// 4. 응답 생성
 		return FortuneUserInfoUpdateResponse.builder()

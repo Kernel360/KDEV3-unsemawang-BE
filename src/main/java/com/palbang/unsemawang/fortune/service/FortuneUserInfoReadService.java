@@ -23,7 +23,10 @@ public class FortuneUserInfoReadService {
 	 */
 	public List<FortuneUserInfoReadResponseDto> fortuneInfoListRead(String memberId) {
 
+		System.out.println("memberId = " + memberId);
+
 		List<FortuneUserInfo> userInfoList = fortuneUserInfoRepository.findByMemberId(memberId);
+		System.out.println("userInfoList.size() = " + userInfoList.size()); // 0개
 
 		if (userInfoList.isEmpty()) {
 			throw new GeneralException(ResponseCode.ERROR_SEARCH, "해당 회원의 사주 정보를 찾을 수 없습니다.");
