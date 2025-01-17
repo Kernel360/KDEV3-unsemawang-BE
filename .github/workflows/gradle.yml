@@ -71,7 +71,7 @@ jobs:
     needs: [build]
 
     steps:
-    - name: Cehckout code
+    - name: Cehckout
       uses: actions/checkout@v4
 
     - name: Set up AWS credentials
@@ -81,18 +81,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-northeast-2
         
-    - name: Set up SSH key
-      run: |
-        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
-        chmod 600 private_key.pem
-      shell: bash
-
-    - name: Depoly to EC2
-      run: |
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+    - name: Execute remote SSH commands
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        script: |
           cd /home/ubuntu/unsemawang
-
           git pull origin dev
-
           sudo systemctl restart unsemawang.service
-        EOF
+
+          
