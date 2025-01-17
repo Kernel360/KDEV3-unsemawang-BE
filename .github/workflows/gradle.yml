@@ -82,7 +82,9 @@ jobs:
         aws-region: ap-northeast-2
         
     - name: Set up SSH key
-      run: echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
+      run: |
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
       shell: bash
 
     - name: Depoly to EC2
