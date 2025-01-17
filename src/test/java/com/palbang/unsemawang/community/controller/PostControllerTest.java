@@ -25,7 +25,7 @@ import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.entity.Member;
 
 @WebMvcTest(
-	controllers = PostController.class
+	controllers = PostControllerImpl.class
 )
 @AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class PostControllerTest {
@@ -64,19 +64,19 @@ class PostControllerTest {
 	@DisplayName("게시글 수정 - 회원이 작성한 게시글이 아닐 경우 실패")
 	public void postModifyTest_notPostOfMember() throws Exception {
 		// given - 회원, 게시글 수정 요청 객체 생성
+		Long postId = 1000L;
 		PostUpdateRequest postUpdateRequest = PostUpdateRequest.builder()
-			.postId(1000L)
 			.title("제목이란다라림쥐안녕")
 			.category(CommunityCategory.FREE_BOARD)
 			.content("hello")
 			.build();
 
-		when(postService.update(eq("testuser"), any(PostUpdateRequest.class))).thenThrow(
+		when(postService.update(eq("testuser"), eq(postId), any(PostUpdateRequest.class))).thenThrow(
 			new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않는 게시글 입니다")
 		);
 
 		// when, then : 요청을 보내면 유효하지 않는 게시글이라는 메세지가 떠야한다
-		mockMvc.perform(put("/posts")
+		mockMvc.perform(put("/posts/{id}", postId)
 				.contentType("application/json")
 				.content(objectMapper.writeValueAsString(postUpdateRequest))
 				.with(csrf())
@@ -84,7 +84,7 @@ class PostControllerTest {
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("$.message").value("유효하지 않은 고유번호"));
 
-		verify(postService, times(1)).update(eq("testuser"), any(PostUpdateRequest.class));
+		verify(postService, times(1)).update(eq("testuser"), eq(postId), any(PostUpdateRequest.class));
 	}
 
 	/* 헬퍼 */

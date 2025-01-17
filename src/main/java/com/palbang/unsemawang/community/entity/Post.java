@@ -74,7 +74,7 @@ public class Post extends BaseEntity {
 
 	@Column(name = "is_visible")
 	@Builder.Default
-	private Boolean isVisible = false;
+	private Boolean isVisible = true;
 
 	@Column(name = "is_deleted")
 	@Builder.Default
@@ -94,6 +94,7 @@ public class Post extends BaseEntity {
 	public void deletePost() {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
+		this.isVisible = false;
 	}
 
 	public void updateMember(Member member) {
