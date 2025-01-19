@@ -1,10 +1,19 @@
 package com.palbang.unsemawang.community.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.palbang.unsemawang.community.entity.Post;
+import com.palbang.unsemawang.member.entity.Member;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+
+	Optional<Post> findByIdAndMember(Long id, Member member);
+
+	@Query("SELECT p FROM Post p WHERE p.id = :postId AND p.member = :member AND p.isDeleted = false")
+	Optional<Post> findBuMemberIsNotDeleted(Long postId, Member member);
 }

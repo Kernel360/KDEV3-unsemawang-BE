@@ -7,7 +7,6 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoDeleteResponseDto;
 import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
-import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import jakarta.transaction.Transactional;
@@ -23,7 +22,7 @@ public class FortuneUserInfoDeleteService {
 	public FortuneUserInfoDeleteResponseDto deleteFortuneUserInfo(String memberId, Long relationId) {
 
 		// 1. Member 조회
-		Member member = memberRepository.findById(memberId)
+		memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "회원을 찾지 못했습니다."));
 
 		// 2. 사주 정보 조회

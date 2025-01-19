@@ -3,6 +3,7 @@ package com.palbang.unsemawang.fortune.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoUpdateRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoUpdateResponse;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,7 +37,10 @@ public class FortuneUserInfoUpdateController {
 	)
 	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<FortuneUserInfoUpdateResponse> updateFortuneUserInfo(
+		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestBody @Valid FortuneInfoUpdateRequest requestDto) {
+
+		requestDto.setMemberId(auth.getId());
 
 		FortuneUserInfoUpdateResponse response = updateService.updateFortuneUserInfo(requestDto);
 		return ResponseEntity

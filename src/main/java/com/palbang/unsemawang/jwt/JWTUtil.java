@@ -1,5 +1,7 @@
 package com.palbang.unsemawang.jwt;
 
+import static com.palbang.unsemawang.common.constants.ResponseCode.*;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -8,6 +10,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.palbang.unsemawang.common.exception.GeneralException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -61,10 +65,11 @@ public class JWTUtil {
 				.build().parseClaimsJws(token).getBody().getExpiration().before(new Date());
 		} catch (ExpiredJwtException e) {
 			// 토큰이 만료된 경우
-			return true;
+			throw new GeneralException(JWT_EXPIRED, "JWT is expired!");
 		} catch (Exception e) {
 			// 기타 예외 처리
-			throw new RuntimeException("Invalid JWT token", e);
+			//throw new RuntimeException("Invalid JWT token", e);
+			throw new GeneralException(JWT_INVALID, "JWT is invalid!");
 		}
 	}
 

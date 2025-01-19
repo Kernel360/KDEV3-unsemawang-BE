@@ -5,18 +5,18 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoReadService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "사주 정보")
@@ -38,9 +38,9 @@ public class FortuneUserInfoReadController {
 	)
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<FortuneUserInfoReadResponseDto>> getUserInfoList(
-		@RequestParam @NotBlank(message = "memberId는 필수 값입니다.") String memberId) {
+		@AuthenticationPrincipal CustomOAuth2User auth) {
 
-		List<FortuneUserInfoReadResponseDto> list = readService.fortuneInfoListRead(memberId);
+		List<FortuneUserInfoReadResponseDto> list = readService.fortuneInfoListRead(auth.getId());
 
 		return ResponseEntity
 			.status(HttpStatus.OK)

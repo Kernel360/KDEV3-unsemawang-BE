@@ -39,7 +39,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		GrantedAuthority auth = iterator.next();
 		String role = auth.getAuthority();
 		String email = customOAuth2User.getEmail();
-		String token = jwtUtil.createJTwt(id, email, role, 60 * 60 * 1000L); //1시간 만료
+		Boolean isJoin = customOAuth2User.getIsJoin();
+		//String token = jwtUtil.createJTwt(id, email, role, 60 * 60 * 1000L); //1시간 만료
+		String token = jwtUtil.createJTwt(id, email, role, 60 * 60 * 1000L * 24 * 3); //3일 만료
 
 		//response.addCookie(createCookie("Authorization2", token));
 		// ResponseCookie 추가
@@ -47,8 +49,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		//response.setHeader("Set-Cookie", responseCookie.toString());
 		response.addHeader("Set-Cookie", responseCookie.toString());
 		//response.sendRedirect("https://dev.unsemawang.com");
-		response.sendRedirect(
-			"https://www.unsemawang.com/signup");
+		System.out.println("isJoin:" + isJoin);
+		if (isJoin) {
+			response.sendRedirect("https://www.unsemawang.com/fortune");
+		} else {
+			response.sendRedirect("https://www.unsemawang.com/signup");
+		}
 		//response.sendRedirect("http://localhost:8080/join");
 	}
 

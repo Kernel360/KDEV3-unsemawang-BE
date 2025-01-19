@@ -52,4 +52,25 @@ public class FortuneUserInfoReadService {
 			.youn(fortuneUserInfo.getYoun())
 			.build();
 	}
+
+	/**
+	 * 본인 사주 정보 조회
+	 */
+	public FortuneUserInfoReadResponseDto getFortuneUserSelf(String memberId) {
+		// 특정 사용자 ID로 사주 정보를 조회
+		List<FortuneUserInfo> userInfoList = fortuneUserInfoRepository.findByMemberId(memberId);
+
+		// 조회 결과가 비어 있는 경우 예외 처리
+		if (userInfoList.isEmpty()) {
+			throw new GeneralException(ResponseCode.ERROR_SEARCH, "해당 회원의 사주 정보를 찾을 수 없습니다.");
+		}
+
+		// 첫 번째 요소만 변환하여 반환
+		//return toResponseDto(userInfoList.get(0));
+		return userInfoList.stream()
+			.filter(userInfo -> "본인".equals(userInfo.getRelation().getRelationName()))
+			.findFirst()
+			.map(this::toResponseDto)
+			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "해당 조건의 사주 정보를 찾을 수 없습니다."));
+	}
 }

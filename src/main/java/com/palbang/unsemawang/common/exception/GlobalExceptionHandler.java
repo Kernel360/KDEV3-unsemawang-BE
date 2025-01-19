@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.response.ErrorResponse;
+import com.palbang.unsemawang.common.util.file.exception.FileDeleteException;
+import com.palbang.unsemawang.common.util.file.exception.FileNotFoundException;
+import com.palbang.unsemawang.common.util.file.exception.FileSizeExceededException;
+import com.palbang.unsemawang.common.util.file.exception.FileUploadException;
+import com.palbang.unsemawang.common.util.file.exception.InvalidFileFormatException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,6 +84,63 @@ public class GlobalExceptionHandler {
 		response.put("message", messages);
 		response.put("error", "Bad Request");
 		response.put("statusCode", 400);
+
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
+
+	// 파일 관련 예외 -------------------------------------------------------------------
+
+	@ExceptionHandler(FileDeleteException.class)
+	public ResponseEntity<ErrorResponse> handleFileDeleteException(FileDeleteException ex) {
+
+		log.error("FileDeleteException occurred: {}", ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(ResponseCode.ERROR_DELETE);
+
+		return ResponseEntity
+			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(response);
+	}
+
+	@ExceptionHandler(FileNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleFileNotFoundException(FileNotFoundException ex) {
+
+		log.error("FileNotFoundException occurred: {}", ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(ResponseCode.ERROR_SEARCH);
+
+		return ResponseEntity
+			.status(HttpStatus.NOT_FOUND)
+			.body(response);
+	}
+
+	@ExceptionHandler(FileSizeExceededException.class)
+	public ResponseEntity<ErrorResponse> handleFileSizeExceededException(FileSizeExceededException ex) {
+
+		log.error("FileSizeExceededException occurred: {}", ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(ResponseCode.MAX_VALUE);
+
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(response);
+	}
+
+	@ExceptionHandler(FileUploadException.class)
+	public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException ex) {
+
+		log.error("FileUploadException occurred: {}", ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(ResponseCode.ERROR_INSERT);
+
+		return ResponseEntity
+			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(response);
+	}
+
+	@ExceptionHandler(InvalidFileFormatException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidFileFormatException(InvalidFileFormatException ex) {
+
+		log.error("InvalidFileFormatException occurred: {}", ex.getMessage());
+		ErrorResponse response = ErrorResponse.of(ResponseCode.NOT_EXIST_TYPE);
 
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
