@@ -24,7 +24,7 @@ public class PostListController {
 
 	@Operation(summary = "게시글 목록 조회")
 	@GetMapping("/posts")
-	public ResponseEntity<LongCursorResponse<PostListResponse>> getPosts(
+	public ResponseEntity<LongCursorResponse<PostListResponse>> getPostList(
 		@RequestParam CommunityCategory category,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(required = false, defaultValue = "10") Integer size
