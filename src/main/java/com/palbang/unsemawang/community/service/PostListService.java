@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class PostListService {
 
 	private final PostRepository postRepository;
+	private final FileService fileService;
 
 	public LongCursorResponse<PostListResponse> getPostList(CommunityCategory category,
 		CursorRequest<Long> cursorRequest) {
@@ -36,9 +38,9 @@ public class PostListService {
 			posts = postRepository.findLatestPostsByCategory(category, cursorRequest.key(), pageable);
 		}
 
-		// 응답 데이터 매핑
+		// 응답 데이터 매핑 (FileService를 통해 썸네일 URL 포함)
 		List<PostListResponse> data = posts.stream()
-			.map(PostListResponse::fromEntity)
+			.map(post -> PostListResponse.fromEntity(post, fileService)) // `FileService` 추가 전달
 			.toList();
 
 		// 다음 커서 생성
