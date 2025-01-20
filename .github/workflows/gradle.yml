@@ -48,7 +48,7 @@ jobs:
       - name: SSH into EC2 and deploy Docker container
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            docker pull nardis0321/kdev3
-            docker-compose down || true
-            docker-compose up -d
+            sudo docker pull nardis0321/kdev3
+            sudo docker-compose down || true
+            sudo docker-compose up -d
           EOF
