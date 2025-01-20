@@ -50,13 +50,10 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Copy build file to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          source: ./build/libs/unsemawang-0.0.1-SNAPSHOT.jar
-          target: /home/ubuntu/unsemawang/unsemawang.jar
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem build/libs/unsemawang-0.0.1-SNAPSHOT.jar ubuntu@<${{ secrets.EC2_PUBLIC_IP }}>:/home/ubuntu/unsemawang.jar
 
       - name: Execute remote SSH commands
         uses: appleboy/ssh-action@v0.1.7
@@ -64,6 +61,4 @@ jobs:
           host: ${{ secrets.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/ubuntu/unsemawang
-            sudo systemctl restart unsemawang.service
+          script: sudo systemctl restart unsemawang.service
