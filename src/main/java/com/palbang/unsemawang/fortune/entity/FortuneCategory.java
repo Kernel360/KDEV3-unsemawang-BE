@@ -31,6 +31,9 @@ public class FortuneCategory extends BaseEntity {
 	@Column(nullable = false, unique = true)
 	private String name; // 상담 영역 : 신점, 타로, 역학, 심리 4개
 
+	@Column(unique = true)
+	private String nameEn;
+
 	private String description;
 
 	@Column(nullable = false)
