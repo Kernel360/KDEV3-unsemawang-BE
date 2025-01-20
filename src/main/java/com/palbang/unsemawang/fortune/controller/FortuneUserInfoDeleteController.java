@@ -3,6 +3,7 @@ package com.palbang.unsemawang.fortune.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoDeleteResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoDeleteService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
@@ -35,10 +36,10 @@ public class FortuneUserInfoDeleteController {
 	)
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<FortuneUserInfoDeleteResponseDto> deleteFortuneUserInfo(
-		@RequestParam @NotBlank(message = "memberId는 필수 값입니다.") String memberId,
+		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestParam @NotNull(message = "relationId는 필수 값입니다.") Long relationId) {
 
-		FortuneUserInfoDeleteResponseDto response = deleteService.deleteFortuneUserInfo(memberId, relationId);
+		FortuneUserInfoDeleteResponseDto response = deleteService.deleteFortuneUserInfo(auth.getId(), relationId);
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(response);

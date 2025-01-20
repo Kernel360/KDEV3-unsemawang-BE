@@ -94,6 +94,7 @@ public class Post extends BaseEntity {
 	public void deletePost() {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();
+		this.isVisible = false;
 	}
 
 	public void updateMember(Member member) {

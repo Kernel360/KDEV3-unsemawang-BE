@@ -20,8 +20,7 @@ import lombok.Setter;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FortuneInfoRegisterRequest {
-	@Schema(required = true)
-	@NotBlank(message = "memberId는 필수 값입니다.")
+	@Schema(required = false)
 	private String memberId;
 
 	@Schema(required = true)

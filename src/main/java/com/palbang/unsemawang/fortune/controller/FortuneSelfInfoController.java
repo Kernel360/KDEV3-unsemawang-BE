@@ -1,7 +1,5 @@
 package com.palbang.unsemawang.fortune.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +17,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "사주 정보")
+@Tag(name = "본인 사주 정보")
 @RestController
-@RequestMapping("/fortune-users")
+@RequestMapping("/fortune-self")
 @RequiredArgsConstructor
-public class FortuneUserInfoReadController {
+public class FortuneSelfInfoController {
 	private final FortuneUserInfoReadService readService;
 
 	@Operation(
-		summary = "사주 정보 조회",
-		description = "본인을 포함한 사중 정보를 조회한다",
+		summary = "본인 사주 정보 조회",
+		description = "본인의 사주 정보 조회",
 		responses = {
 			@ApiResponse(
 				description = "Success",
@@ -37,17 +35,15 @@ public class FortuneUserInfoReadController {
 		}
 	)
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<FortuneUserInfoReadResponseDto>> getUserInfoList(
+	public ResponseEntity<FortuneUserInfoReadResponseDto> getUserSelfInfo(
 		@AuthenticationPrincipal CustomOAuth2User auth) {
 
-		List<FortuneUserInfoReadResponseDto> list = readService.fortuneInfoListRead(auth.getId());
+		FortuneUserInfoReadResponseDto fortuneUserInfoReadResponseDto = readService.getFortuneUserSelf(auth.getId());
 
 		return ResponseEntity
 			.status(HttpStatus.OK)
 			.body(
-				list
+				fortuneUserInfoReadResponseDto
 			);
 	}
 }
-
-

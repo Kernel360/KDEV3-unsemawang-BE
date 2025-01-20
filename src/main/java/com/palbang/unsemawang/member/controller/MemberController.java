@@ -102,7 +102,6 @@ public class MemberController {
 	@GetMapping("/profile")
 	public ResponseEntity<MemberProfileDto> getProfile(
 		@AuthenticationPrincipal CustomOAuth2User auth) {
-		System.out.println("auth:" + auth);
 		//회원정보에 해당하는 프로필 조회
 		MemberProfileDto memberProfile = memberService.getMemberProfile(auth.getId());
 
