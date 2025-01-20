@@ -34,7 +34,7 @@ public class PostDetailResponse {
 	@Schema(description = "익명 여부(익명 O : true / 익명 X : false)", required = true, example = "false")
 	private Boolean isAnonymous;
 
-	@Schema(description = "공개 여부(공개 O : false / 공개 X : true)", required = true, example = "false")
+	@Schema(description = "공개 여부(공개 O : true / 공개 X : false)", required = true, example = "true")
 	private Boolean isVisible;
 
 	@Schema(description = "조회수", required = true, example = "123")

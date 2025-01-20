@@ -74,7 +74,7 @@ public class Post extends BaseEntity {
 
 	@Column(name = "is_visible")
 	@Builder.Default
-	private Boolean isVisible = false;
+	private Boolean isVisible = true;
 
 	@Column(name = "is_deleted")
 	@Builder.Default
@@ -115,17 +115,5 @@ public class Post extends BaseEntity {
 			.isAnonymous(postRegisterRequest.getCategory() == CommunityCategory.ANONYMOUS_BOARD)
 			.communityCategory(postRegisterRequest.getCategory())
 			.build();
-	}
-
-	public void increaseViewCount() {
-		this.viewCount += 1;
-	}
-
-	public void increaseLikeCount() {
-		this.likeCount += 1;
-	}
-
-	public void increaseCommentCount() {
-		this.commentCount += 1;
 	}
 }

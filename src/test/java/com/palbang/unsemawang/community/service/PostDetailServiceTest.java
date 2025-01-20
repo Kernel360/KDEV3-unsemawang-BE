@@ -43,7 +43,7 @@ class PostDetailServiceTest {
 			.title("Test Post")
 			.content("Content")
 			.viewCount(10)
-			.isVisible(false)
+			.isVisible(true)
 			.member(member)
 			.build();
 
@@ -71,7 +71,7 @@ class PostDetailServiceTest {
 			.title("Private Post")
 			.content("Private Content")
 			.viewCount(15)
-			.isVisible(true) // 비공개 게시글
+			.isVisible(false) // 비공개 게시글
 			.member(member)
 			.build();
 
@@ -99,7 +99,7 @@ class PostDetailServiceTest {
 			.title("Private Post")
 			.content("Unauthorized Access")
 			.viewCount(20)
-			.isVisible(true) // 비공개 게시글
+			.isVisible(false) // 비공개 게시글
 			.member(owner)
 			.build();
 

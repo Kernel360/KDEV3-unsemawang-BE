@@ -23,7 +23,7 @@ public class PostDetailService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
 		// 비공개 접근 권한 확인
-		if (post.getIsVisible() && !post.getMember().getId().equals(memberId)) {
+		if (!post.getIsVisible() && !post.getMember().getId().equals(memberId)) {
 			throw new GeneralException(ResponseCode.FORBIDDEN); // 적절한 응답 코드 사용
 		}
 
