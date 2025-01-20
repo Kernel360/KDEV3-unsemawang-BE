@@ -42,7 +42,7 @@ public class PostDetailService {
 	private PostDetailResponse toResponseDto(Post post) {
 		return PostDetailResponse.builder()
 			.id(post.getId())
-			.userId(post.getMember().getId())
+			.memberId(post.getMember().getId())
 			.title(post.getTitle())
 			.content(post.getContent())
 			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())

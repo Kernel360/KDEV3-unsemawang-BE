@@ -20,7 +20,7 @@ public class PostDetailResponse {
 	private Long id;
 
 	@Schema(description = "작성자 ID", required = true, example = "UUID")
-	private String userId;
+	private String memberId;
 
 	@Schema(description = "게시글 제목", required = true, example = "게시글 제목")
 	private String title;
