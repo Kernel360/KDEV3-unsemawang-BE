@@ -12,6 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addMapping("/**")
 			.allowedOriginPatterns(
 				"http://localhost:3000",
+				"https://localhost:3000",
 				"http://deploy-kdev-3-unsemawang-fe.vercel.app",
 				"https://deploy-kdev-3-unsemawang-fe.vercel.app",
 				"https://www.unsemawang.com/",
