@@ -1,19 +1,17 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
 public class TojeongService {
 
@@ -25,31 +23,40 @@ public class TojeongService {
 		this.apiUrl = apiUrl;
 	}
 
-	public TojeongResponse getTojeongResult(FortuneApiRequest request) {
+	// 전체 Map 생성
+	private Map<String, CommonResponse> processApiResponse(ExternalTojeongResponse apiResponse) {
+		ExternalTojeongResponse.Result result = apiResponse.getResult();
+
+		// 각 항목별 CommonResponse를 분리하여 Map에 저장
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("currentluckanalysis", buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()));
+		responseMap.put("thisyearluck", buildThisYearLuck(result.getThisYearLuck()));
+		responseMap.put("tojeongsecret", buildTojeongSecret(result.getTojeongSecret()));
+		responseMap.put("wealth", buildWealth(result.getWealth()));
+		responseMap.put("naturecharacter", buildSimpleResponse("타고난 성품", result.getNatureCharacter()));
+		responseMap.put("currentbehavior", buildSimpleResponse("현재 지켜야 할 처세", result.getCurrentBehavior()));
+		responseMap.put("currenthumanrelationship",
+			buildSimpleResponse("현재 대인 관계", result.getCurrentHumanRelationship()));
+		responseMap.put("avoidpeople", buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()));
+
+		return responseMap; // Map 전체 반환
+	}
+
+	// 선택된 key만 사용자에게 반환
+	public Map<String, CommonResponse> getTojeongDetailByKey(FortuneApiRequest request, String key) {
 		ExternalTojeongResponse apiResponse = callExternalApi(request);
-		return processApiResponse(apiResponse);
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// 특정 key만 필터링하여 반환
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return Map.of(key, responseMap.get(key)); // 요청된 key-value만 전달
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {
-		ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalTojeongResponse.class);
-
-		return response;
-	}
-
-	private TojeongResponse processApiResponse(ExternalTojeongResponse apiResponse) {
-		ExternalTojeongResponse.Result result = apiResponse.getResult();
-
-		return new TojeongResponse(
-			buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()),
-			buildThisYearLuck(result.getThisYearLuck()),
-			buildTojeongSecret(result.getTojeongSecret()),
-			buildWealth(result.getWealth()),
-			buildSimpleResponse("타고난 성품", result.getNatureCharacter()),
-			buildSimpleResponse("현재 지켜야 할 처세", result.getCurrentBehavior()),
-			buildSimpleResponse("현재 대인 관계", result.getCurrentHumanRelationship()),
-			buildSimpleResponse("피해야 할 상대", result.getAvoidPeople())
-		);
+		return restTemplate.postForObject(apiUrl, request, ExternalTojeongResponse.class);
 	}
 
 	private CommonResponse buildCurrentLuckAnalysis(ExternalTojeongResponse.CurrentLuckAnalysis external) {
@@ -62,13 +69,10 @@ public class TojeongService {
 		if (external == null)
 			return null;
 
-		// 월별 운세 처리
-		List<CommonResponse> monthlyLuck = external.getMonth()
-			.stream()
+		List<CommonResponse> monthlyLuck = external.getMonth().stream()
 			.map(month -> new CommonResponse(month.getMonth(), month.getValue(), null))
 			.toList();
 
-		// 올해의 운세 children 처리
 		List<CommonResponse> children = List.of(
 			new CommonResponse("연애운", external.getRomanticRelationship(), null),
 			new CommonResponse("건강운", external.getHealth(), null),
