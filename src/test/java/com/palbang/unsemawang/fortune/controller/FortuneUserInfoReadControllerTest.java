@@ -10,22 +10,20 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.palbang.unsemawang.WithCustomMockUser;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoReadResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoReadService;
 
 @WebMvcTest(
-	controllers = FortuneUserInfoReadController.class,
-	excludeAutoConfiguration = SecurityAutoConfiguration.class
+	controllers = FortuneUserInfoReadController.class
 )
-@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
+@WithCustomMockUser
 class FortuneUserInfoReadControllerTest {
 	@Autowired
 	MockMvc mockMvc;
@@ -37,16 +35,14 @@ class FortuneUserInfoReadControllerTest {
 	@DisplayName("사주정보 조회 성공 테스트")
 	void testGetUserInfoList_success() throws Exception {
 		// Given
-		String memberId = "aaa";
-
 		List<FortuneUserInfoReadResponseDto> responseList = createFortuneInfo();
 
-		when(readService.fortuneInfoListRead(memberId)).thenReturn(responseList);
+		when(readService.fortuneInfoListRead(any(String.class))).thenReturn(responseList);
 
 		mockMvc.perform(get("/fortune-users")
-				.param("memberId", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON))
+				.accept(MediaType.APPLICATION_JSON)
+			)
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$[0].relationName").value("가족"))
 			.andExpect(jsonPath("$[0].name").value("홍길동"))
@@ -57,27 +53,25 @@ class FortuneUserInfoReadControllerTest {
 			.andExpect(jsonPath("$[0].solunar").value("solar"))
 			.andExpect(jsonPath("$[0].youn").value(0));
 
-		verify(readService, times(1)).fortuneInfoListRead(memberId);
+		verify(readService, times(1)).fortuneInfoListRead(any(String.class));
 	}
 
 	@Test
 	@DisplayName("사주정보 조회 실패 테스트 - 회원 없음")
 	void testGetUserInfoList_fail_memberNotFound() throws Exception {
 		// Given
-		String memberId = "invalid";
-
-		when(readService.fortuneInfoListRead(memberId))
+		when(readService.fortuneInfoListRead(any(String.class)))
 			.thenThrow(new GeneralException(NOT_EXIST_ID));
 
 		// When & Then
 		mockMvc.perform(get("/fortune-users")
-				.param("memberId", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON))
+				.accept(MediaType.APPLICATION_JSON)
+			)
 			.andExpect(status().isBadRequest()) // HTTP 400
 			.andExpect(jsonPath("$.message").value("유효하지 않은 요청 id"));
 
-		verify(readService, times(1)).fortuneInfoListRead(memberId);
+		verify(readService, times(1)).fortuneInfoListRead(any(String.class));
 	}
 
 	public List<FortuneUserInfoReadResponseDto> createFortuneInfo() {
