@@ -20,6 +20,12 @@ jobs:
 
       - name: Build Docker image
         run: docker build --platform linux/amd64 -t unsemawang .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Tag and Push Docker image
         if: github.event_name == 'push'
