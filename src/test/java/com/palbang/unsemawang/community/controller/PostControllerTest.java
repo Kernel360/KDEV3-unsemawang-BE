@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,9 +24,8 @@ import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.entity.Member;
 
 @WebMvcTest(
-	controllers = PostControllerImpl.class
+	controllers = PostController.class
 )
-@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
 class PostControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
