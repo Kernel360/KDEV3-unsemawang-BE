@@ -24,8 +24,8 @@ public class FortuneApiRequest {
 	private String sex;
 
 	@Schema(description = "출생 연도", example = "1990", required = true)
-	@Min(value = 1, message = "year must not be less than 1")
-	@Max(value = 2100, message = "year must not be less than 2100")
+	@Min(value = 1930, message = "year must not be less than 1930")
+	@Max(value = 2025, message = "year must not be less than 2025")
 	private int year;
 
 	@Schema(description = "출생 월", example = "3", required = true)

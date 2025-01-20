@@ -1,8 +1,6 @@
 package com.palbang.unsemawang.common.exception;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,21 +67,18 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+
 		log.error("Validation error: {}", ex.getMessage(), ex);
 
-		// 모든 필드 에러 메시지를 리스트로 추출
-		List<String> messages = ex.getBindingResult()
-			.getFieldErrors()
-			.stream()
-			.map(error -> error.getDefaultMessage())
-			.toList();
+		// ErrorResponse response = ErrorResponse.of(ResponseCode.DEFAULT_BAD_REQUEST);
 
-		// 커스텀 에러 응답 생성
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", messages);
-		response.put("error", "Bad Request");
-		response.put("statusCode", 400);
+		String errorMessage = ex.getBindingResult()
+			.getFieldErrors().stream()
+			.map(fieldError -> fieldError.getDefaultMessage())
+			.collect(Collectors.joining(", "));
+
+		ErrorResponse response = ErrorResponse.of(ResponseCode.DEFAULT_BAD_REQUEST, errorMessage);
 
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)

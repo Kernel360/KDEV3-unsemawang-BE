@@ -28,15 +28,9 @@ public class UnsepuriController {
 	@Operation(summary = "운세 풀이 API")
 	@PostMapping
 	public ResponseEntity<UnsepuriResponse> UnsepuriApiHandler(@Valid @RequestBody FortuneApiRequest request) {
-		log.info("Received request for Unsepuri API: {}", request);
-
 		// 서비스 호출 후 결과를 처리
 		UnsepuriResponse response = unsepuriService.getUnsepuriResult(request);
 
-		// 응답 데이터 로깅
-		log.info("Responding with data for Unsepuri API: {}", response);
-
-		// 성공적인 응답 반환
 		return ResponseEntity.ok(response);
 	}
 }

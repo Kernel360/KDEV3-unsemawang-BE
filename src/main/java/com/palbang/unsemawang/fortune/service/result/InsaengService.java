@@ -32,18 +32,10 @@ public class InsaengService {
 	}
 
 	private ExternalInsaengResponse callExternalApi(FortuneApiRequest request) {
-		try {
-			log.info("Requesting external API with data: {}", request);
-			ExternalInsaengResponse response = restTemplate.postForObject(apiUrl, request,
-				ExternalInsaengResponse.class);
-			log.info("Received response from external API: {}", response);
-			return response;
-		} catch (Exception e) {
-			log.error(
-				"Error while calling external API. URL: {}, Request: {}, Error: {}",
-				apiUrl, request, e.getMessage(), e);
-			throw e;
-		}
+		ExternalInsaengResponse response = restTemplate.postForObject(apiUrl, request,
+			ExternalInsaengResponse.class);
+
+		return response;
 	}
 
 	private InsaengResponse processApiResponse(ExternalInsaengResponse apiResponse) {
