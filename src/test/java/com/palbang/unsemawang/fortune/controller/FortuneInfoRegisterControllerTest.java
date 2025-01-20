@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fortune.controller;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -8,23 +9,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.palbang.unsemawang.WithCustomMockUser;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 
 @WebMvcTest(
-	controllers = FortuneInfoRegisterController.class,
-	excludeAutoConfiguration = SecurityAutoConfiguration.class
+	controllers = FortuneInfoRegisterController.class
 )
-@AutoConfigureDataJpa // @EnableJpaAuditing 때문에 JPA 관련 빈이 필요함
+@WithCustomMockUser
 class FortuneInfoRegisterControllerTest {
 	@Autowired
 	MockMvc mockMvc;
@@ -49,7 +48,9 @@ class FortuneInfoRegisterControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding("UTF-8")
 				.content(objectMapper.writeValueAsString(reqDto))
-				.accept(MediaType.APPLICATION_JSON))
+				.accept(MediaType.APPLICATION_JSON)
+				.with(csrf())
+			)
 			.andExpect(status().isCreated())
 			.andDo(print());
 

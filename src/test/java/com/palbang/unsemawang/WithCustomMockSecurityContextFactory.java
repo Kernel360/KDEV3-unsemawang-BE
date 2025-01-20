@@ -18,7 +18,7 @@ public class WithCustomMockSecurityContextFactory implements WithSecurityContext
 			annotation.memberId(),
 			annotation.email(),
 			annotation.role(),
-			null
+			annotation.join()
 		);
 
 		// UserDetails 구현체에 회원 정보 객체 담기
