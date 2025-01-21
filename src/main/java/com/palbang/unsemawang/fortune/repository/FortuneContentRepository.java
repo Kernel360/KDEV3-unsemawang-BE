@@ -14,6 +14,6 @@ public interface FortuneContentRepository extends JpaRepository<FortuneContent, 
 	@Query("SELECT fc FROM FortuneContent fc WHERE fc.nameEn LIKE %:keyword% OR fc.nameKo LIKE %:keyword%")
 	List<FortuneContent> findByKeyword(String keyword);
 
-	@Query("SELECT fc FROM FortuneContent fc WHERE fc.fortuneCategory.nameEn = :categoryName")
+	@Query("SELECT fc FROM FortuneContent fc WHERE fc.fortuneCategory.nameEn = :categoryName AND fc.isVisible = true")
 	List<FortuneContent> findAllByFortuneCategory(String categoryName);
 }
