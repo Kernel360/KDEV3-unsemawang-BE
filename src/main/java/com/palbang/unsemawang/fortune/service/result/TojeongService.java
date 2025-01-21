@@ -27,7 +27,7 @@ public class TojeongService {
 	}
 
 	// 특정 key의 CommonResponse 반환
-	public CommonResponse getTojeongDetailByKey(FortuneApiRequest request, String key) {
+	public CommonResponse getTojeongDetail(FortuneApiRequest request, String key) {
 		ExternalTojeongResponse apiResponse = callExternalApi(request); // 외부 API 호출
 		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
 

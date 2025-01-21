@@ -30,7 +30,7 @@ public class TojeongController {
 
 	@Operation(summary = "토정비결 API")
 	@PostMapping
-	public ResponseEntity<CommonResponse> getTojeongDetails(
+	public ResponseEntity<CommonResponse> getTojeongDetail(
 		@RequestParam(required = false) Integer id,
 		@RequestParam(required = false) String nameEn,
 		@Valid @RequestBody FortuneApiRequest request) {
@@ -39,7 +39,7 @@ public class TojeongController {
 		String key = (id != null) ? resolveKeyById(id) : nameEn.toLowerCase();
 
 		// 서비스 호출: CommonResponse 반환
-		CommonResponse response = tojeongService.getTojeongDetailByKey(request, key);
+		CommonResponse response = tojeongService.getTojeongDetail(request, key);
 		return ResponseEntity.ok(response); // CommonResponse 반환
 	}
 
