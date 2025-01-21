@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TodayUnseResponse;
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 import com.palbang.unsemawang.fortune.service.result.TodayUnseService;
 
@@ -23,14 +24,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/todayunse")
 public class TodayUnseController {
 
-	private final TodayUnseService todayunseService;
+	private final TodayUnseService todayUnseService;
 
 	@Operation(summary = "오늘의 운세 API")
 	@PostMapping
-	public ResponseEntity<TodayUnseResponse> TodayUnseApiHandler(@Valid @RequestBody FortuneApiRequest request) {
-		// 서비스 호출 후 결과를 처리
-		TodayUnseResponse response = todayunseService.getTodayUnseResult(request);
+	public ResponseEntity<CommonResponse> getTodayUnseDetail(
+		@RequestParam(required = false) String nameEn,
+		@Valid @RequestBody FortuneApiRequest request) {
 
+		String key = nameEn.toLowerCase();
+
+		CommonResponse response = todayUnseService.getTodayUnseDetail(request, key);
 		return ResponseEntity.ok(response);
 	}
 }
