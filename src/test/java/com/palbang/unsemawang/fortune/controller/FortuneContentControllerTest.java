@@ -58,7 +58,7 @@ class FortuneContentControllerTest {
 		List<FortuneContent> contentList = List.of(fortuneContent1, fortuneContent2, fortuneContent3);
 
 		// 2. when - 서비스의 목록 조회 메서드가 리스트를 반환할 때
-		when(fortuneContentService.getList()).thenReturn(ContentReadListDto.of(contentList));
+		when(fortuneContentService.getList(null)).thenReturn(ContentReadListDto.of(contentList));
 
 		// 3. then - 성공 상태 코드와 함께 DataResponse가 응답되어야 한다
 		mockMvc.perform(get("/fortune-contents")

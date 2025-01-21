@@ -9,7 +9,6 @@ import com.palbang.unsemawang.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +35,10 @@ public class FortuneContent extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; // 운세 컨텐츠 ID
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_id")
+	private FortuneCategory fortuneCategory;
 
 	@Column(name = "name_en", nullable = false)
 	private String nameEn; // 운세 유형명

@@ -30,6 +30,18 @@ public class FortuneContentService {
 		return ContentReadListDto.of(findList);
 	}
 
+	public List<ContentReadListDto> getList(String categoryName) {
+
+		// 카테고리명이 null 값인 경우 전체 조회
+		if (categoryName == null) {
+			return getList();
+		}
+
+		// 카테고리명이 있을 경우 필터링 조회
+		List<FortuneContent> findListByCategory = fortuneContentRepository.findAllByFortuneCategory(categoryName);
+		return ContentReadListDto.of(findListByCategory);
+	}
+
 	public ContentReadDetailDto getContentById(Long id) {
 
 		FortuneContent findContent = fortuneContentRepository.findById(id)
@@ -45,5 +57,4 @@ public class FortuneContentService {
 
 		return ContentReadListDto.of(findList);
 	}
-
 }
