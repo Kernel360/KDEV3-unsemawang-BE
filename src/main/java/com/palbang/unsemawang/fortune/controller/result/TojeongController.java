@@ -35,22 +35,12 @@ public class TojeongController {
 		@RequestParam(required = false) String nameEn,
 		@Valid @RequestBody FortuneApiRequest request) {
 
-		if (id == null && nameEn == null) {
-			// ResponseEntity의 body가 null이 될 수 있으므로 좀 더 명시적으로 작성
-			return ResponseEntity.badRequest().build();
-		}
-
 		// id -> key 변환
 		String key = (id != null) ? resolveKeyById(id) : nameEn.toLowerCase();
 
-		try {
-			// 서비스 호출: CommonResponse 반환
-			CommonResponse response = tojeongService.getTojeongDetailByKey(request, key);
-			return ResponseEntity.ok(response); // CommonResponse 반환
-		} catch (IllegalArgumentException ex) {
-			// 오류 메시지 전달
-			return ResponseEntity.badRequest().body(new CommonResponse("Invalid Key", ex.getMessage(), null));
-		}
+		// 서비스 호출: CommonResponse 반환
+		CommonResponse response = tojeongService.getTojeongDetailByKey(request, key);
+		return ResponseEntity.ok(response); // CommonResponse 반환
 	}
 
 	private String resolveKeyById(int id) {
