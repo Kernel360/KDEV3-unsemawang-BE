@@ -1,0 +1,20 @@
+
+# Gradle 관련 파일
+.gradle/
+build/
+
+# IDE 및 기타 편의 파일들
+.idea/
+.vscode/
+
+# 로그 및 문서 파일
+*.log
+*.md
+*.yml
+
+# Docker 관련 파일 제외
+Dockerfile
+.dockerignore
+
+# .env 파일 제외
+.env
