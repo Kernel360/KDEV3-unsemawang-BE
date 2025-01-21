@@ -137,14 +137,7 @@ public class MemberController {
 
 		String id = auth.getId();
 
-		memberService.updateMemberProfile(id, updateMemberRequest);
-
-		//닉네임
-		String nickname = updateMemberRequest.getNickname();
-		//상세소개
-		String detailBio = updateMemberRequest.getDetailBio();
-
-		UpdateMemberResponse updateMemberResponse = new UpdateMemberResponse(nickname, detailBio);
+		UpdateMemberResponse updateMemberResponse = memberService.updateMemberProfile(id, updateMemberRequest);
 
 		return ResponseEntity.ok(
 			Response.success(ResponseCode.SUCCESS_UPDATE, updateMemberResponse, "회원정보가 정상적으로 수정되었습니다.")
