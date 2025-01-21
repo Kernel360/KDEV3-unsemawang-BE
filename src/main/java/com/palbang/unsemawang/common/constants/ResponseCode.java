@@ -52,6 +52,7 @@ public enum ResponseCode implements Codable {
 	NOT_EXIST_MEMBER_ID("6114", HttpStatus.BAD_REQUEST, "유효하지 않은 회원 id 입니다"),
 	NOT_DELETE_AVAILABLE("6115", HttpStatus.BAD_REQUEST, "이미 삭제되었거나 삭제할 권한이 없습니다"),
 	FORBIDDEN("6116", HttpStatus.FORBIDDEN, "접근 권한 없음"),
+	NOT_EXIST_POST("6117", HttpStatus.BAD_REQUEST, "존재하지 않는 게시글입니다."),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
