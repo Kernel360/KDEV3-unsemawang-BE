@@ -1,30 +1,41 @@
 package com.palbang.unsemawang.community.controller;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.util.pagination.CursorRequest;
+import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
 import com.palbang.unsemawang.community.service.CommentService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "커뮤니티 댓글")
-@RestController("/comments")
+@RestController
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 	private final CommentService commentService;
 
+	@Operation(
+		description = "커서 기반 페이징 처리된 댓글 조회 기능입니다. 처음 조회시에는 cursorKey를 null로 보내시면 됩니다",
+		summary = "커서 기반 페이징 댓글 조회"
+	)
 	@GetMapping()
-	public ResponseEntity<Page<CommentReadResponse>> getComments(
+	public ResponseEntity<LongCursorResponse<CommentReadResponse>> getAllCommentsByPostId(
 		@RequestParam Long postId,
-		@PageableDefault(size = 10) Pageable pageable) {
-		Page<CommentReadResponse> comments = commentService.getCommentsByPostId(postId, pageable);
-		return ResponseEntity.ok(comments);
+		@RequestParam(required = false) Long cursorKey,
+		@RequestParam(defaultValue = "10") Integer size) {
+		// cursorRequest 객체 생성
+		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
+
+		LongCursorResponse<CommentReadResponse> response = commentService.getAllCommentsByPostId(postId, cursorRequest);
+
+		return ResponseEntity.ok(response);
 	}
 }
