@@ -28,15 +28,9 @@ public class InsaengController {
 	@Operation(summary = "인생 풀이 API")
 	@PostMapping
 	public ResponseEntity<InsaengResponse> InsaengApiHandler(@Valid @RequestBody FortuneApiRequest request) {
-		log.info("Received request for Insaeng API: {}", request);
-
 		// 서비스 호출 후 결과를 처리
 		InsaengResponse response = insaengService.getInsaengResult(request);
 
-		// 응답 데이터 로깅
-		log.info("Responding with data for Insaeng API: {}", response);
-
-		// 성공적인 응답 반환
 		return ResponseEntity.ok(response);
 	}
 }

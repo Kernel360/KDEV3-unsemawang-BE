@@ -30,25 +30,10 @@ public class GunghapService {
 	}
 
 	private ExternalGunghapResponse callExternalApi(GunghapApiRequest request) {
-		try {
-			// 요청 데이터 로그
-			log.info("Requesting external API with data: {}", request);
 
-			// API 호출
-			ExternalGunghapResponse response = restTemplate.postForObject(apiUrl, request,
-				ExternalGunghapResponse.class);
+		ExternalGunghapResponse response = restTemplate.postForObject(apiUrl, request, ExternalGunghapResponse.class);
 
-			// 응답 데이터 로그
-			log.info("Received response from external API: {}", response);
-
-			return response;
-
-		} catch (Exception e) {
-			// 예외 발생 시 상세 정보 로깅
-			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
-				e.getMessage(), e);
-			throw e;
-		}
+		return response;
 	}
 
 	private GunghapResponse processApiResponse(ExternalGunghapResponse apiResponse) {

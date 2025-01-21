@@ -19,17 +19,23 @@ public class PostDetailResponse {
 	@Schema(description = "게시글 ID", required = true, example = "1")
 	private Long id;
 
+	@Schema(description = "작성자 ID", required = true, example = "UUID")
+	private String memberId;
+
 	@Schema(description = "게시글 제목", required = true, example = "게시글 제목")
 	private String title;
 
 	@Schema(description = "게시글 본문 내용", required = true, example = "게시글 내용")
 	private String content;
 
-	@Schema(description = "작성자 이름 (익명일 경우 '익명')", required = true, example = "작성자 이름")
-	private String author;
+	@Schema(description = "작성자 닉네임 (익명일 경우 '익명')", required = true, example = "닉네임")
+	private String nickname;
 
 	@Schema(description = "익명 여부(익명 O : true / 익명 X : false)", required = true, example = "false")
 	private Boolean isAnonymous;
+
+	@Schema(description = "공개 여부(공개 O : true / 공개 X : false)", required = true, example = "true")
+	private Boolean isVisible;
 
 	@Schema(description = "조회수", required = true, example = "123")
 	private Integer viewCount;
@@ -44,8 +50,8 @@ public class PostDetailResponse {
 	private CommunityCategory communityCategory;
 
 	@Schema(description = "게시글 등록 시각", required = true, example = "2023-12-01T10:00:00")
-	private LocalDateTime postedAt;
+	private LocalDateTime registeredAt;
 
-	@Schema(description = "게시글 마지막 수정 시각", required = true, example = "2023-12-02T10:00:00")
-	private LocalDateTime lastUpdatedAt;
+	@Schema(description = "게시글 수정 시각", required = true, example = "2023-12-02T10:00:00")
+	private LocalDateTime updatedAt;
 }

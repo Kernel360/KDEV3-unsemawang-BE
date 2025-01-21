@@ -35,7 +35,7 @@ public class FortuneCategoryController {
 		}
 	)
 	@GetMapping
-	public ResponseEntity<List<CategoryReadListDto>> readList() {
+	public ResponseEntity<List<CategoryReadListDto>> readCategoryList() {
 
 		// 공개 처리 된 카테고리 목록 조회
 		List<CategoryReadListDto> fortuneCategoryList = fortuneCategoryService.getVisibleList();

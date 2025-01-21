@@ -31,17 +31,10 @@ public class UnsepuriService {
 
 	// 외부 API 호출
 	private ExternalUnsepuriResponse callExternalApi(FortuneApiRequest request) {
-		try {
-			log.info("Requesting external API with data: {}", request);
-			ExternalUnsepuriResponse response = restTemplate.postForObject(
-				apiUrl, request, ExternalUnsepuriResponse.class);
-			log.info("Received response from external API: {}", response);
-			return response;
-		} catch (Exception e) {
-			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
-				e.getMessage(), e);
-			throw e;
-		}
+		ExternalUnsepuriResponse response = restTemplate.postForObject(apiUrl, request,
+			ExternalUnsepuriResponse.class);
+
+		return response;
 	}
 
 	// API 응답 데이터를 UnsepuriResponse로 변환

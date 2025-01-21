@@ -15,4 +15,6 @@ public @interface WithCustomMockUser {
 	String role() default "GENERAL";
 
 	String email() default "testuser@gmail.com";
+
+	boolean join() default true;
 }

@@ -31,17 +31,10 @@ public class TojeongService {
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {
-		try {
-			log.info("Requesting external API with data: {}", request);
-			ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
-				ExternalTojeongResponse.class);
-			log.info("Received response from external API: {}", response);
-			return response;
-		} catch (Exception e) {
-			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
-				e.getMessage(), e);
-			throw e;
-		}
+		ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
+			ExternalTojeongResponse.class);
+
+		return response;
 	}
 
 	private TojeongResponse processApiResponse(ExternalTojeongResponse apiResponse) {

@@ -5,14 +5,14 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
@@ -26,72 +26,111 @@ class PostDetailServiceTest {
 	@Mock
 	private PostRepository postRepository;
 
-	private Post post;  // 테스트용 가상 Post 데이터
-
-	@BeforeEach
-	void setUp() {
+	public PostDetailServiceTest() {
 		MockitoAnnotations.openMocks(this);
+	}
 
-		// Mock 데이터 설정
-		Member member = Member.builder()
-			.id("test-member-id")
-			.name("테스트 작성자")
-			.build();
+	@Test
+	@DisplayName("게시글 조회 성공 (조회수 증가 검증)")
+	void getPostDetail_SuccessfullyIncrementsViewCount() {
+		// Given
+		Long postId = 1L;
+		String memberId = "test-member-id";
 
-		post = Post.builder()
-			.id(1L)
+		Member member = Member.builder().id(memberId).build();
+		Post post = Post.builder()
+			.id(postId)
+			.title("Test Post")
+			.content("Content")
+			.viewCount(10)
+			.isVisible(true)
 			.member(member)
-			.isAnonymous(false)
-			.title("테스트 게시글 제목")
-			.content("테스트 게시글 내용")
-			.viewCount(123)
-			.likeCount(10)
-			.commentCount(5)
-			.communityCategory(CommunityCategory.FREE_BOARD)
-			.registeredAt(java.time.LocalDateTime.of(2023, 12, 1, 10, 0))
-			.updatedAt(java.time.LocalDateTime.of(2023, 12, 2, 10, 0))
 			.build();
-	}
 
-	@Test
-	void testGetPostDetail_Success() {
-		// given
-		when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-		// when
-		PostDetailResponse response = postDetailService.getPostDetail(1L);
+		// Act
+		PostDetailResponse response = postDetailService.getPostDetail(memberId, postId);
 
-		// then
+		// Assert
 		assertNotNull(response);
-		assertEquals(1L, response.getId());
-		assertEquals("테스트 게시글 제목", response.getTitle());
-		assertEquals("테스트 게시글 내용", response.getContent());
-		assertEquals("테스트 작성자", response.getAuthor());
-		assertFalse(response.getIsAnonymous());
-		assertEquals(123, response.getViewCount());
-		assertEquals(10, response.getLikeCount());
-		assertEquals(5, response.getCommentCount());
-		assertEquals(CommunityCategory.FREE_BOARD, response.getCommunityCategory());
-		assertEquals(java.time.LocalDateTime.of(2023, 12, 1, 10, 0), response.getPostedAt());
-		assertEquals(java.time.LocalDateTime.of(2023, 12, 2, 10, 0), response.getLastUpdatedAt());
-
-		// verify
-		verify(postRepository, times(1)).findById(1L);
+		verify(postRepository).incrementViewCount(postId); // 조회수 증가 메서드 호출 확인
+		assertEquals(postId, response.getId());
 	}
 
 	@Test
-	void testGetPostDetail_NotFound() {
-		// given
-		when(postRepository.findById(1L)).thenReturn(Optional.empty());
+	@DisplayName("비공개 게시글 조회 성공 (작성자가 접근)")
+	void getPostDetail_SuccessForPrivatePostByOwner() {
+		// Given
+		Long postId = 2L;
+		String memberId = "test-member-id";
 
-		// when
-		Exception exception = assertThrows(GeneralException.class, () ->
-			postDetailService.getPostDetail(1L));
+		Member member = Member.builder().id(memberId).build();
+		Post post = Post.builder()
+			.id(postId)
+			.title("Private Post")
+			.content("Private Content")
+			.viewCount(15)
+			.isVisible(false) // 비공개 게시글
+			.member(member)
+			.build();
 
-		// then
-		assertEquals("게시글을 찾을 수 없습니다.", exception.getMessage());
+		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-		// verify
-		verify(postRepository, times(1)).findById(1L);
+		// Act
+		PostDetailResponse response = postDetailService.getPostDetail(memberId, postId);
+
+		// Assert
+		assertNotNull(response);
+		verify(postRepository).incrementViewCount(postId); // 조회수 증가 메서드 호출 확인
+		assertEquals(postId, response.getId());
+	}
+
+	@Test
+	@DisplayName("비공개 게시글에 접근 시 작성자가 아니면 예외 발생")
+	void getPostDetail_ThrowsExceptionForUnauthorizedAccessToPrivatePost() {
+		// Given
+		Long postId = 3L;
+		String memberId = "unauthorized-user-id";
+
+		Member owner = Member.builder().id("owner-id").build();
+		Post post = Post.builder()
+			.id(postId)
+			.title("Private Post")
+			.content("Unauthorized Access")
+			.viewCount(20)
+			.isVisible(false) // 비공개 게시글
+			.member(owner)
+			.build();
+
+		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+
+		// Act & Assert
+		GeneralException exception = assertThrows(
+			GeneralException.class,
+			() -> postDetailService.getPostDetail(memberId, postId)
+		);
+
+		assertEquals(ResponseCode.FORBIDDEN, exception.getErrorCode()); // 예외 코드 확인
+		verify(postRepository, never()).incrementViewCount(postId); // 조회수는 증가하지 않음
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 게시글 요청 시 예외 발생")
+	void getPostDetail_ThrowsExceptionForNonExistentPost() {
+		// Given
+		Long postId = 4L;
+		String memberId = "test-member-id";
+
+		when(postRepository.findById(postId)).thenReturn(Optional.empty());
+
+		// Act & Assert
+		GeneralException exception = assertThrows(
+			GeneralException.class,
+			() -> postDetailService.getPostDetail(memberId, postId)
+		);
+
+		assertEquals(ResponseCode.RESOURCE_NOT_FOUND, exception.getErrorCode()); // 예외 코드 확인
+		verify(postRepository, never()).incrementViewCount(postId); // 조회수는 증가하지 않음
 	}
 }

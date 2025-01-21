@@ -8,11 +8,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
+import com.palbang.unsemawang.config.QueryDslConfig;
 import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.entity.Member;
 
 @DataJpaTest
+@Import(QueryDslConfig.class)
 class MemberRepositoryTest {
 	@Autowired
 	private MemberRepository memberRepository;
@@ -22,7 +25,7 @@ class MemberRepositoryTest {
 	void findByNickname_whenMemberExistsAndNotDeleted_shouldReturnMember() {
 		// given
 		Member member = createMember("testNickname", false);
-		
+
 		memberRepository.save(member);
 
 		// when

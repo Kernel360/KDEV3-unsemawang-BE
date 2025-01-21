@@ -31,17 +31,10 @@ public class TodayUnseService {
 	}
 
 	private ExternalTodayUnseResponse callExternalApi(FortuneApiRequest request) {
-		try {
-			log.info("Requesting external API with data: {}", request);
-			ExternalTodayUnseResponse response = restTemplate.postForObject(apiUrl, request,
-				ExternalTodayUnseResponse.class);
-			log.info("Received response from external API: {}", response);
-			return response;
-		} catch (Exception e) {
-			log.error("Error while calling external API. URL: {}, Request: {}, Error: {}", apiUrl, request,
-				e.getMessage(), e);
-			throw e;
-		}
+		ExternalTodayUnseResponse response = restTemplate.postForObject(apiUrl, request,
+			ExternalTodayUnseResponse.class);
+
+		return response;
 	}
 
 	private TodayUnseResponse processApiResponse(ExternalTodayUnseResponse apiResponse) {
