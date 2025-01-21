@@ -28,7 +28,7 @@ public class TojeongController {
 
 	private final TojeongService tojeongService;
 
-	@Operation(summary = "토정비결 운세 항목 조회 API")
+	@Operation(summary = "토정비결 API")
 	@PostMapping
 	public ResponseEntity<CommonResponse> getTojeongDetails(
 		@RequestParam(required = false) Integer id,

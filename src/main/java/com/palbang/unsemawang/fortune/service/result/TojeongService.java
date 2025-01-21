@@ -12,6 +12,9 @@ import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class TojeongService {
 
