@@ -7,6 +7,8 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.member.dto.MemberProfileDto;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
+import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
+import com.palbang.unsemawang.member.dto.response.UpdateMemberResponse;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
@@ -58,8 +60,32 @@ public class MemberService {
 			.isJoin(member.getIsJoin())
 			.profileUrl(member.getProfileUrl())
 			.point(member.getPoint())
+			.oauthProvider(member.getOauthProvider())
+			.detailBio(member.getDetailBio())
 			.build();
 
 		return memberProfileDto;
+	}
+
+	//회원 개인정보수정
+	public UpdateMemberResponse updateMemberProfile(String id, UpdateMemberRequest updateMemberRequest) {
+		// 회원 검증
+		Member member = memberRepository.findById(id)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "회원을 찾을 수 없습니다"));
+
+		String nickname = updateMemberRequest.getNickname();
+		String detailBio = updateMemberRequest.getDetailBio();
+
+		//닉네임 중복 체크
+		duplicateNicknameCheck(nickname);
+
+		Member updateMember = member.toBuilder()
+			.nickname(nickname)
+			.detailBio(detailBio)
+			.build();
+
+		memberRepository.save(updateMember);
+
+		return new UpdateMemberResponse(updateMember.getNickname(), updateMember.getDetailBio());
 	}
 }
