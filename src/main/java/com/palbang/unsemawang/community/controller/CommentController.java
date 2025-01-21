@@ -1,15 +1,19 @@
 package com.palbang.unsemawang.community.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
 import com.palbang.unsemawang.community.service.CommentService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,9 +32,14 @@ public class CommentController {
 	)
 	@GetMapping()
 	public ResponseEntity<LongCursorResponse<CommentReadResponse>> getAllCommentsByPostId(
+		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestParam Long postId,
 		@RequestParam(required = false) Long cursorKey,
 		@RequestParam(defaultValue = "10") Integer size) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
 		// cursorRequest 객체 생성
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
 
