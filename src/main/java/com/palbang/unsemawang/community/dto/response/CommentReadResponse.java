@@ -14,28 +14,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentReadResponse {
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private Long commentId;
 
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private String memberId;
 
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private String nickname;
 
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private Boolean isAnonymous;
 
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private String content;
 
-	@Schema(description = "", required = true)
+	@Schema(required = true)
 	private LocalDateTime registeredAt;
 
-	@Schema(description = "", required = false)
-	private List<CommentReadResponse> replies;
-
-	@Schema(description = "", required = false)
+	@Schema(required = false)
 	private int repliesCount;
 
+	@Schema(required = false)
+	private List<CommentReadResponse> replies;
 }
