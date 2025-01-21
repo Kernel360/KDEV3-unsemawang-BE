@@ -2,17 +2,19 @@ package com.palbang.unsemawang.member.profile;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.palbang.unsemawang.common.response.ErrorResponse;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,9 +39,9 @@ public interface ProfileImageController {
 					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
-	@PostMapping(value = "/{memberId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	ResponseEntity<Void> uploadProfileImage(@PathVariable String memberId,
-		// @Parameter(description = "업로드할 파일", required = true)
+	@PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	ResponseEntity<Void> uploadProfileImage(@AuthenticationPrincipal CustomOAuth2User user,
+		@Parameter(description = "업로드할 파일", required = true)
 		@RequestParam("file") MultipartFile file);
 
 	@Operation(
@@ -58,9 +60,9 @@ public interface ProfileImageController {
 					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
-	@PutMapping(value = "/{memberId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	ResponseEntity<Void> updateProfileImage(@PathVariable String memberId,
-		// @Parameter(description = "업로드할 파일", required = true)
+	@PutMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	ResponseEntity<Void> updateProfileImage(@AuthenticationPrincipal CustomOAuth2User user,
+		@Parameter(description = "업로드할 파일", required = true)
 		@RequestParam("file") MultipartFile file);
 
 	@Operation(
@@ -76,8 +78,8 @@ public interface ProfileImageController {
 					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
-	@DeleteMapping("/{memberId}/profile-image")
-	ResponseEntity<Void> deleteProfileImage(@PathVariable String memberId);
+	@DeleteMapping("/profile-image")
+	ResponseEntity<Void> deleteProfileImage(@AuthenticationPrincipal CustomOAuth2User user);
 
 	@Operation(
 		summary = "프로필 이미지 가져오기",
@@ -92,6 +94,6 @@ public interface ProfileImageController {
 					schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
-	@GetMapping("/{memberId}/profile-image")
-	ResponseEntity<String> getProfileImage(@PathVariable String memberId);
+	@GetMapping("/profile-image")
+	ResponseEntity<String> getProfileImage(@AuthenticationPrincipal CustomOAuth2User user);
 }

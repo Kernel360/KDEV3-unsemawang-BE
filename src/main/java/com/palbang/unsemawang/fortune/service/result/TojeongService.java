@@ -1,13 +1,14 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTojeongResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
@@ -25,31 +26,39 @@ public class TojeongService {
 		this.apiUrl = apiUrl;
 	}
 
-	public TojeongResponse getTojeongResult(FortuneApiRequest request) {
-		ExternalTojeongResponse apiResponse = callExternalApi(request);
-		return processApiResponse(apiResponse);
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getTojeongDetail(FortuneApiRequest request, String key) {
+		ExternalTojeongResponse apiResponse = callExternalApi(request); // 외부 API 호출
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// 특정 key 필터링
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key); // key에 해당하는 CommonResponse 반환
+	}
+
+	// 전체 Field -> Map<String, CommonResponse> 변환
+	private Map<String, CommonResponse> processApiResponse(ExternalTojeongResponse apiResponse) {
+		ExternalTojeongResponse.Result result = apiResponse.getResult();
+
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("currentluckanalysis", buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()));
+		responseMap.put("thisyearluck", buildThisYearLuck(result.getThisYearLuck()));
+		responseMap.put("tojeongsecret", buildTojeongSecret(result.getTojeongSecret()));
+		responseMap.put("wealth", buildWealth(result.getWealth()));
+		responseMap.put("naturecharacter", buildSimpleResponse("타고난 성품", result.getNatureCharacter()));
+		responseMap.put("currentbehavior", buildSimpleResponse("현재 지켜야 할 처세", result.getCurrentBehavior()));
+		responseMap.put("currenthumanrelationship",
+			buildSimpleResponse("현재 대인 관계", result.getCurrentHumanRelationship()));
+		responseMap.put("avoidpeople", buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()));
+
+		return responseMap; // 전체 Map 반환
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {
-		ExternalTojeongResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalTojeongResponse.class);
-
-		return response;
-	}
-
-	private TojeongResponse processApiResponse(ExternalTojeongResponse apiResponse) {
-		ExternalTojeongResponse.Result result = apiResponse.getResult();
-
-		return new TojeongResponse(
-			buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()),
-			buildThisYearLuck(result.getThisYearLuck()),
-			buildTojeongSecret(result.getTojeongSecret()),
-			buildWealth(result.getWealth()),
-			buildSimpleResponse("타고난 성품", result.getNatureCharacter()),
-			buildSimpleResponse("현재 지켜야 할 처세", result.getCurrentBehavior()),
-			buildSimpleResponse("현재 대인 관계", result.getCurrentHumanRelationship()),
-			buildSimpleResponse("피해야 할 상대", result.getAvoidPeople())
-		);
+		return restTemplate.postForObject(apiUrl, request, ExternalTojeongResponse.class);
 	}
 
 	private CommonResponse buildCurrentLuckAnalysis(ExternalTojeongResponse.CurrentLuckAnalysis external) {
@@ -62,13 +71,10 @@ public class TojeongService {
 		if (external == null)
 			return null;
 
-		// 월별 운세 처리
-		List<CommonResponse> monthlyLuck = external.getMonth()
-			.stream()
+		List<CommonResponse> monthlyLuck = external.getMonth().stream()
 			.map(month -> new CommonResponse(month.getMonth(), month.getValue(), null))
 			.toList();
 
-		// 올해의 운세 children 처리
 		List<CommonResponse> children = List.of(
 			new CommonResponse("연애운", external.getRomanticRelationship(), null),
 			new CommonResponse("건강운", external.getHealth(), null),
