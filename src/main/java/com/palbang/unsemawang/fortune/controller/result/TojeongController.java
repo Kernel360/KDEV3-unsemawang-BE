@@ -30,24 +30,26 @@ public class TojeongController {
 
 	@Operation(summary = "토정비결 운세 항목 조회 API")
 	@PostMapping
-	public ResponseEntity<?> getTojeongDetails( // 메서드 명 수정
+	public ResponseEntity<CommonResponse> getTojeongDetails(
 		@RequestParam(required = false) Integer id,
 		@RequestParam(required = false) String nameEn,
 		@Valid @RequestBody FortuneApiRequest request) {
 
 		if (id == null && nameEn == null) {
-			return ResponseEntity.badRequest().body("id 또는 nameEn 중 하나는 필수입니다.");
+			// ResponseEntity의 body가 null이 될 수 있으므로 좀 더 명시적으로 작성
+			return ResponseEntity.badRequest().build();
 		}
 
-		// id로 key 추출
+		// id -> key 변환
 		String key = (id != null) ? resolveKeyById(id) : nameEn.toLowerCase();
 
-		// 서비스 호출 후 특정 key에 대한 Map 반환
 		try {
-			Map<String, CommonResponse> response = tojeongService.getTojeongDetailByKey(request, key);
-			return ResponseEntity.ok(response);
+			// 서비스 호출: CommonResponse 반환
+			CommonResponse response = tojeongService.getTojeongDetailByKey(request, key);
+			return ResponseEntity.ok(response); // CommonResponse 반환
 		} catch (IllegalArgumentException ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
+			// 오류 메시지 전달
+			return ResponseEntity.badRequest().body(new CommonResponse("Invalid Key", ex.getMessage(), null));
 		}
 	}
 

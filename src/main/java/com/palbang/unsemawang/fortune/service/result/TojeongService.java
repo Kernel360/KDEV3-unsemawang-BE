@@ -23,11 +23,23 @@ public class TojeongService {
 		this.apiUrl = apiUrl;
 	}
 
-	// 전체 Map 생성
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getTojeongDetailByKey(FortuneApiRequest request, String key) {
+		ExternalTojeongResponse apiResponse = callExternalApi(request); // 외부 API 호출
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// 특정 key 필터링
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key); // key에 해당하는 CommonResponse 반환
+	}
+
+	// 전체 Field -> Map<String, CommonResponse> 변환
 	private Map<String, CommonResponse> processApiResponse(ExternalTojeongResponse apiResponse) {
 		ExternalTojeongResponse.Result result = apiResponse.getResult();
 
-		// 각 항목별 CommonResponse를 분리하여 Map에 저장
 		Map<String, CommonResponse> responseMap = new HashMap<>();
 		responseMap.put("currentluckanalysis", buildCurrentLuckAnalysis(result.getCurrentLuckAnalysis()));
 		responseMap.put("thisyearluck", buildThisYearLuck(result.getThisYearLuck()));
@@ -39,20 +51,7 @@ public class TojeongService {
 			buildSimpleResponse("현재 대인 관계", result.getCurrentHumanRelationship()));
 		responseMap.put("avoidpeople", buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()));
 
-		return responseMap; // Map 전체 반환
-	}
-
-	// 선택된 key만 사용자에게 반환
-	public Map<String, CommonResponse> getTojeongDetailByKey(FortuneApiRequest request, String key) {
-		ExternalTojeongResponse apiResponse = callExternalApi(request);
-		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
-
-		// 특정 key만 필터링하여 반환
-		if (!responseMap.containsKey(key)) {
-			throw new IllegalArgumentException("Invalid key: " + key);
-		}
-
-		return Map.of(key, responseMap.get(key)); // 요청된 key-value만 전달
+		return responseMap; // 전체 Map 반환
 	}
 
 	private ExternalTojeongResponse callExternalApi(FortuneApiRequest request) {

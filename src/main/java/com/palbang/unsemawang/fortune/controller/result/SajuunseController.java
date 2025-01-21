@@ -33,26 +33,4 @@ public class SajuunseController {
 
 		return ResponseEntity.ok(response);
 	}
-
-	// 	// 조건별 필드 반환
-	// 	switch (field != null ? field.toLowerCase() : "all") {
-	// 	case "bornseasonluck":
-	// 		return ResponseEntity.ok(response.getBornSeasonLuck());
-	// 	case "luck":
-	// 		return ResponseEntity.ok(response.getLuck());
-	// 	case "naturecharacter":
-	// 		return ResponseEntity.ok(response.getNatureCharacter());
-	// 	case "socialcharacter":
-	// 		return ResponseEntity.ok(response.getSocialCharacter());
-	// 	case "socialpersonality":
-	// 		return ResponseEntity.ok(response.getSocialPersonality());
-	// 	case "avoidpeople":
-	// 		return ResponseEntity.ok(response.getAvoidPeople());
-	// 	case "currentluckanalysis":
-	// 		return ResponseEntity.ok(response.getCurrentLuckAnalysis());
-	// 	default:
-	// 		// 쿼리 파라미터가 없거나 잘못된 경우, 예외 발생
-	// 		throw new IllegalArgumentException();
-	// }
-
 }
