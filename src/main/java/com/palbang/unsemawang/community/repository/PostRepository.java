@@ -20,7 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findByIdAndMember(Long id, Member member);
 
 	@Query("SELECT p FROM Post p WHERE p.id = :postId AND p.member = :member AND p.isDeleted = false")
-	Optional<Post> findBuMemberIsNotDeleted(Long postId, Member member);
+	Optional<Post> findByMemberIsNotDeleted(Long postId, Member member);
 
 	// 조회수 증가
 	@Modifying
@@ -54,4 +54,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("cursorId") Long cursorId,
 		Pageable pageable
 	);
+
+	Optional<Post> findByIdAndIsDeletedFalse(Long id);
 }
