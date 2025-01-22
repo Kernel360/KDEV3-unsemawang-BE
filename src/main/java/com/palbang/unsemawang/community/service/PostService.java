@@ -1,14 +1,19 @@
 package com.palbang.unsemawang.community.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
+import com.palbang.unsemawang.common.util.file.dto.FileRequest;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.dto.request.PostDeleteRequest;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
-import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
 import com.palbang.unsemawang.member.entity.Member;
@@ -19,11 +24,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+	private final FileService fileService;
 	private final PostRepository postRepository;
 	private final MemberRepository memberRepository;
 
 	@Transactional(rollbackFor = Exception.class)
-	public PostRegisterResponse register(PostRegisterRequest postRegisterRequest) {
+	public Post register(PostRegisterRequest postRegisterRequest) {
 
 		// 0. 유효한 회원인지 확인
 		Member member = memberRepository.findById(postRegisterRequest.getMemberId())
@@ -39,7 +45,19 @@ public class PostService {
 			throw new GeneralException(ResponseCode.ERROR_INSERT, "게시글 등록에 실패했습니다");
 		}
 
-		return PostRegisterResponse.of("게시글 등록이 성공했습니다!");
+		return savedPost;
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public Post register(PostRegisterRequest postRegisterRequest, List<MultipartFile> fileList) {
+
+		// 1. 게시글 등록
+		Post savedPost = register(postRegisterRequest);
+
+		// 2. 이미지 업로드
+		fileService.uploadImagesAtOnce(fileList, FileRequest.of(FileReferenceType.COMMUNITY_BOARD, savedPost.getId()));
+
+		return savedPost;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
