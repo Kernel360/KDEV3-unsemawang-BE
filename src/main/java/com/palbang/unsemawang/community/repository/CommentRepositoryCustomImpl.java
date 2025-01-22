@@ -31,7 +31,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 				comment.parentComment.isNull(),           // 부모 댓글만 가져옴
 				cursorKey == null ? null : comment.id.lt(cursorKey) // WHERE id < {cursorKey} 로 변환
 			)
-			.orderBy(comment.id.desc()) // 최신순 정렬
+			.orderBy(comment.id.asc())
 			.limit(size + 1) // 요청한 size보다 1개 더 가져옴
 			.fetch();
 
