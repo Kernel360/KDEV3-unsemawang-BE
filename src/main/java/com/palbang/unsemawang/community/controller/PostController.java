@@ -1,5 +1,7 @@
 package com.palbang.unsemawang.community.controller;
 
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
@@ -25,10 +29,11 @@ public interface PostController {
 		description = "커뮤니티 게시글 등록 API 입니다. 인증 토큰이 담긴 쿠키를 직접 보내셔야 테스트가 가능합니다!",
 		summary = "커뮤니티 게시글 등록"
 	)
-	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	ResponseEntity<PostRegisterResponse> write(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@Valid @RequestBody PostRegisterRequest postRegisterRequest
+		@RequestPart List<MultipartFile> fileList,
+		@Valid @RequestPart PostRegisterRequest postRegisterRequest
 	);
 
 	/* 게시글 수정 */
@@ -36,7 +41,7 @@ public interface PostController {
 		description = "커뮤니티 게시글 수정 API 입니다. 인증 토큰이 담긴 쿠키를 보내셔야 테스트가 가능합니다!",
 		summary = "커뮤니티 게시글 수정"
 	)
-	@PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity modify(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId,
