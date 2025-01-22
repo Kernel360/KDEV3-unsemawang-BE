@@ -1,13 +1,14 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.TodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalTodayUnseResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
@@ -25,24 +26,31 @@ public class TodayUnseService {
 		this.apiUrl = apiUrl;
 	}
 
-	public TodayUnseResponse getTodayUnseResult(FortuneApiRequest request) {
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getTodayUnseDetail(FortuneApiRequest request, String key) {
 		ExternalTodayUnseResponse apiResponse = callExternalApi(request);
-		return processApiResponse(apiResponse);
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// key 검증 및 데이터 반환
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key);
 	}
 
+	// 외부 API 호출 메서드
 	private ExternalTodayUnseResponse callExternalApi(FortuneApiRequest request) {
-		ExternalTodayUnseResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalTodayUnseResponse.class);
-
-		return response;
+		return restTemplate.postForObject(apiUrl, request, ExternalTodayUnseResponse.class);
 	}
 
-	private TodayUnseResponse processApiResponse(ExternalTodayUnseResponse apiResponse) {
+	// 응답 데이터를 Map<String, CommonResponse>로 처리
+	private Map<String, CommonResponse> processApiResponse(ExternalTodayUnseResponse apiResponse) {
 		ExternalTodayUnseResponse.Result result = apiResponse.getResult();
 
-		return new TodayUnseResponse(
-			buildLuck(result.getLuck()) // `Luck` 데이터를 가공
-		);
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("luck", buildLuck(result.getLuck()));
+		return responseMap;
 	}
 
 	private CommonResponse buildLuck(ExternalTodayUnseResponse.Luck externalLuck) {

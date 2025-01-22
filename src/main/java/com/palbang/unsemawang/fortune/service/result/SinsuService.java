@@ -1,13 +1,14 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.SinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalSinsuResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
@@ -25,24 +26,32 @@ public class SinsuService {
 		this.apiUrl = apiUrl;
 	}
 
-	// 신수 결과 가져오기
-	public SinsuResponse getSinsuResult(FortuneApiRequest request) {
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getSinsuDetail(FortuneApiRequest request, String key) {
 		ExternalSinsuResponse apiResponse = callExternalApi(request);
-		return processApiResponse(apiResponse);
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// key 검증 및 데이터 반환
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key);
 	}
 
 	// 외부 API 호출 메서드
 	private ExternalSinsuResponse callExternalApi(FortuneApiRequest request) {
-		ExternalSinsuResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalSinsuResponse.class);
-
-		return response;
+		return restTemplate.postForObject(apiUrl, request, ExternalSinsuResponse.class);
 	}
 
-	// API 응답 데이터를 처리
-	private SinsuResponse processApiResponse(ExternalSinsuResponse apiResponse) {
+	// 응답 데이터를 Map<String, CommonResponse>로 처리
+	private Map<String, CommonResponse> processApiResponse(ExternalSinsuResponse apiResponse) {
 		ExternalSinsuResponse.Result result = apiResponse.getResult();
-		return new SinsuResponse(buildThisYearLuck(result.getThisYearLuck()));
+
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("thisyearluck", buildThisYearLuck(result.getThisYearLuck()));
+		responseMap.put("goodandbadanalysis", buildGoodAndBadAnalysis(result.getGoodAndBadAnalysis()));
+		return responseMap;
 	}
 
 	// 올해의 운세 데이터를 CommonResponse로 가공 처리
@@ -70,5 +79,27 @@ public class SinsuService {
 
 		// 상위 CommonResponse 반환
 		return new CommonResponse("올해의 행운", "", children);
+	}
+
+	// 길흉 분석 추가
+	private CommonResponse buildGoodAndBadAnalysis(
+		ExternalSinsuResponse.GoodAndBadAnalysis externalGoodAndBadAnalysis) {
+		if (externalGoodAndBadAnalysis == null) {
+			return null;
+		}
+
+		String currentGoodOrBadText = externalGoodAndBadAnalysis.getCurrentGoodOrBad().getText();
+
+		// 하위 운세(children) 처리
+		List<CommonResponse> children = List.of(
+			new CommonResponse("대길", externalGoodAndBadAnalysis.getGood(), null),
+			new CommonResponse("대흉", externalGoodAndBadAnalysis.getBad(), null),
+			new CommonResponse("직업에 따른 길흉", externalGoodAndBadAnalysis.getGoodOrBadByJob(), null),
+			new CommonResponse("명당과 길흉", externalGoodAndBadAnalysis.getPlaceGoodOrBad(), null),
+			new CommonResponse("현재의 길흉사", currentGoodOrBadText, null)
+		);
+
+		// 상위 CommonResponse 반환
+		return new CommonResponse("길흉 분석", "", children);
 	}
 }

@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.InsaengResponse;
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 import com.palbang.unsemawang.fortune.service.result.InsaengService;
 
@@ -27,10 +28,13 @@ public class InsaengController {
 
 	@Operation(summary = "인생 풀이 API")
 	@PostMapping
-	public ResponseEntity<InsaengResponse> InsaengApiHandler(@Valid @RequestBody FortuneApiRequest request) {
-		// 서비스 호출 후 결과를 처리
-		InsaengResponse response = insaengService.getInsaengResult(request);
+	public ResponseEntity<CommonResponse> getInsaengDetail(
+		@RequestParam(required = false) String nameEn,
+		@Valid @RequestBody FortuneApiRequest request) {
 
+		String key = nameEn.toLowerCase();
+
+		CommonResponse response = insaengService.getInsaengDetail(request, key);
 		return ResponseEntity.ok(response);
 	}
 }

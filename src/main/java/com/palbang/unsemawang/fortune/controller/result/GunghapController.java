@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.GunghapResponse;
+import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
 import com.palbang.unsemawang.fortune.dto.result.GunghapApiRequest;
 import com.palbang.unsemawang.fortune.service.result.GunghapService;
 
@@ -27,10 +28,13 @@ public class GunghapController {
 
 	@Operation(summary = "궁합 API")
 	@PostMapping
-	public ResponseEntity<GunghapResponse> GunghapApiHandler(@Valid @RequestBody GunghapApiRequest request) {
-		// 서비스 호출 후 결과를 처리
-		GunghapResponse response = gunghapService.getGunghapResult(request);
+	public ResponseEntity<CommonResponse> getGunghapDetail(
+		@RequestParam(required = false) String nameEn,
+		@Valid @RequestBody GunghapApiRequest request) {
 
+		String key = nameEn.toLowerCase();
+
+		CommonResponse response = gunghapService.getGunghapDetail(request, key);
 		return ResponseEntity.ok(response);
 	}
 }
