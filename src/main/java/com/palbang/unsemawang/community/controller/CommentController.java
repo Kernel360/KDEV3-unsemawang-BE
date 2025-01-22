@@ -3,6 +3,7 @@ package com.palbang.unsemawang.community.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "커뮤니티 댓글")
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/posts/{postId}/comments")
 @RequiredArgsConstructor
 public class CommentController {
 	private final CommentService commentService;
@@ -33,7 +34,7 @@ public class CommentController {
 	@GetMapping()
 	public ResponseEntity<LongCursorResponse<CommentReadResponse>> getAllCommentsByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@RequestParam Long postId,
+		@PathVariable Long postId,
 		@RequestParam(required = false) Long cursorKey,
 		@RequestParam(defaultValue = "10") Integer size) {
 
