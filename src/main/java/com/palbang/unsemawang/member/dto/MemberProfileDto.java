@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.member.dto;
 
 import com.palbang.unsemawang.member.constant.MemberRole;
+import com.palbang.unsemawang.member.constant.OauthProvider;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -27,4 +28,9 @@ public class MemberProfileDto {
 	private String profileUrl;
 	@Schema(description = "회원보유 포인트", required = true)
 	private int point;
+	@Schema(description = "OAuth정보", required = true)
+	private OauthProvider oauthProvider;
+	@Schema(description = "회원 상세소개", required = true)
+	private String detailBio;
+
 }

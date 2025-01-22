@@ -1,18 +1,20 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.UnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalUnsepuriResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
+@Slf4j
 public class UnsepuriService {
 
 	private final RestTemplate restTemplate;
@@ -23,34 +25,41 @@ public class UnsepuriService {
 		this.apiUrl = apiUrl;
 	}
 
-	// Unsepuri 결과 반환
-	public UnsepuriResponse getUnsepuriResult(FortuneApiRequest request) {
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getUnsepuriDetail(FortuneApiRequest request, String key) {
 		ExternalUnsepuriResponse apiResponse = callExternalApi(request);
-		return processApiResponse(apiResponse);
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// 특정 key 필터링
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key);
 	}
 
-	// 외부 API 호출
+	// 외부 API 호출 메서드
 	private ExternalUnsepuriResponse callExternalApi(FortuneApiRequest request) {
-		ExternalUnsepuriResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalUnsepuriResponse.class);
-
-		return response;
+		return restTemplate.postForObject(apiUrl, request, ExternalUnsepuriResponse.class);
 	}
 
-	// API 응답 데이터를 UnsepuriResponse로 변환
-	private UnsepuriResponse processApiResponse(ExternalUnsepuriResponse apiResponse) {
+	// 응답 데이터를 Map<String, CommonResponse>로 변환
+	private Map<String, CommonResponse> processApiResponse(ExternalUnsepuriResponse apiResponse) {
 		ExternalUnsepuriResponse.Result result = apiResponse.getResult();
 
-		return new UnsepuriResponse(
-			buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()), // 피해야 할 상대
-			buildSimpleResponse("현재 운세 풀이", result.getCurrentUnsepuri().getText()), // 현재 운세 풀이
-			buildSimpleResponse("행운의 요소", result.getLuckElement().getText()) // 행운의 요소
-		);
+		// 데이터 매핑
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("avoidpeople", buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()));
+		responseMap.put("currentunsepuri", buildSimpleResponse("현재 운세 풀이", result.getCurrentUnsepuri().getText()));
+		responseMap.put("luckelement", buildSimpleResponse("행운의 요소", result.getLuckElement().getText()));
+
+		return responseMap;
 	}
 
 	private CommonResponse buildSimpleResponse(String label, String value) {
-		if (value == null)
+		if (value == null) {
 			return null;
+		}
 		return new CommonResponse(label, value, null);
 	}
 }

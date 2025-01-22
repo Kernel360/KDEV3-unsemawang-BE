@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,8 @@ import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 import com.palbang.unsemawang.member.dto.MemberProfileDto;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
+import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
+import com.palbang.unsemawang.member.dto.response.UpdateMemberResponse;
 import com.palbang.unsemawang.member.service.MemberService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
@@ -48,8 +51,8 @@ public class MemberController {
 	@GetMapping("/check-nickname")
 	public ResponseEntity<Void> checkNickname(
 		@Pattern(
-			regexp = "^[A-Za-z\\d가-힣_]{2,15}$",
-			message = "닉네임은 2~15자 이내의 문자(한글, 영어 대소문자, 숫자, 언더바)여야 합니다."
+			regexp = "^[A-Za-z\\d가-힣]{2,10}$",
+			message = "닉네임은 2~10자 이내의 문자(한글, 영어 대소문자, 숫자)여야 합니다."
 		)
 		String nickname) {
 
@@ -102,10 +105,43 @@ public class MemberController {
 	@GetMapping("/profile")
 	public ResponseEntity<MemberProfileDto> getProfile(
 		@AuthenticationPrincipal CustomOAuth2User auth) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
 		//회원정보에 해당하는 프로필 조회
 		MemberProfileDto memberProfile = memberService.getMemberProfile(auth.getId());
 
 		return ResponseEntity.ok(memberProfile);
+	}
+
+	@Operation(
+		summary = "회원 개인정보 수정",
+		description = "회원 개인정보를 수정합니다.",
+		responses = {
+			@ApiResponse(
+				description = "Success",
+				responseCode = "200"
+			)
+		}
+	)
+	@PutMapping("/profile/me")
+	public ResponseEntity<Response> updateProfile(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@Valid @RequestBody UpdateMemberRequest updateMemberRequest) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		String id = auth.getId();
+
+		UpdateMemberResponse updateMemberResponse = memberService.updateMemberProfile(id, updateMemberRequest);
+
+		return ResponseEntity.ok(
+			Response.success(ResponseCode.SUCCESS_UPDATE, updateMemberResponse, "회원정보가 정상적으로 수정되었습니다.")
+		);
 	}
 
 }
