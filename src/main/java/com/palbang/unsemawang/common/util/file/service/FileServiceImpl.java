@@ -43,6 +43,11 @@ public class FileServiceImpl implements FileService {
 		saveFileOrRollback(fileEntity, path, fileRequest);
 	}
 
+	@Override
+	public void uploadImagesAtOnce(List<MultipartFile> files, FileRequest fileRequest) {
+		files.forEach(f -> uploadImage(f, fileRequest));
+	}
+
 	/*
 
 	upload 업로드
