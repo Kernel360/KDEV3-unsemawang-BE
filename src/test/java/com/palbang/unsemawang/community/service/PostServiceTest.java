@@ -12,10 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
-import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
 import com.palbang.unsemawang.member.constant.MemberRole;
@@ -33,6 +33,9 @@ class PostServiceTest {
 
 	@MockBean
 	private MemberRepository memberRepository;
+
+	@MockBean
+	private FileService fileService;
 
 	@Test
 	@DisplayName(value = "게시글 등록 - 모든 값이 정상적으로 들어온 경우")
@@ -61,9 +64,9 @@ class PostServiceTest {
 		when(postRepository.save(any(Post.class))).thenReturn(post);
 
 		// then
-		PostRegisterResponse postRegisterResponse = postService.register(postRegisterRequest);
-		assertNotNull(postRegisterResponse);
-		assertEquals("게시글 등록이 성공했습니다!", postRegisterResponse.getMessage());
+		Post registeredPost = postService.register(postRegisterRequest);
+		assertNotNull(registeredPost.getId());
+
 		verify(postRepository, times(1)).save(any());
 	}
 
