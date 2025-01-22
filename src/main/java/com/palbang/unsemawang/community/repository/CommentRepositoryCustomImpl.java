@@ -26,7 +26,6 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 		List<Comment> comments = queryFactory
 			.selectFrom(comment)
 			.distinct()
-			.leftJoin(comment.childComments).fetchJoin() // 대댓글 포함
 			.where(
 				comment.post.id.eq(postId),               // 게시글 ID 조건
 				comment.parentComment.isNull(),           // 부모 댓글만 가져옴
