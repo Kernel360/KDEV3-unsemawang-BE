@@ -1,7 +1,5 @@
 package com.palbang.unsemawang.fortune.controller.result;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,29 +29,14 @@ public class TojeongController {
 	@Operation(summary = "토정비결 API")
 	@PostMapping
 	public ResponseEntity<CommonResponse> getTojeongDetail(
-		@RequestParam(required = false) Integer id,
 		@RequestParam(required = false) String nameEn,
 		@Valid @RequestBody FortuneApiRequest request) {
 
-		// id -> key 변환
-		String key = (id != null) ? resolveKeyById(id) : nameEn.toLowerCase();
+		// nameEn -> key 변환
+		String key = nameEn.toLowerCase();
 
 		// 서비스 호출: CommonResponse 반환
 		CommonResponse response = tojeongService.getTojeongDetail(request, key);
 		return ResponseEntity.ok(response); // CommonResponse 반환
-	}
-
-	private String resolveKeyById(int id) {
-		Map<Integer, String> idToKeyMap = Map.of(
-			1, "currentluckanalysis",
-			2, "thisyearluck",
-			3, "tojeongsecret",
-			4, "wealth",
-			5, "naturecharacter",
-			6, "currentbehavior",
-			7, "currenthumanrelationship",
-			8, "avoidpeople"
-		);
-		return idToKeyMap.get(id);
 	}
 }

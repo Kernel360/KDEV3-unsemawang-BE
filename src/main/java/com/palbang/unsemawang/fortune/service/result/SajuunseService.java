@@ -1,20 +1,21 @@
 package com.palbang.unsemawang.fortune.service.result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.palbang.unsemawang.fortune.dto.result.ApiResponse.CommonResponse;
-import com.palbang.unsemawang.fortune.dto.result.ApiResponse.SajuunseResponse;
 import com.palbang.unsemawang.fortune.dto.result.ExternalApiResponse.ExternalSajuunseResponse;
 import com.palbang.unsemawang.fortune.dto.result.FortuneApiRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
+@Slf4j
 public class SajuunseService {
 
 	private final RestTemplate restTemplate;
@@ -25,36 +26,42 @@ public class SajuunseService {
 		this.apiUrl = apiUrl;
 	}
 
-	public SajuunseResponse getSajuunseResult(FortuneApiRequest request) {
+	// 특정 key의 CommonResponse 반환
+	public CommonResponse getSajuunseDetail(FortuneApiRequest request, String key) {
 		ExternalSajuunseResponse apiResponse = callExternalApi(request);
-		// 데이터를 SajuunseResponse로 변환하여 반환
-		return processApiResponse(apiResponse);
+		Map<String, CommonResponse> responseMap = processApiResponse(apiResponse);
+
+		// key 검증 및 데이터 반환
+		if (!responseMap.containsKey(key)) {
+			throw new IllegalArgumentException("Invalid key: " + key);
+		}
+
+		return responseMap.get(key);
 	}
 
-	// 외부 API 호출 처리
+	// 외부 API 호출
 	private ExternalSajuunseResponse callExternalApi(FortuneApiRequest request) {
-		ExternalSajuunseResponse response = restTemplate.postForObject(apiUrl, request,
-			ExternalSajuunseResponse.class);
-
-		return response;
+		return restTemplate.postForObject(apiUrl, request, ExternalSajuunseResponse.class);
 	}
 
-	// 응답 가공 로직
-	private SajuunseResponse processApiResponse(ExternalSajuunseResponse apiResponse) {
+	// 응답 데이터를 Map<String, CommonResponse>로 처리
+	private Map<String, CommonResponse> processApiResponse(ExternalSajuunseResponse apiResponse) {
 		ExternalSajuunseResponse.Result result = apiResponse.getResult();
 
-		return new SajuunseResponse(
-			buildSimpleResponse("태어난 계절에 따른 운", result.getBornSeasonLuck()), // 태어난 계절에 따른 운
-			buildLuck(result.getLuck()), // 행운
-			buildSimpleResponse("타고난 성품", result.getNatureCharacter()), // 타고난 성품
-			buildSimpleResponse("사회적 특성", result.getSocialCharacter()), // 사회적 특성
-			buildSimpleResponse("사회적 성격", result.getSocialPersonality()), // 사회적 성격
-			buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()), // 피해야 할 상대
-			buildSimpleResponse("현재 나의 운 분석", result.getCurrentLuckAnalysis().getText()) // 현재 나의 운 분석
-		);
+		Map<String, CommonResponse> responseMap = new HashMap<>();
+		responseMap.put("bornseasonluck", buildSimpleResponse("태어난 계절에 따른 운", result.getBornSeasonLuck()));
+		responseMap.put("luck", buildLuck(result.getLuck()));
+		responseMap.put("naturecharacter", buildSimpleResponse("타고난 성품", result.getNatureCharacter()));
+		responseMap.put("socialcharacter", buildSimpleResponse("사회적 특성", result.getSocialCharacter()));
+		responseMap.put("socialpersonality", buildSimpleResponse("사회적 성격", result.getSocialPersonality()));
+		responseMap.put("avoidpeople", buildSimpleResponse("피해야 할 상대", result.getAvoidPeople()));
+		responseMap.put("currentluckAnalysis",
+			buildSimpleResponse("현재 나의 운 분석", result.getCurrentLuckAnalysis().getText()));
+
+		return responseMap;
 	}
 
-	// 행운 처리
+	// 행운 관련 데이터 처리
 	private CommonResponse buildLuck(ExternalSajuunseResponse.Result.Luck externalLuck) {
 		if (externalLuck == null)
 			return null;
@@ -72,6 +79,7 @@ public class SajuunseService {
 		);
 	}
 
+	// 심플한 CommonResponse 빌더
 	private CommonResponse buildSimpleResponse(String label, String value) {
 		if (value == null)
 			return null;
