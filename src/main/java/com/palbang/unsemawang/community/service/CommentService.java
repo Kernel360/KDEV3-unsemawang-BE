@@ -10,10 +10,14 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
+import com.palbang.unsemawang.community.dto.request.CommentRegisterRequest;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
 import com.palbang.unsemawang.community.entity.Comment;
+import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.CommentRepository;
 import com.palbang.unsemawang.community.repository.PostRepository;
+import com.palbang.unsemawang.member.entity.Member;
+import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class CommentService {
 	private final CommentRepository commentRepository;
 	private final PostRepository postRepository;
+	private final MemberRepository memberRepository;
 
 	@Transactional(readOnly = true)
 	public LongCursorResponse<CommentReadResponse> getAllCommentsByPostId(Long postId,
@@ -61,5 +66,40 @@ public class CommentService {
 			.replies(replies) // 자식 댓글 없으면 null
 			.repliesCount(replies.size()) // 자식 댓글 수
 			.build();
+	}
+
+	public void registerComment(Long postId, CommentRegisterRequest request, String memberId) {
+		// 회원 존재 확인
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		// 게시글 존재 확인
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+
+		Comment parentComment = null;
+		// 자식 댓글일 경우
+		if (request.getParentCommentId() != null) {
+			// 부모 댓글 존재 확인
+			parentComment = commentRepository.findById(request.getParentCommentId())
+				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_PARENT_COMMENT));
+
+			// 대대댓글 방지 검증 로직
+			if (parentComment.getParentComment() != null) {
+				throw new GeneralException(ResponseCode.NOT_ALLOWED_NESTED_COMMENT);
+			}
+		}
+
+		// 댓글 생성
+		Comment comment = Comment.builder()
+			.post(post)
+			.parentComment(parentComment)
+			.content(request.getContent())
+			.isAnonymous(request.getIsAnonymous())
+			.member(member) // 로그인된 회원 정보 연결
+			.build();
+
+		// 댓글 저장
+		commentRepository.save(comment);
 	}
 }
