@@ -1,5 +1,8 @@
 package com.palbang.unsemawang.community.controller;
 
+import java.net.URI;
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
@@ -17,6 +22,7 @@ import com.palbang.unsemawang.community.dto.request.PostDeleteRequest;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
+import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.service.PostService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
@@ -31,11 +37,12 @@ public class PostControllerImpl implements PostController {
 	private final PostService postService;
 
 	/* 게시글 등록 */
-	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Override
 	public ResponseEntity<PostRegisterResponse> write(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@Valid @RequestBody PostRegisterRequest postRegisterRequest
+		@RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFileList,
+		@Valid @RequestPart(value = "postDetail") PostRegisterRequest postRegisterRequest
 	) {
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
@@ -43,13 +50,13 @@ public class PostControllerImpl implements PostController {
 
 		postRegisterRequest.updateMemberId(auth.getId());
 
-		PostRegisterResponse postRegisterResponse = postService.register(postRegisterRequest);
+		Post savedPost = postService.register(postRegisterRequest, imageFileList);
 
-		return ResponseEntity.ok(postRegisterResponse);
+		return ResponseEntity.created(URI.create("/posts/" + savedPost.getId())).build();
 	}
 
 	/* 게시글 수정 */
-	@PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Override
 	public ResponseEntity modify(
 		@AuthenticationPrincipal CustomOAuth2User auth,

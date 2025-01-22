@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,10 +50,11 @@ class PostControllerTest {
 			.build();
 
 		// when, then : 요청을 보내면 Vaild 예외가 발생해야한다
-		mockMvc.perform(post("/posts")
-				.contentType("application/json")
-				.content(objectMapper.writeValueAsString(postRegisterRequest))
-				.with(csrf())
+		mockMvc.perform(
+				multipart("/posts")
+					.part(new MockPart("postDetail", null, objectMapper.writeValueAsBytes(postRegisterRequest),
+						MediaType.APPLICATION_JSON))
+					.with(csrf())
 			)
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("제목은 30자 이내여야 합니다"));

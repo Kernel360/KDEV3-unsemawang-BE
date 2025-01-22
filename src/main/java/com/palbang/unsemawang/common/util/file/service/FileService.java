@@ -16,6 +16,13 @@ public interface FileService {
 	void uploadImage(MultipartFile file, FileRequest fileRequest);
 
 	/**
+	 * 이미지 업로드
+	 * @param files 업로드 할 이미지 파일 리스트
+	 * @param fileRequest ReferenceType과 ReferenceId 입력
+	 */
+	void uploadImagesAtOnce(List<MultipartFile> files, FileRequest fileRequest);
+
+	/**
 	 * 프로필 이미지 url 반환
 	 * @param referenceId 참조된 회원 id, referenceId로 사용된 id
 	 * @return 해당 회원의 프로필 이미지 or 디폴트 프로필 이미지

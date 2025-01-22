@@ -76,6 +76,9 @@ public enum ResponseCode implements Codable {
 	EMPTY_PARAM_08("6308", HttpStatus.BAD_REQUEST, "08번 Parameter 데이터 누락"),
 	EMPTY_PARAM_09("6309", HttpStatus.BAD_REQUEST, "09번 Parameter 데이터 누락"),
 
+	// 파일 관련 ( 값: 7xxx)
+	FILE_TOO_LARGE("7000", HttpStatus.PAYLOAD_TOO_LARGE, "파일 크기가 최대 허용치를 초과했습니다"),
+
 	// 강제 에러
 	TEST_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "강제 발생 ERROR");
 
