@@ -43,4 +43,31 @@ public class FileRepositoryCustomImpl implements FileRepositoryCustom {
 				.fetch();
 		}
 	}
+
+	@Override
+	public List<File> findFilesByFileReferenceAndIsNotDeleted(FileRequest fileRequest) {
+		if (fileRequest.referenceStringId() == null) {
+			return queryFactory
+				.select(file)
+				.from(file)
+				.where(
+					file.referenceId.eq(fileRequest.referenceId())
+						.and(file.referenceType.eq(fileRequest.referenceType()))
+						.and(file.isDeleted.isFalse())
+				)
+				.orderBy(file.id.asc())
+				.fetch();
+		} else {
+			return queryFactory
+				.select(file)
+				.from(file)
+				.where(
+					file.referenceStringId.eq(fileRequest.referenceStringId())
+						.and(file.referenceType.eq(fileRequest.referenceType()))
+						.and(file.isDeleted.isFalse())
+				)
+				.orderBy(file.id.asc())
+				.fetch();
+		}
+	}
 }

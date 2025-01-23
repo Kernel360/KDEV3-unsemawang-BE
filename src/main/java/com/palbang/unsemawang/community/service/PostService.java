@@ -90,6 +90,9 @@ public class PostService {
 		// 3. 게시글 삭제 처리
 		post.deletePost();
 
+		// 4. 이미지 삭제 처리
+		fileService.deletePostImgs(post.getId());
+
 		return true;
 	}
 

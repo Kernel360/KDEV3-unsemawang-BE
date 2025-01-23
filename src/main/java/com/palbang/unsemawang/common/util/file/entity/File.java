@@ -34,4 +34,9 @@ public class File extends BaseEntity {
 
 	private boolean isDeleted;
 	private LocalDate expireDate;
+
+	public void softDelete() {
+		this.isDeleted = true;
+		this.expireDate = LocalDate.now().plusDays(30);
+	}
 }
