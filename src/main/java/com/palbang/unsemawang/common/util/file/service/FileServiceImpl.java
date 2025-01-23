@@ -78,7 +78,7 @@ public class FileServiceImpl implements FileService {
 	public String getPostThumbnailImgUrl(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
-		List<File> files = fileRepository.findFilesByFileReference(fileRequest);
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
 		if (files.isEmpty()) {
 			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
 			return null;
@@ -90,7 +90,7 @@ public class FileServiceImpl implements FileService {
 	public List<String> getPostImgUrls(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
-		List<File> files = fileRepository.findFilesByFileReference(fileRequest);
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
 		if (files.isEmpty()) {
 			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
 			return List.of();
@@ -256,6 +256,19 @@ public class FileServiceImpl implements FileService {
 			throw new FileDeleteException();
 		}
 		return true;
+	}
+
+	@Override
+	public boolean deletePostImgs(Long referenceId) {
+		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
+
+		for (File f : files) {
+			f.softDelete();
+		}
+		fileRepository.flush();
+
+		return false;
 	}
 
 /*

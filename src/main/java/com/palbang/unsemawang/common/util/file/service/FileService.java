@@ -92,4 +92,10 @@ public interface FileService {
 	 */
 	boolean deleteFileById(Long fileId);
 
+	/**
+	 * 게시글 아이디로 연관된 이미지 소프트 삭제
+	 * @param referenceId 삭제할 이미지의 게시글 아이디
+	 * @return 삭제 여부
+	 */
+	boolean deletePostImgs(Long referenceId);
 }
