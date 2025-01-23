@@ -61,7 +61,7 @@ public class CommentController {
 		summary = "댓글/대댓글 등록"
 	)
 	@PostMapping
-	public ResponseEntity<Void> createCommentByPostId(
+	public ResponseEntity<Void> registerCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable Long postId,
 		@RequestBody @Valid CommentRegisterRequest request
