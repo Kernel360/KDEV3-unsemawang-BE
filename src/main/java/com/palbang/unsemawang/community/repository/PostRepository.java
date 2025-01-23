@@ -42,6 +42,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		Pageable pageable // Spring Data JPA Pageable 사용
 	);
 
+	// 카테고리별 조회수 순 게시글 가져오기
+	@Query("""
+		    SELECT p FROM Post p
+		    WHERE (p.id < :cursorId OR :cursorId IS NULL)
+		    AND p.communityCategory = :category
+		    AND p.isVisible = true
+		    AND p.isDeleted = false
+		    ORDER BY p.viewCount DESC, p.id DESC
+		""")
+	List<Post> findMostViewedPostsByCategory(
+		@Param("category") CommunityCategory category,
+		@Param("cursorId") Long cursorId,
+		Pageable pageable
+	);
+
 	// 인기 게시글 가져오기
 	@Query("""
 		    SELECT p FROM Post p
