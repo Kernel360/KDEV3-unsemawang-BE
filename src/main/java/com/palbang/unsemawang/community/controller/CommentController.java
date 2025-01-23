@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.dto.request.CommentRegisterRequest;
+import com.palbang.unsemawang.community.dto.request.CommentUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
 import com.palbang.unsemawang.community.service.CommentService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
@@ -34,7 +36,7 @@ public class CommentController {
 
 	@Operation(
 		description = "커서 기반 페이징 처리된 댓글 조회 기능입니다. 처음 조회시에는 cursorKey를 null로 보내시면 됩니다",
-		summary = "커서 기반 페이징 댓글 조회"
+		summary = "댓글 조회 (커서 기반 페이징)"
 	)
 	@GetMapping
 	public ResponseEntity<LongCursorResponse<CommentReadResponse>> getAllCommentsByPostId(
@@ -71,5 +73,25 @@ public class CommentController {
 		commentService.registerComment(postId, request, auth.getId());
 
 		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+
+	@Operation(
+		description = "해당 게시글에 본인이 작성한 댓글/대댓글을 수정할 수 있습니다.",
+		summary = "댓글/대댓글 수정"
+	)
+	@PutMapping("/{commentId}")
+	public ResponseEntity<Void> updateCommentByPostId(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@PathVariable Long postId,
+		@PathVariable Long commentId,
+		@RequestBody @Valid CommentUpdateRequest request
+	) {
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		commentService.updateComment(postId, commentId, request, auth.getId());
+
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 }

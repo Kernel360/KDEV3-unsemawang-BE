@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.community.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.dto.request.CommentRegisterRequest;
+import com.palbang.unsemawang.community.dto.request.CommentUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
 import com.palbang.unsemawang.community.entity.Comment;
 import com.palbang.unsemawang.community.entity.Post;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentService {
 	private final CommentRepository commentRepository;
 	private final PostRepository postRepository;
@@ -82,7 +85,7 @@ public class CommentService {
 		if (request.getParentCommentId() != null) {
 			// 부모 댓글 존재 확인
 			parentComment = commentRepository.findById(request.getParentCommentId())
-				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_PARENT_COMMENT));
+				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_COMMENT));
 
 			// 대대댓글 방지 검증 로직
 			if (parentComment.getParentComment() != null) {
@@ -101,5 +104,23 @@ public class CommentService {
 
 		// 댓글 저장
 		commentRepository.save(comment);
+	}
+
+	public void updateComment(Long postId, Long commentUd, CommentUpdateRequest request, String memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		postRepository.findByIdAndIsDeletedFalse(postId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+
+		Comment comment = commentRepository.findById(commentUd)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_COMMENT));
+
+		// 로그인한 사용자와 댓글 작성자가 일치하는지 확인
+		if (!Objects.equals(comment.getMember().getId(), member.getId())) {
+			throw new GeneralException(ResponseCode.NOT_AUTHORIZED_COMMENT_MODIFICATION);
+		}
+
+		comment.updateComment(request.getContent(), request.getIsAnonymous()); // dirty-check -> save() 필요없음
 	}
 }

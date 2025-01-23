@@ -84,7 +84,7 @@ public class PostService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
 		// 2. 회원, 게시글 id가 일치하되 삭제되지 않은 게시글 조회
-		Post post = postRepository.findBuMemberIsNotDeleted(postDeleteRequest.getPostId(), member)
+		Post post = postRepository.findByMemberIsNotDeleted(postDeleteRequest.getPostId(), member)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_DELETE_AVAILABLE));
 
 		// 3. 게시글 삭제 처리
