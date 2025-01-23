@@ -30,6 +30,13 @@ public interface FileService {
 	String getProfileImgUrl(String referenceId);
 
 	/**
+	 * 게시글 대표 이미지 url 반환
+	 * @param referenceId 참조된 게시글 id
+	 * @return 해당 게시글의 대표 이미지
+	 */
+	String getPostThumbnailImgUrl(Long referenceId);
+
+	/**
 	 * 파일 url 리스트 반환
 	 * @param fileRequest ReferenceType(참조 테이블명)과 ReferenceId(참조 id) 입력
 	 * @return 파일 url 리스트
