@@ -54,6 +54,8 @@ public interface PostController {
 		description = "커뮤니티 게시글 삭제 API 입니다",
 		summary = "커뮤니티 게시글 삭제"
 	)
+	@ApiResponse(responseCode = "204", description = "게시글 삭제 완료")
+	@ApiResponse(responseCode = "400", description = "권한이 없는 회원이거나 유효하지 않는 게시글로 삭제 실패")
 	@DeleteMapping(path = "/{id}")
 	ResponseEntity deleteCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
