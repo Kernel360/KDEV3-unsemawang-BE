@@ -91,6 +91,10 @@ public class Post extends BaseEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
+	public String getWriterId() {
+		return this.member.getId();
+	}
+
 	public void deletePost() {
 		this.isDeleted = true;
 		this.deletedAt = LocalDateTime.now();

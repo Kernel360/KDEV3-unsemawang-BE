@@ -2,7 +2,6 @@ package com.palbang.unsemawang.community.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.entity.Post;
 
@@ -37,6 +36,9 @@ public class PostListResponse {
 	@Schema(description = "사용자 닉네임", required = true, example = "유저 닉네임")
 	private String nickname;
 
+	@Schema(description = "작성자 프로필 사진 URL", required = false, example = "https://...")
+	private String profileImageUrl;
+
 	@Schema(description = "게시판 카테고리", required = true, example = "자유 게시판")
 	private CommunityCategory communityCategory;
 
@@ -46,12 +48,10 @@ public class PostListResponse {
 	@Schema(description = "게시글 수정 시각", required = true, example = "2023-12-02T10:00:00")
 	private LocalDateTime updatedAt;
 
-	// @Schema(description = "게시글 이미지 URL", required = false)
-	// private String imageUrl;
+	@Schema(description = "게시글 이미지 URL", required = false)
+	private String imageUrl;
 
-	public static PostListResponse fromEntity(Post post, FileService fileService) {
-		// String imageUrl = getImageUrl(post, fileService);
-
+	public static PostListResponse fromEntity(Post post, String imageUrl, String profileImageUrl) {
 		return PostListResponse.builder()
 			.cursorId(post.getId())
 			.id(post.getId())
@@ -61,20 +61,12 @@ public class PostListResponse {
 			.likeCount(post.getLikeCount())
 			.commentCount(post.getCommentCount())
 			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())
+			.profileImageUrl(profileImageUrl)
 			.communityCategory(post.getCommunityCategory())
 			.registeredAt(post.getRegisteredAt())
 			.updatedAt(post.getUpdatedAt())
-			// .imageUrl(imageUrl)
+			.imageUrl(imageUrl)
 			.build();
 	}
 
-	// private static String getImageUrl(Post post, FileService fileService) {
-	// 	FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, post.getId().toString());
-	//
-	// 	// FileService를 통해 파일 URL 리스트 가져옴
-	// 	List<String> fileUrls = fileService.getFileUrls(fileRequest);
-	//
-	// 	// 썸네일 URL로 첫 번째 파일 선택 (없을 경우 기본 이미지 반환)
-	// 	return fileUrls.isEmpty() ? "https://default-image-url.com/default.jpg" : fileUrls.get(0);
-	// }
 }

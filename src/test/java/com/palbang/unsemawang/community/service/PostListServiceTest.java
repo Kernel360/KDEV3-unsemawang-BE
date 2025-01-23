@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.PageRequest;
 
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
@@ -25,6 +26,9 @@ public class PostListServiceTest {
 	@InjectMocks
 	private PostListService postListService; // 테스트 대상 클래스
 
+	@Mock
+	private FileService fileService;
+	
 	@Mock
 	private PostRepository postRepository; // Mock 객체로 설정
 

@@ -31,7 +31,7 @@ public interface PostController {
 	@ApiResponse(responseCode = "201", description = "이미지 업로드 및 게시글 등록 성공")
 	@ApiResponse(responseCode = "413", description = "이미지 용량 초과로 등록 실패")
 	@ApiResponse(responseCode = "400", description = "권한이 없는 회원이거나 유효하지 않는 데이터로 등록 실패")
-	ResponseEntity<PostRegisterResponse> write(
+	ResponseEntity<PostRegisterResponse> writeCommunityPost(
 		CustomOAuth2User auth,
 		List<MultipartFile> fileList,
 		PostRegisterRequest postRegisterRequest
@@ -43,7 +43,7 @@ public interface PostController {
 		summary = "커뮤니티 게시글 수정"
 	)
 	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity modify(
+	ResponseEntity modifyCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId,
 		@Valid @RequestBody PostUpdateRequest postUpdateRequest
@@ -55,7 +55,7 @@ public interface PostController {
 		summary = "커뮤니티 게시글 삭제"
 	)
 	@DeleteMapping(path = "/{id}")
-	ResponseEntity delete(
+	ResponseEntity deleteCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId
 	);
