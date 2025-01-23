@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
 				"https://deploy-kdev-3-unsemawang-fe.vercel.app",
 				"https://www.unsemawang.com/",
 				"http://www.unsemawang.com/",
+				"https://local.unsemawang.com",
 				"https://dev.unsemawang.com")
 
 			.allowedMethods("GET", "POST", "PUT", "DELETE")

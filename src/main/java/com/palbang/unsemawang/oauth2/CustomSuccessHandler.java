@@ -63,7 +63,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		cookie.setMaxAge(60 * 60 * 60);
 		cookie.setSecure(true);
 		cookie.setPath("/");
-		cookie.setDomain("unsemawang.com");
+		cookie.setDomain(".unsemawang.com");
 		cookie.setHttpOnly(true);
 
 		return cookie;
