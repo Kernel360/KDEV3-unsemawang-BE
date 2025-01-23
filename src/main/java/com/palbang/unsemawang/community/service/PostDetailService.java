@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
-import com.palbang.unsemawang.common.util.file.dto.FileRequest;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
@@ -34,11 +32,10 @@ public class PostDetailService {
 		}
 
 		// 게시글에 포함된 이미지 리스트 조회
-		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, postId);
-		List<String> imageUrls = fileService.getFileUrls(fileRequest);
+		List<String> imageUrls = fileService.getPostImgUrls(post.getId());
 
 		// 작성자의 프로필 이미지 조회
-		String profileImage = fileService.getProfileImgUrl(memberId);
+		String profileImage = post.getIsAnonymous() ? null : fileService.getProfileImgUrl(memberId);
 
 		return toResponseDto(post, imageUrls, profileImage);
 	}
