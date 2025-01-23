@@ -39,7 +39,7 @@ public class PostControllerImpl implements PostController {
 	/* 게시글 등록 */
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Override
-	public ResponseEntity<PostRegisterResponse> write(
+	public ResponseEntity<PostRegisterResponse> writeCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFileList,
 		@Valid @RequestPart(value = "postDetail") PostRegisterRequest postRegisterRequest
@@ -58,7 +58,7 @@ public class PostControllerImpl implements PostController {
 	/* 게시글 수정 */
 	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Override
-	public ResponseEntity modify(
+	public ResponseEntity modifyCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId,
 		@Valid @RequestBody PostUpdateRequest postUpdateRequest
@@ -76,7 +76,7 @@ public class PostControllerImpl implements PostController {
 	/* 게시글 삭제 */
 	@DeleteMapping(path = "/{id}")
 	@Override
-	public ResponseEntity delete(
+	public ResponseEntity deleteCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId
 	) {
