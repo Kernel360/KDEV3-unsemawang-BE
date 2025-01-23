@@ -87,6 +87,22 @@ public class FileServiceImpl implements FileService {
 		return s3Service.createPresignedGetUrl(files.get(0).getS3Key());
 	}
 
+	public List<String> getPostImgUrls(Long referenceId) {
+		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
+
+		List<File> files = fileRepository.findFilesByFileReference(fileRequest);
+		if (files.isEmpty()) {
+			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+			return List.of();
+		}
+
+		List<String> paths = new ArrayList<>(files.size());
+		for (File f : files) {
+			paths.add(s3Service.createPresignedGetUrl(f.getS3Key()));
+		}
+		return paths;
+	}
+
 	@Override
 	public List<String> getFileUrls(FileRequest fileRequest) {
 
