@@ -16,6 +16,7 @@ import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
+import com.palbang.unsemawang.community.constant.Sortingtype;
 import com.palbang.unsemawang.community.dto.response.PostListResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
@@ -53,7 +54,8 @@ public class PostListServiceTest {
 			.thenReturn(mockPosts);
 
 		// when
-		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, cursorRequest);
+		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, Sortingtype.LATEST,
+			cursorRequest);
 
 		// then
 		assertThat(response).isNotNull();
@@ -77,7 +79,8 @@ public class PostListServiceTest {
 			.thenReturn(mockPosts);
 
 		// when
-		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, cursorRequest);
+		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, Sortingtype.LATEST,
+			cursorRequest);
 
 		// then
 		assertThat(response).isNotNull();
@@ -100,7 +103,8 @@ public class PostListServiceTest {
 			.thenReturn(mockPosts);
 
 		// when
-		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, cursorRequest);
+		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, Sortingtype.LATEST,
+			cursorRequest);
 
 		// then
 		assertThat(response).isNotNull();
@@ -109,6 +113,53 @@ public class PostListServiceTest {
 		assertThat(response.data().get(0).getId()).isEqualTo(3L);
 		assertThat(response.data().get(1).getId()).isEqualTo(4L);
 		assertThat(response.nextCursorRequest().key()).isEqualTo(4L);
+	}
+
+	@Test
+	void testGetPostList_sortedByViewCount() {
+		// given
+		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 3); // 첫 페이지 요청, 조회 크기 3
+
+		// Mock 반환 데이터 (Post 목록 생성 - 조회수 순서로 정렬되어야 함)
+		Post post1 = createPostWithViews(1L, "Title 1", true, 50); // 조회수 50
+		Post post2 = createPostWithViews(2L, "Title 2", true, 20); // 조회수 20
+		Post post3 = createPostWithViews(3L, "Title 3", true, 10); // 조회수 10
+		List<Post> mockPosts = List.of(post1, post2, post3);
+
+		when(postRepository.findMostViewedPostsByCategory(
+			category, null, PageRequest.of(0, 3)))
+			.thenReturn(mockPosts); // Mock 동작 정의
+
+		// when
+		LongCursorResponse<PostListResponse> response = postListService.getPostList(
+			category, Sortingtype.MOST_VIEWED, cursorRequest);
+
+		// then
+		assertThat(response).isNotNull();
+		assertThat(response.data()).hasSize(3);
+
+		assertThat(response.data().get(0).getId()).isEqualTo(1L); // ID 1, 조회수 50
+		assertThat(response.data().get(1).getId()).isEqualTo(2L); // ID 2, 조회수 20
+		assertThat(response.data().get(2).getId()).isEqualTo(3L); // ID 3, 조회수 10
+		assertThat(response.nextCursorRequest().key()).isEqualTo(3L); // 다음 커서는 마지막 항목의 ID
+	}
+
+	// 조회수를 포함한 Post 객체 생성 헬퍼 메서드
+	private Post createPostWithViews(Long id, String title, boolean isVisible, int viewCount) {
+		return Post.builder()
+			.id(id)
+			.title(title)
+			.isVisible(isVisible)
+			.content("Content for " + title)
+			.viewCount(viewCount) // 조회수 설정
+			.likeCount(0)
+			.commentCount(0)
+			.member(Member.builder()
+				.nickname("Nickname " + id)
+				.build())
+			.communityCategory(CommunityCategory.FREE_BOARD)
+			.build();
 	}
 
 	private Post createPost(Long id, String title, boolean isVisible) {

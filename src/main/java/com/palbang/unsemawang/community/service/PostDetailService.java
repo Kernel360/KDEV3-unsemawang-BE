@@ -31,6 +31,11 @@ public class PostDetailService {
 			throw new GeneralException(ResponseCode.FORBIDDEN); // 적절한 응답 코드 사용
 		}
 
+		// 삭제된 게시글 조회 제한
+		if (post.getIsDeleted()) {
+			throw new GeneralException(ResponseCode.NOT_EXIST_POST);
+		}
+
 		// 게시글에 포함된 이미지 리스트 조회
 		List<String> imageUrls = fileService.getPostImgUrls(post.getId());
 
