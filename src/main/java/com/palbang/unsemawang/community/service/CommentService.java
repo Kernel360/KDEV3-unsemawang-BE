@@ -106,21 +106,50 @@ public class CommentService {
 		commentRepository.save(comment);
 	}
 
-	public void updateComment(Long postId, Long commentUd, CommentUpdateRequest request, String memberId) {
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+	public void updateComment(Long postId, Long commentId, CommentUpdateRequest request, String memberId) {
+		Member member = validateMember(memberId);
 
-		postRepository.findByIdAndIsDeletedFalse(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+		validatePost(postId);
 
-		Comment comment = commentRepository.findById(commentUd)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_COMMENT));
+		Comment comment = validateComment(commentId);
 
-		// 로그인한 사용자와 댓글 작성자가 일치하는지 확인
-		if (!Objects.equals(comment.getMember().getId(), member.getId())) {
-			throw new GeneralException(ResponseCode.NOT_AUTHORIZED_COMMENT_MODIFICATION);
-		}
+		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
 
 		comment.updateComment(request.getContent(), request.getIsAnonymous()); // dirty-check -> save() 필요없음
+	}
+
+	public void deleteComment(Long postId, Long commentId, String memberId) {
+		Member member = validateMember(memberId);
+
+		validatePost(postId);
+
+		Comment comment = validateComment(commentId);
+
+		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
+
+		comment.deleteComment();
+	}
+
+	// 유효성 검증 메서드
+	private Member validateMember(String memberId) {
+		return memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+	}
+
+	private void validatePost(Long postId) {
+		postRepository.findByIdAndIsDeletedFalse(postId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+	}
+
+	private Comment validateComment(Long commentId) {
+		return commentRepository.findById(commentId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_COMMENT));
+	}
+
+	// 로그인한 사용자와 댓글 작성자가 일치하는지 확인
+	private void validateCommentOwnerMatch(String commentOwnerId, String memberId) {
+		if (!Objects.equals(commentOwnerId, memberId)) {
+			throw new GeneralException(ResponseCode.NOT_AUTHORIZED_COMMENT_MODIFICATION);
+		}
 	}
 }
