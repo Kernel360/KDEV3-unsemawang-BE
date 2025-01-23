@@ -86,7 +86,7 @@ public class PostControllerImpl implements PostController {
 
 		postService.delete(PostDeleteRequest.of(postId, auth.getId()));
 
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 }
