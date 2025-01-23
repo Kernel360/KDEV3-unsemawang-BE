@@ -40,7 +40,10 @@ public class PostListService {
 
 		// 응답 데이터 매핑 (FileService를 통해 썸네일 URL 포함)
 		List<PostListResponse> data = posts.stream()
-			.map(post -> PostListResponse.fromEntity(post, fileService)) // `FileService` 추가 전달
+			.map(post -> PostListResponse.fromEntity(
+				post,
+				fileService.getPostThumbnailImgUrl(post.getId()),
+				post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId())))
 			.toList();
 
 		// 다음 커서 생성

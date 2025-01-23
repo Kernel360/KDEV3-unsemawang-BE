@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.dto.response.PostDetailResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.repository.PostRepository;
@@ -22,6 +23,9 @@ class PostDetailServiceTest {
 
 	@InjectMocks
 	private PostDetailService postDetailService;
+
+	@Mock
+	private FileService fileService;
 
 	@Mock
 	private PostRepository postRepository;
@@ -54,7 +58,6 @@ class PostDetailServiceTest {
 
 		// Assert
 		assertNotNull(response);
-		verify(postRepository).incrementViewCount(postId); // 조회수 증가 메서드 호출 확인
 		assertEquals(postId, response.getId());
 	}
 
@@ -82,7 +85,6 @@ class PostDetailServiceTest {
 
 		// Assert
 		assertNotNull(response);
-		verify(postRepository).incrementViewCount(postId); // 조회수 증가 메서드 호출 확인
 		assertEquals(postId, response.getId());
 	}
 

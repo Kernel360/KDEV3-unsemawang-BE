@@ -37,6 +37,8 @@ public class PostDetailController {
 
 		PostDetailResponse response = postDetailService.getPostDetail(auth.getId(), id);
 
+		postDetailService.incrementViewCount(id);
+
 		return ResponseEntity.ok(response);
 	}
 }

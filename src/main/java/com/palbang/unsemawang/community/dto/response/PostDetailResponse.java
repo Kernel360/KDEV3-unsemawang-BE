@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.community.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 
@@ -30,6 +31,12 @@ public class PostDetailResponse {
 
 	@Schema(description = "작성자 닉네임 (익명일 경우 '익명')", required = true, example = "닉네임")
 	private String nickname;
+
+	@Schema(description = "작성자 프로필 사진 URL", required = false, example = "https://...")
+	private String profileImageUrl;
+
+	@Schema(description = "이미지 url 목록", required = true, example = "[\"https://...\" , ... ]")
+	private List<String> postImageUrls;
 
 	@Schema(description = "익명 여부(익명 O : true / 익명 X : false)", required = true, example = "false")
 	private Boolean isAnonymous;
