@@ -56,7 +56,7 @@ public class FortuneContentReadRepositoryTest {
 			.nameKo("테스트명" + i)
 			.fortuneCategory(category)
 			.path("/test-path" + i)
-			.isVisible(false)
+			.isVisible(true)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())

@@ -42,7 +42,7 @@ public class Comment extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_comment_id")
-	private Comment parentComment; // 부모 댓글 (Self-Referencing)
+	private Comment parentComment; // 부모 댓글 (Self-Referencing), null일 경우 최상위 댓글
 
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default

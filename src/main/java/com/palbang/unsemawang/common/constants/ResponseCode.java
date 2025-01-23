@@ -52,6 +52,9 @@ public enum ResponseCode implements Codable {
 	NOT_EXIST_MEMBER_ID("6114", HttpStatus.BAD_REQUEST, "유효하지 않은 회원 id 입니다"),
 	NOT_DELETE_AVAILABLE("6115", HttpStatus.BAD_REQUEST, "이미 삭제되었거나 삭제할 권한이 없습니다"),
 	FORBIDDEN("6116", HttpStatus.FORBIDDEN, "접근 권한 없음"),
+	NOT_EXIST_POST("6117", HttpStatus.BAD_REQUEST, "존재하지 않는 게시글입니다."),
+	NOT_EXIST_PARENT_COMMENT("6118", HttpStatus.BAD_REQUEST, "존재하지 않는 댓글입니다."),
+	NOT_ALLOWED_NESTED_COMMENT("6119", HttpStatus.BAD_REQUEST, "대댓글에는 추가 댓글을 달 수 없습니다."),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
@@ -75,6 +78,9 @@ public enum ResponseCode implements Codable {
 	EMPTY_PARAM_07("6307", HttpStatus.BAD_REQUEST, "07번 Parameter 데이터 누락"),
 	EMPTY_PARAM_08("6308", HttpStatus.BAD_REQUEST, "08번 Parameter 데이터 누락"),
 	EMPTY_PARAM_09("6309", HttpStatus.BAD_REQUEST, "09번 Parameter 데이터 누락"),
+
+	// 파일 관련 ( 값: 7xxx)
+	FILE_TOO_LARGE("7000", HttpStatus.PAYLOAD_TOO_LARGE, "파일 크기가 최대 허용치를 초과했습니다"),
 
 	// 강제 에러
 	TEST_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "강제 발생 ERROR");
