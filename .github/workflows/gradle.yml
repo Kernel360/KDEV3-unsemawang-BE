@@ -50,6 +50,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             sudo docker pull nardis0321/kdev3
+            /home/ubuntu/scripts/save_logs.sh
             sudo docker-compose down || true
             sudo docker-compose up -d
           EOF
