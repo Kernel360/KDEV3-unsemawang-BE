@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			AND p.communityCategory = :category
 			AND p.isVisible = true
 			AND p.isDeleted = false
-			ORDER BY p.id DESC
+			ORDER BY p.registeredAt DESC
 		""")
 	List<Post> findLatestPostsByCategory(
 		@Param("category") CommunityCategory category,
@@ -42,16 +43,33 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		Pageable pageable // Spring Data JPA Pageable 사용
 	);
 
-	// 인기 게시글 가져오기
+	// 카테고리별 조회수 순 게시글 가져오기
+	@Query("""
+		    SELECT p FROM Post p
+		    WHERE (p.id < :cursorId OR :cursorId IS NULL)
+		    AND p.communityCategory = :category
+		    AND p.isVisible = true
+		    AND p.isDeleted = false
+		    ORDER BY p.viewCount DESC, p.id DESC
+		""")
+	List<Post> findMostViewedPostsByCategory(
+		@Param("category") CommunityCategory category,
+		@Param("cursorId") Long cursorId,
+		Pageable pageable
+	);
+
+	// 인기 게시글 가져오기(최근 30일)
 	@Query("""
 		    SELECT p FROM Post p
 		    WHERE p.isVisible = true
 		    AND p.isDeleted = false
 		    AND (p.id < :cursorId OR :cursorId IS NULL)
+		    AND p.registeredAt >= :thirtyDaysAgo
 		    ORDER BY (p.viewCount * 7) + (p.likeCount * 3) DESC, p.id DESC
 		""")
 	List<Post> findPopularPosts(
 		@Param("cursorId") Long cursorId,
+		@Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo,
 		Pageable pageable
 	);
 
