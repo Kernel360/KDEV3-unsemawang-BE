@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.response.Response;
+import com.palbang.unsemawang.common.util.file.service.FileServiceImpl;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 import com.palbang.unsemawang.member.dto.MemberProfileDto;
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	private final MemberService memberService;
 	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
+	private final FileServiceImpl fileService;
 
 	@Operation(
 		summary = "회원 닉네임 중복 체크",
@@ -112,6 +114,11 @@ public class MemberController {
 
 		//회원정보에 해당하는 프로필 조회
 		MemberProfileDto memberProfile = memberService.getMemberProfile(auth.getId());
+
+		//회원 프로필URL 조회
+		String url = fileService.getProfileImgUrl(auth.getId());
+		memberProfile.setProfileUrl(url);
+
 
 		return ResponseEntity.ok(memberProfile);
 	}
