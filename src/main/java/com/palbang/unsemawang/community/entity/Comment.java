@@ -44,7 +44,7 @@ public class Comment extends BaseEntity {
 	@JoinColumn(name = "parent_comment_id")
 	private Comment parentComment; // 부모 댓글 (Self-Referencing), null일 경우 최상위 댓글
 
-	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Comment> childComments = new ArrayList<>(); // 대댓글 목록
 
