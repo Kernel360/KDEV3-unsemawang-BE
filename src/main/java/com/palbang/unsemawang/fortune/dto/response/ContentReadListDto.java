@@ -21,6 +21,15 @@ public class ContentReadListDto {
 	@Schema(description = "운세 컨텐츠 ID", required = true)
 	private Long id;
 
+	@Schema(description = "운세 카테고리 ID", required = true)
+	private Long categoryId;
+
+	@Schema(description = "운세 카테고리 영어표기명", required = true)
+	private String categoryNameEn;
+
+	@Schema(description = "운세 카테고리 한글표기명", required = true)
+	private String categoryNameKo;
+
 	@Schema(description = "운세 컨텐츠 영어표기명", required = true)
 	private String nameEn;
 
@@ -36,6 +45,9 @@ public class ContentReadListDto {
 	public static ContentReadListDto of(FortuneContent fortuneContent) {
 		return ContentReadListDto.builder()
 			.id(fortuneContent.getId())
+			.categoryId(fortuneContent.getFortuneCategory().getId())
+			.categoryNameEn(fortuneContent.getFortuneCategory().getNameEn())
+			.categoryNameKo(fortuneContent.getFortuneCategory().getName())
 			.nameEn(fortuneContent.getNameEn())
 			.nameKo(fortuneContent.getNameKo())
 			.shortDescription(fortuneContent.getShortDescription())

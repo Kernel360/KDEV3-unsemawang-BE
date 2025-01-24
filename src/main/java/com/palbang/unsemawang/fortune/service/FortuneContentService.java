@@ -51,9 +51,18 @@ public class FortuneContentService {
 	}
 
 	public List<ContentReadListDto> getSearchList(SearchRequest searchRequest) {
+		List<FortuneContent> findList;
 
-		// 검색 키워드를 포함한 이름을 가진 컨텐츠 목록 조회
-		List<FortuneContent> findList = fortuneContentRepository.findByKeyword(searchRequest.getKeyword());
+		// 키워드와 카테고리명이 모두 존재할 경우
+		if (searchRequest.getCategoryName() != null && !searchRequest.getCategoryName().isBlank()) {
+			findList = fortuneContentRepository.findByKeywordAndFortuneCategory(
+				searchRequest.getKeyword(),
+				searchRequest.getCategoryName()
+			);
+		} else {
+			// 카테고리 필터 없이 키워드를 기준으로 조회
+			findList = fortuneContentRepository.findByKeyword(searchRequest.getKeyword());
+		}
 
 		return ContentReadListDto.of(findList);
 	}

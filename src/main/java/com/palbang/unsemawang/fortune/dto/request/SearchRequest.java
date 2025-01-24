@@ -13,8 +13,11 @@ public class SearchRequest {
 	@Schema(description = "검색할 컨텐츠명 키워드", required = false)
 	private String keyword;
 
-	public SearchRequest(String keyword) {
-		// 키워드가 null이거나 공백이면 "" 으로 변경
+	@Schema(description = "대분류 카테고리명", required = false)
+	private String categoryName;
+
+	public SearchRequest(String keyword, String categoryName) {
 		this.keyword = keyword == null || keyword.isBlank() ? "" : keyword;
+		this.categoryName = categoryName;
 	}
 }
