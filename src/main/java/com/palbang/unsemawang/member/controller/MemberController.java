@@ -18,6 +18,7 @@ import com.palbang.unsemawang.member.dto.MemberProfileDto;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
 import com.palbang.unsemawang.member.dto.response.UpdateMemberResponse;
+import com.palbang.unsemawang.member.profile.ProfileImageControllerImpl;
 import com.palbang.unsemawang.member.service.MemberService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	private final MemberService memberService;
 	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
+	private final ProfileImageControllerImpl profileImageController;
 
 	@Operation(
 		summary = "회원 닉네임 중복 체크",
@@ -112,6 +114,9 @@ public class MemberController {
 
 		//회원정보에 해당하는 프로필 조회
 		MemberProfileDto memberProfile = memberService.getMemberProfile(auth.getId());
+
+		String url = profileImageController.getProfileImage(auth).getBody();
+		memberProfile.setProfileUrl(url);
 
 		return ResponseEntity.ok(memberProfile);
 	}
