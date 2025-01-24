@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
+import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
 import com.palbang.unsemawang.common.util.file.dto.FileRequest;
 import com.palbang.unsemawang.common.util.file.entity.File;
 import com.palbang.unsemawang.common.util.file.exception.FileDeleteException;
