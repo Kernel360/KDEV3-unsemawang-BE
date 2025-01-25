@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.fortune.dto.request.SearchRequest;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
+import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
@@ -48,10 +49,11 @@ class FortuneContentControllerSearchTest {
 	void search_keyword() throws Exception {
 		// 1. given - 키워드, 서비스 반환 리스트 세팅
 		String keyword = "search-keyword";
+		String categoryName = "test-name1";
 		FortuneContent fortuneContent1 = createFortuneContent(1);
 		FortuneContent fortuneContent2 = createFortuneContent(1000);
 		List<ContentReadListDto> responseDto = ContentReadListDto.of(List.of(fortuneContent1, fortuneContent2));
-		SearchRequest searchRequest = new SearchRequest(keyword);
+		SearchRequest searchRequest = new SearchRequest(keyword, categoryName);
 
 		// 1-2. 서비스 동작 등록
 		when(fortuneContentService.getSearchList(any())).thenReturn(responseDto);
@@ -59,6 +61,7 @@ class FortuneContentControllerSearchTest {
 		// 2. when, then - 검색 요청 성공 응답 나와야함
 		mockMvc.perform(get("/fortune-contents/search")
 				.param("keyword", searchRequest.getKeyword())
+				.param("categoryName", searchRequest.getCategoryName())
 				.contentType(MediaType.APPLICATION_JSON)
 			)
 			.andExpect(status().isOk())
@@ -86,6 +89,12 @@ class FortuneContentControllerSearchTest {
 
 	/* 헬퍼 */
 	FortuneContent createFortuneContent(int i) {
+		FortuneCategory fortuneCategory = FortuneCategory.builder()
+			.id((long)i)
+			.nameEn("category-test-en" + i)
+			.name("category-test-ko" + i)
+			.build();
+
 		return FortuneContent.builder()
 			.id((long)i)
 			.nameEn("test-name" + i)
@@ -95,6 +104,7 @@ class FortuneContentControllerSearchTest {
 			.longDescription("long-desc" + i)
 			.isVisible(false)
 			.isDeleted(true)
+			.fortuneCategory(fortuneCategory)  // 여기서 설정
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
 			.build();
