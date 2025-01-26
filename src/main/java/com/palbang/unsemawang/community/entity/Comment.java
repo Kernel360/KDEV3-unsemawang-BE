@@ -83,9 +83,8 @@ public class Comment extends BaseEntity {
 		this.deletedAt = LocalDateTime.now();
 	}
 
-	public void updateComment(String content, Boolean isAnonymous) {
+	public void updateComment(String content) {
 		this.content = content;
-		this.isAnonymous = isAnonymous;
 		this.updatedAt = LocalDateTime.now();
 	}
 }
