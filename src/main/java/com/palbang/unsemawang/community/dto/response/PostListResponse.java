@@ -2,6 +2,7 @@ package com.palbang.unsemawang.community.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.entity.Post;
 

@@ -28,7 +28,12 @@ public class PostDetailService {
 
 		// 비공개 접근 권한 확인
 		if (!post.getIsVisible() && !post.getMember().getId().equals(memberId)) {
-			throw new GeneralException(ResponseCode.FORBIDDEN); // 적절한 응답 코드 사용
+			throw new GeneralException(ResponseCode.FORBIDDEN);
+		}
+
+		// 삭제 처리된 글 조회 제한
+		if (post.getIsDeleted()) {
+			throw new GeneralException(ResponseCode.NOT_EXIST_POST);
 		}
 
 		// 게시글에 포함된 이미지 리스트 조회
