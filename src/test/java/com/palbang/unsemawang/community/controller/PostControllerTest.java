@@ -72,20 +72,21 @@ class PostControllerTest {
 			.content("hello")
 			.build();
 
-		when(postService.update(eq("testuser"), eq(postId), any(PostUpdateRequest.class))).thenThrow(
-			new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않는 게시글 입니다")
-		);
+		when(postService.updatePostAndImgFiles(eq("testuser"), eq(postId), any(PostUpdateRequest.class), any()))
+			.thenThrow(new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "유효하지 않는 게시글 입니다"));
 
 		// when, then : 요청을 보내면 유효하지 않는 게시글이라는 메세지가 떠야한다
-		mockMvc.perform(put("/posts/{id}", postId)
-				.contentType("application/json")
-				.content(objectMapper.writeValueAsString(postUpdateRequest))
-				.with(csrf())
+		mockMvc.perform(
+				multipart("/posts/{id}", postId)
+					.part(new MockPart("postDetail", null, objectMapper.writeValueAsBytes(postUpdateRequest),
+						MediaType.APPLICATION_JSON))
+					.with(csrf())
 			)
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("$.message").value("유효하지 않은 고유번호"));
 
-		verify(postService, times(1)).update(eq("testuser"), eq(postId), any(PostUpdateRequest.class));
+		verify(postService, times(1))
+			.updatePostAndImgFiles(eq("testuser"), eq(postId), any(PostUpdateRequest.class), any());
 	}
 
 	/* 헬퍼 */
