@@ -61,7 +61,7 @@ public class PostService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public Void update(String memberId, Long postId, PostUpdateRequest postUpdateRequest) {
+	public Post update(String memberId, Long postId, PostUpdateRequest postUpdateRequest) {
 
 		// 0. 유효한 회원인지 확인
 		Member member = memberRepository.findById(memberId)
@@ -74,7 +74,21 @@ public class PostService {
 		// 2. 게시글 업데이트
 		post.updateFrom(postUpdateRequest);
 
-		return null;
+		return post;
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public Post updatePostAndImgFiles(String memberId, Long postId, PostUpdateRequest postUpdateRequest,
+		List<MultipartFile> fileList) {
+
+		Post updatedPost = update(memberId, postId, postUpdateRequest);
+
+		// 이미지 업데이트(삭제 -> 추가)
+		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, updatedPost.getId());
+		fileService.deletePostImgs(postId);
+		fileService.uploadImagesAtOnce(fileList, fileRequest);
+
+		return updatedPost;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
