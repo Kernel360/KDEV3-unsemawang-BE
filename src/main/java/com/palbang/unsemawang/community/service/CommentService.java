@@ -55,20 +55,15 @@ public class CommentService {
 			return LongCursorResponse.empty(cursorRequest);
 		}
 
-		// 2. 부모 댓글 ID 리스트 추출
+		// 부모 댓글 ID 리스트 추출
 		List<Long> parentIds = parentResponse.data().stream()
 			.map(Comment::getId)
 			.collect(Collectors.toList());
 
-		// 부모 댓글이 없으면 빈 응답 반환
-		if (parentIds.isEmpty()) {
-			return LongCursorResponse.of(cursorRequest, List.of());
-		}
-
-		// 3. 자식 댓글 조회
+		// 자식 댓글 조회
 		List<Comment> childComments = commentRepository.findChildCommentsByParentIds(parentIds);
 
-		// 4. 자식 댓글을 부모 댓글에 매핑
+		// 자식 댓글을 부모 댓글에 매핑
 		mapChildCommentsToParent(parentResponse.data(), childComments);
 
 		// DTO 변환
@@ -81,11 +76,11 @@ public class CommentService {
 
 	// 자식 댓글을 부모 댓글에 매핑
 	private void mapChildCommentsToParent(List<Comment> parentComments, List<Comment> childComments) {
-		// 1. 자식 댓글을 부모 댓글 ID를 기준으로 그룹화
+		// 자식 댓글을 부모 댓글 ID를 기준으로 그룹화
 		Map<Long, List<Comment>> childCommentMap = childComments.stream()
 			.collect(Collectors.groupingBy(child -> child.getParentComment().getId()));
 
-		// 2. 각 부모 댓글에 해당하는 자식 댓글을 매핑
+		// 각 부모 댓글에 해당하는 자식 댓글을 매핑
 		parentComments.forEach(parent -> {
 			List<Comment> children = childCommentMap.getOrDefault(parent.getId(), List.of());
 			parent.getChildComments().clear(); // 기존 자식 댓글 초기화
@@ -147,10 +142,10 @@ public class CommentService {
 			}
 		}
 
-		// 익명 게시판인 경우 익명 이름 생성
-		String nickname = post.getCommunityCategory() == CommunityCategory.ANONYMOUS_BOARD
-			? resolveAnonymousName(postId, memberId)
-			: member.getNickname();
+		// 익명 게시판인 경우 익명 이름 생성만 호출
+		if (post.getCommunityCategory() == CommunityCategory.ANONYMOUS_BOARD) {
+			resolveAnonymousName(postId, memberId); // 익명 이름 생성
+		}
 
 		// 댓글 생성
 		Comment comment = Comment.builder()
@@ -168,22 +163,21 @@ public class CommentService {
 		postRepository.save(post);
 	}
 
-	private String resolveAnonymousName(Long postId, String memberId) {
-		return anonymousMappingRepository.findByPostIdAndMemberId(postId, memberId)
-			.map(AnonymousMapping::getAnonymousName)
-			.orElseGet(() -> {
-				long anonymousIndex = anonymousMappingRepository.countByPostId(postId) + 1;
-				String anonymousName = "익명" + anonymousIndex;
+	private void resolveAnonymousName(Long postId, String memberId) {
+		boolean exists = anonymousMappingRepository.findByPostIdAndMemberId(postId, memberId).isPresent();
 
-				AnonymousMapping mapping = AnonymousMapping.builder()
-					.postId(postId)
-					.memberId(memberId)
-					.anonymousName(anonymousName)
-					.build();
-				anonymousMappingRepository.save(mapping);
+		if (!exists) {
+			long anonymousIndex = anonymousMappingRepository.countByPostId(postId) + 1;
+			String anonymousName = "익명" + anonymousIndex;
 
-				return anonymousName;
-			});
+			AnonymousMapping mapping = AnonymousMapping.builder()
+				.postId(postId)
+				.memberId(memberId)
+				.anonymousName(anonymousName)
+				.build();
+
+			anonymousMappingRepository.save(mapping); // 익명 이름 저장
+		}
 	}
 
 	public void updateComment(Long postId, Long commentId, CommentUpdateRequest request, String memberId) {
