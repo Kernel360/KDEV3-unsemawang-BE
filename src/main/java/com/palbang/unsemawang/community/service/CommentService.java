@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
@@ -35,6 +36,7 @@ public class CommentService {
 	private final PostRepository postRepository;
 	private final MemberRepository memberRepository;
 	private final AnonymousMappingRepository anonymousMappingRepository;
+	private final FileService fileService;
 
 	@Transactional(readOnly = true)
 	public LongCursorResponse<CommentReadResponse> getAllCommentsByPostId(Long postId,
@@ -95,6 +97,7 @@ public class CommentService {
 
 		// 게시판 카테고리에 따라 닉네임 결정
 		String nickname = resolveNicknameForReadResponse(comment, category);
+		String imageUrl = resolveProfileImageForReadResponse(comment, category);
 
 		return CommentReadResponse.builder()
 			.commentId(comment.getId())
@@ -103,6 +106,7 @@ public class CommentService {
 			.registeredAt(comment.getRegisteredAt())
 			.replies(replies)
 			.repliesCount(replies.size())
+			.imageUrl(imageUrl)
 			.build();
 	}
 
@@ -118,6 +122,17 @@ public class CommentService {
 			return comment.getMember().getNickname();
 		}
 		throw new GeneralException(ResponseCode.INVALID_CATEGORY); // 유효하지 않은 카테고리 처리
+	}
+
+	private String resolveProfileImageForReadResponse(Comment comment, CommunityCategory category) {
+		if (category == CommunityCategory.ANONYMOUS_BOARD) {
+			// 익명 게시판: 고정된 익명 이미지 반환
+			return "MEMBER_PROFILE_IMG/default_profile.png";
+		} else if (category == CommunityCategory.FREE_BOARD) {
+			// 자유 게시판: 사용자의 프로필 이미지 반환 (fileService 활용)
+			return fileService.getProfileImgUrl(comment.getMember().getId());
+		}
+		throw new GeneralException(ResponseCode.ERROR_SEARCH);
 	}
 
 	public void registerComment(Long postId, CommentRegisterRequest request, String memberId) {
