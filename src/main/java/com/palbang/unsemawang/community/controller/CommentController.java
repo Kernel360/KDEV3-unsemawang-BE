@@ -3,6 +3,7 @@ package com.palbang.unsemawang.community.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,5 +94,24 @@ public class CommentController {
 		commentService.updateComment(postId, commentId, request, auth.getId());
 
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+
+	@Operation(
+		description = "내가 작성한 댓글을 삭제하는 기능입니다",
+		summary = "댓글 삭제"
+	)
+	@DeleteMapping("/{commentId}")
+	public ResponseEntity<Void> deleteCommentByPostId(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@PathVariable Long postId,
+		@PathVariable Long commentId) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		commentService.deleteComment(postId, commentId, auth.getId());
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

@@ -56,7 +56,7 @@ public class InsaengService {
 		responseMap.put("currentgoodandbad",
 			buildSimpleResponse("현재의 길흉사", result.getCurrentGoodAndBadNews().getText()));
 		responseMap.put("eightstar", buildSimpleResponse("팔복궁", result.getEightStar()));
-		responseMap.put("pungsu", buildSimpleResponse("풍수로 보는 길흉", result.getGoodAndBadByPungsu()));
+		responseMap.put("goodandbadbypungsu", buildSimpleResponse("풍수로 보는 길흉", result.getGoodAndBadByPungsu()));
 		responseMap.put("soulmates", buildSimpleResponse("천생연분", result.getSoulMates().getText()));
 
 		return responseMap;
