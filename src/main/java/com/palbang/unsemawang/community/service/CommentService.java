@@ -42,8 +42,7 @@ public class CommentService {
 	public LongCursorResponse<CommentReadResponse> getAllCommentsByPostId(Long postId,
 		CursorRequest<Long> cursorRequest) {
 		// 게시글 존재 확인
-		Post post = postRepository.findByIdAndIsDeletedFalse(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+		Post post = validatePost(postId);
 
 		// 부모 댓글 페이징 조회
 		LongCursorResponse<Comment> parentResponse = commentRepository.findCommentsByPostIdAndCursor(
@@ -137,12 +136,10 @@ public class CommentService {
 
 	public void registerComment(Long postId, CommentRegisterRequest request, String memberId) {
 		// 회원 존재 확인
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+		Member member = validateMember(memberId);
 
 		// 게시글 존재 확인
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+		Post post = validatePost(postId);
 
 		Comment parentComment = null;
 		// 자식 댓글일 경우
@@ -195,27 +192,27 @@ public class CommentService {
 		}
 	}
 
-	public void updateComment(Long postId, Long commentId, CommentUpdateRequest request, String memberId) {
-		Member member = validateMember(memberId);
-
-		validatePost(postId);
-
+	public void updateComment(Long commentId, CommentUpdateRequest request, String memberId) {
 		Comment comment = validateComment(commentId);
 
+		// 소프트 삭제 된 댓글인지 확인
+		if (comment.getIsDeleted()) {
+			throw new GeneralException(ResponseCode.NOT_DELETE_AVAILABLE);
+		}
+		validatePost(comment.getPost().getId());
+
+		Member member = validateMember(memberId);
 		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
 
 		comment.updateComment(request.getContent()); // dirty-check -> save() 필요없음
 	}
 
-	public void deleteComment(Long postId, Long commentId, String memberId) {
-		Member member = validateMember(memberId);
-
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
-
+	public void deleteComment(Long commentId, String memberId) {
 		Comment comment = validateComment(commentId);
+		Post post = comment.getPost();
 
-		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
+		Member member = validateMember(memberId);
+		validateCommentOwnerMatch(comment.getMember().getId(), member.getId());
 
 		comment.deleteComment();
 
@@ -231,8 +228,8 @@ public class CommentService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 	}
 
-	private void validatePost(Long postId) {
-		postRepository.findByIdAndIsDeletedFalse(postId)
+	private Post validatePost(Long postId) {
+		return postRepository.findByIdAndIsDeletedFalse(postId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
 	}
 
