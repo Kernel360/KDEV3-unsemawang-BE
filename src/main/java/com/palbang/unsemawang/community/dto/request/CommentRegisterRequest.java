@@ -20,7 +20,4 @@ public class CommentRegisterRequest {
 	@NotBlank
 	@Size(min = 1, max = 250)
 	private String content;
-
-	@Schema(required = false, description = "익명 여부", defaultValue = "false")
-	private Boolean isAnonymous;
 }

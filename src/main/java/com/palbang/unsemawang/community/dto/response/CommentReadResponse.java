@@ -18,13 +18,7 @@ public class CommentReadResponse {
 	private Long commentId;
 
 	@Schema(required = true)
-	private String memberId;
-
-	@Schema(required = true)
-	private String nickname;
-
-	@Schema(required = true)
-	private Boolean isAnonymous;
+	private String nickname; // 익명 게시판 -> 익명 이름, 자유 게시판 -> 사용자 별명
 
 	@Schema(required = true)
 	private String content;
@@ -34,6 +28,9 @@ public class CommentReadResponse {
 
 	@Schema(required = false)
 	private int repliesCount;
+
+	@Schema(required = true)
+	private String imageUrl;
 
 	@Schema(required = false)
 	private List<CommentReadResponse> replies;
