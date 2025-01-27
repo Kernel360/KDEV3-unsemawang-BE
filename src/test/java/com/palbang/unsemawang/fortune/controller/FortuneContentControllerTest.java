@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
+import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.service.FortuneContentService;
 
@@ -103,10 +104,18 @@ class FortuneContentControllerTest {
 
 	/* 헬퍼 */
 	private FortuneContent createFortuneContent(int i) {
+		FortuneCategory fortuneCategory = FortuneCategory.builder()
+			.id((long)i) // 예제용 ID
+			.nameEn("Category-en-" + i)
+			.name("카테고리-" + i)
+			.build();
+
 		return FortuneContent.builder()
+			.id((long)i)
 			.nameEn("test-name" + i)
 			.nameKo("테스트명" + i)
 			.path("/test-path" + i)
+			.fortuneCategory(fortuneCategory) // 여기가 중요
 			.isVisible(false)
 			.isDeleted(true)
 			.registeredAt(LocalDateTime.now())

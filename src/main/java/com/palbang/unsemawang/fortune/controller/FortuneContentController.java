@@ -31,7 +31,10 @@ public class FortuneContentController {
 	private final FortuneContentService fortuneContentService;
 
 	@Operation(
-		description = "현재는 이름에 검색 키워드가 포함된 컨텐츠 리스트가 조회 됩니다. 정렬 조건은 추후 추가될 예정입니다",
+		description = """
+			현재는 이름에 검색 키워드가 포함된 컨텐츠 리스트가 조회 됩니다. 정렬 조건은 추후 추가될 예정입니다.<br>
+			대분류 카테고리는 컨텐츠 목록 조회의 카테고리와 같습니다.
+			""",
 		summary = "운세 컨텐츠 검색 API"
 	)
 	@GetMapping("/search")
