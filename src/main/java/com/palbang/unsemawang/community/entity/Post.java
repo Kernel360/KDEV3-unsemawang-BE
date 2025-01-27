@@ -121,4 +121,18 @@ public class Post extends BaseEntity {
 			.communityCategory(postRegisterRequest.getCategory())
 			.build();
 	}
+
+	public void incrementCommentCount() {
+		this.commentCount++;
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void decrementCommentCount(Integer decrementCount) {
+		if (this.commentCount - decrementCount >= 0) {
+			this.commentCount -= decrementCount;
+		} else {
+			this.commentCount = 0;
+		}
+		this.updatedAt = LocalDateTime.now();
+	}
 }

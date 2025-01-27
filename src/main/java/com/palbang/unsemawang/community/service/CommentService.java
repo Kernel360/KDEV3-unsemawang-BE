@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.community.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -9,13 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
+import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.request.CommentRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.CommentUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.CommentReadResponse;
+import com.palbang.unsemawang.community.entity.AnonymousMapping;
 import com.palbang.unsemawang.community.entity.Comment;
 import com.palbang.unsemawang.community.entity.Post;
+import com.palbang.unsemawang.community.repository.AnonymousMappingRepository;
 import com.palbang.unsemawang.community.repository.CommentRepository;
 import com.palbang.unsemawang.community.repository.PostRepository;
 import com.palbang.unsemawang.member.entity.Member;
@@ -30,55 +35,111 @@ public class CommentService {
 	private final CommentRepository commentRepository;
 	private final PostRepository postRepository;
 	private final MemberRepository memberRepository;
+	private final AnonymousMappingRepository anonymousMappingRepository;
+	private final FileService fileService;
 
 	@Transactional(readOnly = true)
 	public LongCursorResponse<CommentReadResponse> getAllCommentsByPostId(Long postId,
 		CursorRequest<Long> cursorRequest) {
 		// 게시글 존재 확인
-		postRepository.findById(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+		Post post = validatePost(postId);
 
-		// 커서 키와 사이즈를 사용해 부모 댓글 페이징 조회
-		LongCursorResponse<Comment> cursorResponse = commentRepository.findCommentsByPostIdAndCursor(
+		// 부모 댓글 페이징 조회
+		LongCursorResponse<Comment> parentResponse = commentRepository.findCommentsByPostIdAndCursor(
 			postId,
 			cursorRequest.key(),
 			cursorRequest.size()
 		);
-		// 댓글 DTO 변환
-		List<CommentReadResponse> commentResponseDtoList = cursorResponse.data().stream()
-			.map(this::convertToReadResponse)
+
+		// 부모 댓글이 없으면 빈 응답 반환
+		if (parentResponse.data().isEmpty()) {
+			return LongCursorResponse.empty(cursorRequest);
+		}
+
+		// 부모 댓글 ID 리스트 추출
+		List<Long> parentIds = parentResponse.data().stream()
+			.map(Comment::getId)
 			.collect(Collectors.toList());
 
-		return LongCursorResponse.of(cursorResponse.nextCursorRequest(), commentResponseDtoList);
+		// 자식 댓글 조회
+		List<Comment> childComments = commentRepository.findChildCommentsByParentIds(parentIds);
+
+		// 자식 댓글을 부모 댓글에 매핑
+		mapChildCommentsToParent(parentResponse.data(), childComments);
+
+		// DTO 변환
+		List<CommentReadResponse> responseDtoList = parentResponse.data().stream()
+			.map(comment -> convertToReadResponse(comment, post.getCommunityCategory()))
+			.collect(Collectors.toList());
+
+		return LongCursorResponse.of(parentResponse.nextCursorRequest(), responseDtoList);
 	}
 
-	// 댓글 및 대댓글을 DTO로 변환
-	private CommentReadResponse convertToReadResponse(Comment comment) {
-		// 자식 댓글 처리(자식 댓글 리스트 생성)
+	// 자식 댓글을 부모 댓글에 매핑
+	private void mapChildCommentsToParent(List<Comment> parentComments, List<Comment> childComments) {
+		// 자식 댓글을 부모 댓글 ID를 기준으로 그룹화
+		Map<Long, List<Comment>> childCommentMap = childComments.stream()
+			.collect(Collectors.groupingBy(child -> child.getParentComment().getId()));
+
+		// 각 부모 댓글에 해당하는 자식 댓글을 매핑
+		parentComments.forEach(parent -> {
+			List<Comment> children = childCommentMap.getOrDefault(parent.getId(), List.of());
+			parent.getChildComments().clear(); // 기존 자식 댓글 초기화
+			parent.getChildComments().addAll(children); // 새로운 자식 댓글 추가
+		});
+	}
+
+	private CommentReadResponse convertToReadResponse(Comment comment, CommunityCategory category) {
 		List<CommentReadResponse> replies = comment.getChildComments().stream()
-			.map(this::convertToReadResponse)
+			.map(child -> convertToReadResponse(child, category))
 			.collect(Collectors.toList());
+
+		// 게시판 카테고리에 따라 닉네임 결정
+		String nickname = resolveNicknameForReadResponse(comment, category);
+		String imageUrl = resolveProfileImageForReadResponse(comment, category);
 
 		return CommentReadResponse.builder()
 			.commentId(comment.getId())
-			.memberId(comment.getMember().getId().toString())
-			.nickname(comment.getMember().getNickname())
-			.isAnonymous(comment.getIsAnonymous())
+			.nickname(nickname)
 			.content(comment.getContent())
 			.registeredAt(comment.getRegisteredAt())
-			.replies(replies) // 자식 댓글 없으면 null
-			.repliesCount(replies.size()) // 자식 댓글 수
+			.replies(replies)
+			.repliesCount(replies.size())
+			.imageUrl(imageUrl)
 			.build();
+	}
+
+	private String resolveNicknameForReadResponse(Comment comment, CommunityCategory category) {
+		if (category == CommunityCategory.ANONYMOUS_BOARD) {
+			// 익명 게시판일 경우 AnonymousMapping 테이블에서 익명 이름 가져오기
+			return anonymousMappingRepository.findByPostIdAndMemberId(comment.getPost().getId(),
+					comment.getMember().getId())
+				.map(AnonymousMapping::getAnonymousName)
+				.orElse("알 수 없음"); // 매핑이 없는 경우 기본값
+		} else if (category == CommunityCategory.FREE_BOARD) {
+			// 자유 게시판일 경우 사용자의 닉네임 반환
+			return comment.getMember().getNickname();
+		}
+		throw new GeneralException(ResponseCode.INVALID_CATEGORY); // 유효하지 않은 카테고리 처리
+	}
+
+	private String resolveProfileImageForReadResponse(Comment comment, CommunityCategory category) {
+		if (category == CommunityCategory.ANONYMOUS_BOARD) {
+			// 익명 게시판: 고정된 익명 이미지 반환
+			return "MEMBER_PROFILE_IMG/default_profile.png";
+		} else if (category == CommunityCategory.FREE_BOARD) {
+			// 자유 게시판: 사용자의 프로필 이미지 반환 (fileService 활용)
+			return fileService.getProfileImgUrl(comment.getMember().getId());
+		}
+		throw new GeneralException(ResponseCode.ERROR_SEARCH);
 	}
 
 	public void registerComment(Long postId, CommentRegisterRequest request, String memberId) {
 		// 회원 존재 확인
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+		Member member = validateMember(memberId);
 
 		// 게시글 존재 확인
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
+		Post post = validatePost(postId);
 
 		Comment parentComment = null;
 		// 자식 댓글일 경우
@@ -93,41 +154,72 @@ public class CommentService {
 			}
 		}
 
+		// 익명 게시판인 경우 익명 이름 생성만 호출
+		if (post.getCommunityCategory() == CommunityCategory.ANONYMOUS_BOARD) {
+			resolveAnonymousName(postId, memberId); // 익명 이름 생성
+		}
+
 		// 댓글 생성
 		Comment comment = Comment.builder()
 			.post(post)
 			.parentComment(parentComment)
 			.content(request.getContent())
-			.isAnonymous(request.getIsAnonymous())
 			.member(member) // 로그인된 회원 정보 연결
 			.build();
 
 		// 댓글 저장
 		commentRepository.save(comment);
+
+		// 게시글 댓글 수 증가
+		post.incrementCommentCount();
+		postRepository.save(post);
 	}
 
-	public void updateComment(Long postId, Long commentId, CommentUpdateRequest request, String memberId) {
-		Member member = validateMember(memberId);
+	private void resolveAnonymousName(Long postId, String memberId) {
+		boolean exists = anonymousMappingRepository.findByPostIdAndMemberId(postId, memberId).isPresent();
 
-		validatePost(postId);
+		if (!exists) {
+			long anonymousIndex = anonymousMappingRepository.countByPostId(postId) + 1;
+			String anonymousName = "익명" + anonymousIndex;
 
-		Comment comment = validateComment(commentId);
+			AnonymousMapping mapping = AnonymousMapping.builder()
+				.postId(postId)
+				.memberId(memberId)
+				.anonymousName(anonymousName)
+				.build();
 
-		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
-
-		comment.updateComment(request.getContent(), request.getIsAnonymous()); // dirty-check -> save() 필요없음
+			anonymousMappingRepository.save(mapping); // 익명 이름 저장
+		}
 	}
 
-	public void deleteComment(Long postId, Long commentId, String memberId) {
-		Member member = validateMember(memberId);
-
-		validatePost(postId);
-
+	public void updateComment(Long commentId, CommentUpdateRequest request, String memberId) {
 		Comment comment = validateComment(commentId);
 
+		// 소프트 삭제 된 댓글인지 확인
+		if (comment.getIsDeleted()) {
+			throw new GeneralException(ResponseCode.NOT_DELETE_AVAILABLE);
+		}
+		validatePost(comment.getPost().getId());
+
+		Member member = validateMember(memberId);
 		validateCommentOwnerMatch(member.getId(), comment.getMember().getId());
+
+		comment.updateComment(request.getContent()); // dirty-check -> save() 필요없음
+	}
+
+	public void deleteComment(Long commentId, String memberId) {
+		Comment comment = validateComment(commentId);
+		Post post = comment.getPost();
+
+		Member member = validateMember(memberId);
+		validateCommentOwnerMatch(comment.getMember().getId(), member.getId());
 
 		comment.deleteComment();
+
+		// 자식 댓글이 포함된 댓글 수 감소 처리
+		int decrementCount = 1 + (int)comment.getChildComments().stream().filter(c -> !c.getIsDeleted()).count();
+		post.decrementCommentCount(decrementCount);
+		postRepository.save(post);
 	}
 
 	// 유효성 검증 메서드
@@ -136,8 +228,8 @@ public class CommentService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 	}
 
-	private void validatePost(Long postId) {
-		postRepository.findByIdAndIsDeletedFalse(postId)
+	private Post validatePost(Long postId) {
+		return postRepository.findByIdAndIsDeletedFalse(postId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_POST));
 	}
 

@@ -13,11 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentUpdateRequest {
-	@Schema(required = true, description = "댓글 내용")
+	@Schema(required = true, description = "댓글 내용", example = "댓글 내용")
 	@NotBlank
 	@Size(min = 1, max = 250)
 	private String content;
-
-	@Schema(required = false, description = "익명 여부", defaultValue = "false")
-	private Boolean isAnonymous;
 }

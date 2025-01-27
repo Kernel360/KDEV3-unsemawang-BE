@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.common.util.file.dto;
+package com.palbang.unsemawang.common.util.file.constant;
 
 public enum FileReferenceType {
 	MEMBER_PROFILE_IMG,

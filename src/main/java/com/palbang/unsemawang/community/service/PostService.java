@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
-import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
+import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
 import com.palbang.unsemawang.common.util.file.dto.FileRequest;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.dto.request.PostDeleteRequest;

@@ -25,11 +25,11 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 		// 댓글 조회
 		List<Comment> comments = queryFactory
 			.selectFrom(comment)
-			.distinct()
 			.where(
 				comment.post.id.eq(postId),               // 게시글 ID 조건
-				comment.parentComment.isNull(),           // 부모 댓글만 가져옴
-				cursorKey == null ? null : comment.id.lt(cursorKey) // WHERE id < {cursorKey} 로 변환
+				comment.parentComment.isNull(),           // 부모 댓글만 조회
+				comment.isDeleted.eq(false),
+				cursorKey == null ? null : comment.id.gt(cursorKey) // 커서 조건
 			)
 			.orderBy(comment.id.asc())
 			.limit(size + 1) // 요청한 size보다 1개 더 가져옴
@@ -45,9 +45,20 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 		Long nextCursorKey = hasNext ? comments.get(comments.size() - 1).getId() : null;
 
 		// LongCursorResponse 생성
-		return LongCursorResponse.of(
-			new CursorRequest<>(nextCursorKey, size), // 다음 커서 요청
-			comments
-		);
+		return LongCursorResponse.of(new CursorRequest<>(nextCursorKey, size), comments);
+	}
+
+	@Override
+	public List<Comment> findChildCommentsByParentIds(List<Long> parentIds) {
+		QComment comment = QComment.comment;
+
+		return queryFactory
+			.selectFrom(comment)
+			.where(
+				comment.parentComment.id.in(parentIds), // 부모 댓글 ID 조건
+				comment.isDeleted.eq(false)
+			)
+			.orderBy(comment.parentComment.id.asc(), comment.id.asc()) // 부모 ID 및 자식 정렬
+			.fetch();
 	}
 }

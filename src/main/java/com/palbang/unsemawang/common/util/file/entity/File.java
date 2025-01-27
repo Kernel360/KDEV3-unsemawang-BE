@@ -3,7 +3,7 @@ package com.palbang.unsemawang.common.util.file.entity;
 import java.time.LocalDate;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
-import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
+import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

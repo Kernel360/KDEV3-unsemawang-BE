@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "커뮤니티")
 @RestController
-@RequestMapping("/posts/{postId}/comments")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 	private final CommentService commentService;
@@ -42,7 +42,7 @@ public class CommentController {
 	@GetMapping
 	public ResponseEntity<LongCursorResponse<CommentReadResponse>> getAllCommentsByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@PathVariable Long postId,
+		@RequestParam Long postId,
 		@RequestParam(required = false) Long cursorKey,
 		@RequestParam(defaultValue = "10") Integer size) {
 
@@ -64,7 +64,7 @@ public class CommentController {
 	@PostMapping
 	public ResponseEntity<Void> registerCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@PathVariable Long postId,
+		@RequestParam Long postId,
 		@RequestBody @Valid CommentRegisterRequest request
 	) {
 		if (auth == null || auth.getId() == null) {
@@ -83,7 +83,6 @@ public class CommentController {
 	@PutMapping("/{commentId}")
 	public ResponseEntity<Void> updateCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@PathVariable Long postId,
 		@PathVariable Long commentId,
 		@RequestBody @Valid CommentUpdateRequest request
 	) {
@@ -91,7 +90,7 @@ public class CommentController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		commentService.updateComment(postId, commentId, request, auth.getId());
+		commentService.updateComment(commentId, request, auth.getId());
 
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
@@ -103,14 +102,13 @@ public class CommentController {
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity<Void> deleteCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
-		@PathVariable Long postId,
 		@PathVariable Long commentId) {
 
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		commentService.deleteComment(postId, commentId, auth.getId());
+		commentService.deleteComment(commentId, auth.getId());
 
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}

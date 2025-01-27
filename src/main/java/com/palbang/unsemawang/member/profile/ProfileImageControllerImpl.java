@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.palbang.unsemawang.common.util.file.dto.FileReferenceType;
+import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
 import com.palbang.unsemawang.common.util.file.dto.FileRequest;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;

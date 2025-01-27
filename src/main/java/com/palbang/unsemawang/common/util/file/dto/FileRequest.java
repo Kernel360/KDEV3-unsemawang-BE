@@ -1,5 +1,7 @@
 package com.palbang.unsemawang.common.util.file.dto;
 
+import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
+
 /**
  * 해당 파일이 필요한 곳의 정보로 파일을 요청
  * of 메서드 사용해주세요
