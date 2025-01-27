@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.community.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +34,7 @@ public class PostListService {
 			CursorRequest<Long> cursorRequest) {
 
 		// 게시글 조회
-		List<Post> posts = fetchPosts(category, sort, cursorRequest.key(), cursorRequest.size());
+		List<Post> posts = new ArrayList<>(fetchPosts(category, sort, cursorRequest.key(), cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
