@@ -76,8 +76,10 @@ public class MemberService {
 		String nickname = updateMemberRequest.getNickname();
 		String detailBio = updateMemberRequest.getDetailBio();
 
-		//닉네임 중복 체크
-		duplicateNicknameCheck(nickname);
+		if(!member.getNickname().equals(nickname)) {
+			//닉네임 중복 체크
+			duplicateNicknameCheck(nickname);
+		}
 
 		Member updateMember = member.toBuilder()
 			.nickname(nickname)
