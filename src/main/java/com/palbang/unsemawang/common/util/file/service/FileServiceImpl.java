@@ -45,6 +45,11 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public void uploadImagesAtOnce(List<MultipartFile> files, FileRequest fileRequest) {
+		if (files == null || files.isEmpty()) {
+			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+			return;
+		}
+
 		files.forEach(f -> uploadImage(f, fileRequest));
 	}
 

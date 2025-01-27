@@ -9,8 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,19 +54,20 @@ public class PostControllerImpl implements PostController {
 	}
 
 	/* 게시글 수정 */
-	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Override
 	public ResponseEntity modifyCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId,
-		@Valid @RequestBody PostUpdateRequest postUpdateRequest
+		@RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFileList,
+		@Valid @RequestPart(value = "postDetail") PostUpdateRequest postUpdateRequest
 	) {
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
 		// 게시글 업데이트
-		postService.update(auth.getId(), postId, postUpdateRequest);
+		postService.updatePostAndImgFiles(auth.getId(), postId, postUpdateRequest, imageFileList);
 
 		return ResponseEntity.ok().build();
 	}
