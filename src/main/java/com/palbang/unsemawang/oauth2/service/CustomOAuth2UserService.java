@@ -56,7 +56,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.oauthId(oAuth2Response.getProviderId())
 				.oauthProvider(oAuth2Response.getProvider())
 				.email(oAuth2Response.getEmail())
-				.role(GENERAL)
+				.role(GUEST)
 				.build();
 
 			//OAuth 얻어온 정보 회원정보 저장
@@ -65,7 +65,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			UserDto userDto = new UserDto();
 			userDto.setId(member.getId());
 			userDto.setEmail(oAuth2Response.getEmail());
-			userDto.setRole("" + GENERAL);
+			userDto.setRole("" + GUEST);
 			userDto.setIsJoin(member.getIsJoin());
 			return new CustomOAuth2User(userDto);
 

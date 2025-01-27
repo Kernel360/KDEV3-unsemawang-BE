@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.member.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,9 +90,12 @@ public class MemberController {
 		// 사주 정보 등록
 		fortuneInfoRegisterService.registerFortuneInfo(FortuneInfoRegisterRequest.from(signupExtraInfo));
 
-		return ResponseEntity.ok(
-			Response.success(ResponseCode.SUCCESS_INSERT)
-		);
+		// HttpHeaders 객체 JWT 재발급 후 쿠키에 넘겨줌
+		HttpHeaders headers = memberService.addJwtToCookie(auth);
+
+		return ResponseEntity.ok()
+				.headers(headers)
+			     .body(Response.success(ResponseCode.SUCCESS_INSERT));
 	}
 
 	@Operation(
