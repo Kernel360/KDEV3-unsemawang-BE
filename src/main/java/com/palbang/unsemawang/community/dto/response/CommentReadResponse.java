@@ -17,7 +17,7 @@ public class CommentReadResponse {
 	@Schema(required = true)
 	private Long commentId;
 
-	@Schema(required = false)
+	@Schema(required = true)
 	private Boolean isMyComment;
 
 	@Schema(required = true)
