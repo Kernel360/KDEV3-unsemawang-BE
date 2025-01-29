@@ -36,11 +36,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			AND p.isVisible = true
 			AND p.isDeleted = false
 			ORDER BY p.registeredAt DESC
+			LIMIT :size
 		""")
 	List<Post> findLatestPostsByCategory(
 		@Param("category") CommunityCategory category,
 		@Param("cursorId") Long cursorId,
-		Pageable pageable // Spring Data JPA Pageable 사용
+		@Param("size") int size
 	);
 
 	// 카테고리별 조회수 순 게시글 가져오기
@@ -51,11 +52,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    AND p.isVisible = true
 		    AND p.isDeleted = false
 		    ORDER BY p.viewCount DESC, p.id DESC
+		    LIMIT :size
 		""")
 	List<Post> findMostViewedPostsByCategory(
 		@Param("category") CommunityCategory category,
 		@Param("cursorId") Long cursorId,
-		Pageable pageable
+		@Param("size") int size
 	);
 
 	// 인기 게시글 가져오기(최근 30일)
@@ -66,11 +68,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    AND (p.id < :cursorId OR :cursorId IS NULL)
 		    AND p.registeredAt >= :thirtyDaysAgo
 		    ORDER BY (p.viewCount * 7) + (p.likeCount * 3) DESC, p.id DESC
+		    LIMIT :size
 		""")
 	List<Post> findPopularPosts(
 		@Param("cursorId") Long cursorId,
 		@Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo,
-		Pageable pageable
+		@Param("size") int size
 	);
 
 	Optional<Post> findByIdAndIsDeletedFalse(Long id);
