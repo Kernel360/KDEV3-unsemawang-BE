@@ -38,7 +38,7 @@ public interface PostController {
 		description = "커뮤니티 게시글 수정 API 입니다. 인증 토큰이 담긴 쿠키를 보내셔야 테스트가 가능합니다!",
 		summary = "커뮤니티 게시글 수정"
 	)
-	@ApiResponse(responseCode = "201", description = "이미지 재업로드 및 게시글 수정 성공")
+	@ApiResponse(responseCode = "200", description = "이미지 재업로드 및 게시글 수정 성공")
 	@ApiResponse(responseCode = "413", description = "이미지 용량 초과로 등록 실패")
 	@ApiResponse(responseCode = "400", description = "권한이 없는 회원이거나 유효하지 않는 데이터로 수정 실패")
 	ResponseEntity modifyCommunityPost(

@@ -40,7 +40,7 @@ public class PostDetailService {
 		List<String> imageUrls = fileService.getPostImgUrls(post.getId());
 
 		// 작성자의 프로필 이미지 조회
-		String profileImage = post.getIsAnonymous() ? null : fileService.getProfileImgUrl(memberId);
+		String profileImage = post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId());
 
 		// 본인 글 여부 확인
 		boolean isMyPost = post.getMember().getId().equals(memberId);
