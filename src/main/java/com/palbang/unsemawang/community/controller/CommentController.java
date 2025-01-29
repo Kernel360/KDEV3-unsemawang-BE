@@ -52,7 +52,8 @@ public class CommentController {
 		// cursorRequest 객체 생성
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
 
-		LongCursorResponse<CommentReadResponse> response = commentService.getAllCommentsByPostId(postId, cursorRequest);
+		LongCursorResponse<CommentReadResponse> response = commentService.getAllCommentsByPostId(postId, cursorRequest,
+			auth.getId());
 
 		return ResponseEntity.ok(response);
 	}

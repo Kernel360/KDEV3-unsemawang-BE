@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.jwt.JWTUtil;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
@@ -24,6 +25,9 @@ class MemberServiceTest {
 
 	@Autowired
 	private MemberService memberService;
+
+	@MockBean
+	private JWTUtil jwtUtil;
 
 	@Test
 	@DisplayName("닉네임 중복 - 닉네임이 이미 존재하면 GeneralException 발생")

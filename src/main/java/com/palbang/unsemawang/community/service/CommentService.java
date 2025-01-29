@@ -40,7 +40,7 @@ public class CommentService {
 
 	@Transactional(readOnly = true)
 	public LongCursorResponse<CommentReadResponse> getAllCommentsByPostId(Long postId,
-		CursorRequest<Long> cursorRequest) {
+		CursorRequest<Long> cursorRequest, String memberId) {
 		// 게시글 존재 확인
 		Post post = validatePost(postId);
 
@@ -69,7 +69,7 @@ public class CommentService {
 
 		// DTO 변환
 		List<CommentReadResponse> responseDtoList = parentResponse.data().stream()
-			.map(comment -> convertToReadResponse(comment, post.getCommunityCategory()))
+			.map(comment -> convertToReadResponse(comment, post.getCommunityCategory(), memberId))
 			.collect(Collectors.toList());
 
 		return LongCursorResponse.of(parentResponse.nextCursorRequest(), responseDtoList);
@@ -89,9 +89,9 @@ public class CommentService {
 		});
 	}
 
-	private CommentReadResponse convertToReadResponse(Comment comment, CommunityCategory category) {
+	private CommentReadResponse convertToReadResponse(Comment comment, CommunityCategory category, String memberId) {
 		List<CommentReadResponse> replies = comment.getChildComments().stream()
-			.map(child -> convertToReadResponse(child, category))
+			.map(child -> convertToReadResponse(child, category, memberId))
 			.collect(Collectors.toList());
 
 		// 게시판 카테고리에 따라 닉네임 결정
@@ -106,6 +106,7 @@ public class CommentService {
 			.replies(replies)
 			.repliesCount(replies.size())
 			.imageUrl(imageUrl)
+			.isMyComment(comment.getMember().getId().equals(memberId))
 			.build();
 	}
 
