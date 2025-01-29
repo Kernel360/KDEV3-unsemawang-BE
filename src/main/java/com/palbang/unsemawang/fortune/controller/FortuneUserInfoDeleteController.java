@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoDeleteResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoDeleteService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
@@ -38,6 +40,10 @@ public class FortuneUserInfoDeleteController {
 	public ResponseEntity<FortuneUserInfoDeleteResponseDto> deleteFortuneUserInfo(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestParam @NotNull(message = "relationId는 필수 값입니다.") Long relationId) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
 
 		FortuneUserInfoDeleteResponseDto response = deleteService.deleteFortuneUserInfo(auth.getId(), relationId);
 		return ResponseEntity

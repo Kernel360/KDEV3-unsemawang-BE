@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoUpdateRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneUserInfoUpdateResponse;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
@@ -39,6 +41,10 @@ public class FortuneUserInfoUpdateController {
 	public ResponseEntity<FortuneUserInfoUpdateResponse> updateFortuneUserInfo(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestBody @Valid FortuneInfoUpdateRequest requestDto) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
 
 		requestDto.setMemberId(auth.getId());
 

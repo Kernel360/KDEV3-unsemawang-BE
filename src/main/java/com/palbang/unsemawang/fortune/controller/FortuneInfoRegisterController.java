@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDto;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
@@ -40,6 +42,10 @@ public class FortuneInfoRegisterController {
 	public ResponseEntity<FortuneInfoRegisterResponseDto> registerFortuneUser(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestBody FortuneInfoRegisterRequest requestDto) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
 
 		requestDto.setMemberId(auth.getId());
 
