@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.controller;
 
+import com.palbang.unsemawang.community.constant.CategoryList;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,7 @@ public class PostListController {
 		summary = "게시글 목록 조회")
 	@GetMapping("/posts")
 	public ResponseEntity<LongCursorResponse<PostListResponse>> getPostList(
-		@RequestParam CommunityCategory category,
+		@RequestParam CategoryList category,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(required = false, defaultValue = "10") Integer size,
 		@RequestParam(required = false, defaultValue = "LATEST") Sortingtype sort

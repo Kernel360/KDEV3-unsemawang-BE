@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
+import com.palbang.unsemawang.community.constant.CategoryList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -41,7 +42,7 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_firstPage() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CategoryList category = CategoryList.FREE_BOARD;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 2); // 첫 페이지 요청 (size = 2)
 
 		// Mock 반환 데이터 (size + 1 원칙에 따른 데이터 생성)
@@ -69,7 +70,7 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_emptyResult() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CategoryList category = CategoryList.FREE_BOARD;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 2); // 첫 페이지 요청 (size = 2)
 
 		// Mock 반환 데이터가 비어있는 경우
@@ -92,7 +93,7 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_nextPage() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CategoryList category = CategoryList.FREE_BOARD;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(2L, 2); // 두 번째 페이지 요청 (size = 2)
 
 		// Mock 반환 데이터 (size + 1 원칙에 따른 데이터 생성)
@@ -120,7 +121,7 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_sortedByViewCount() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CategoryList category = CategoryList.FREE_BOARD;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 3); // 첫 페이지 요청 (size = 3)
 
 		// Mock 반환 데이터 (조회수 순서로 정렬됨, size + 1 원칙에 따라 데이터 생성)

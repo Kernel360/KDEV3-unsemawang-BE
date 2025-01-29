@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.palbang.unsemawang.community.constant.CategoryList;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,7 +40,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			LIMIT :size
 		""")
 	List<Post> findLatestPostsByCategory(
-		@Param("category") CommunityCategory category,
+		@Param("category") CategoryList category,
 		@Param("cursorId") Long cursorId,
 		@Param("size") int size
 	);
@@ -55,7 +56,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    LIMIT :size
 		""")
 	List<Post> findMostViewedPostsByCategory(
-		@Param("category") CommunityCategory category,
+		@Param("category") CategoryList category,
 		@Param("cursorId") Long cursorId,
 		@Param("size") int size
 	);

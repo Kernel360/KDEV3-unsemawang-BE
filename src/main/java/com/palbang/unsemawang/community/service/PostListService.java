@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.palbang.unsemawang.community.constant.CategoryList;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class PostListService {
 	private final FileService fileService;
 
 	public LongCursorResponse<PostListResponse> getPostList(
-			CommunityCategory category,
+			CategoryList category,
 			Sortingtype sort,
 			CursorRequest<Long> cursorRequest) {
 
@@ -58,11 +59,11 @@ public class PostListService {
 	}
 
 	// Helper 메서드: 게시글 조회 분기 처리
-	private List<Post> fetchPosts(CommunityCategory category, Sortingtype sort, Long cursorId, int size) {
+	private List<Post> fetchPosts(CategoryList category, Sortingtype sort, Long cursorId, int size) {
 		if (Sortingtype.MOST_VIEWED.equals(sort)) {
 			return postRepository.findMostViewedPostsByCategory(category, cursorId, size + 1); // size + 1 사용
 		}
-		if (CommunityCategory.POPULAR_BOARD.equals(category)) {
+		if (CategoryList.POPULAR_BOARD.equals(category)) {
 			LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 			return postRepository.findPopularPosts(cursorId, thirtyDaysAgo, size + 1); // size + 1 사용
 		}
