@@ -56,6 +56,9 @@ public class PostDetailResponse {
 	@Schema(description = "게시판 카테고리", required = true, example = "자유 게시판")
 	private CommunityCategory communityCategory;
 
+	@Schema(description = "내가 작성한 게시글 여부", required = true, example = "true")
+	private Boolean isMyPost;
+
 	@Schema(description = "게시글 등록 시각", required = true, example = "2023-12-01T10:00:00")
 	private LocalDateTime registeredAt;
 
