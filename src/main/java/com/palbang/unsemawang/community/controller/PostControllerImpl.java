@@ -20,6 +20,7 @@ import com.palbang.unsemawang.community.dto.request.PostDeleteRequest;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
 import com.palbang.unsemawang.community.dto.response.PostRegisterResponse;
+import com.palbang.unsemawang.community.dto.response.PostUpdateResponse;
 import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.service.PostService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
@@ -50,13 +51,15 @@ public class PostControllerImpl implements PostController {
 
 		Post savedPost = postService.register(postRegisterRequest, imageFileList);
 
-		return ResponseEntity.created(URI.create("/posts/" + savedPost.getId())).build();
+		return ResponseEntity
+			.created(URI.create("/posts/" + savedPost.getId()))
+			.body(PostRegisterResponse.of(savedPost.getId()));
 	}
 
 	/* 게시글 수정 */
 	@PostMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Override
-	public ResponseEntity modifyCommunityPost(
+	public ResponseEntity<PostUpdateResponse> modifyCommunityPost(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable("id") Long postId,
 		@RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFileList,
@@ -67,9 +70,11 @@ public class PostControllerImpl implements PostController {
 		}
 
 		// 게시글 업데이트
-		postService.updatePostAndImgFiles(auth.getId(), postId, postUpdateRequest, imageFileList);
+		Post updatedPost = postService.updatePostAndImgFiles(auth.getId(), postId, postUpdateRequest, imageFileList);
 
-		return ResponseEntity.ok().build();
+		return ResponseEntity
+			.ok()
+			.body(PostUpdateResponse.of(updatedPost.getId()));
 	}
 
 	/* 게시글 삭제 */
