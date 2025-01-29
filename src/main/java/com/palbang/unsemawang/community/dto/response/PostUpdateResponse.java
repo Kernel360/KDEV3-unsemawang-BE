@@ -5,12 +5,12 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PostRegisterResponse {
+public class PostUpdateResponse {
 
 	private Long postId;
 
-	public static PostRegisterResponse of(Long postId) {
-		return PostRegisterResponse.builder()
+	public static PostUpdateResponse of(Long postId) {
+		return PostUpdateResponse.builder()
 			.postId(postId)
 			.build();
 	}

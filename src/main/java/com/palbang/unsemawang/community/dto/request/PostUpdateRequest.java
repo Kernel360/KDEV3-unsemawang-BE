@@ -21,7 +21,7 @@ public class PostUpdateRequest {
 	private String title;
 
 	@NotBlank(message = "내용을 입력해 주세요")
-	@Size(min = 1, max = 1000, message = "내용은 1,000자 이내여야 합니다")
+	@Size(min = 1, max = 10000, message = "내용은 10,000자 이내여야 합니다")
 	private String content;
 
 	@NotNull(message = "카테고리를 입력해 주세요")
