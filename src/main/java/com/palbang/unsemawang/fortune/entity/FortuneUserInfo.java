@@ -103,4 +103,9 @@ public class FortuneUserInfo extends BaseEntity {
 		this.solunar = solunar; // 양력/음력 수정
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
 	}
+
+	public void updateFortuneNickname(String nickname){
+		this.nickname = nickname;
+		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+	}
 }

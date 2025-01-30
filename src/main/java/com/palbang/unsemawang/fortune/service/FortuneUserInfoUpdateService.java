@@ -1,5 +1,7 @@
 package com.palbang.unsemawang.fortune.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
@@ -62,5 +64,19 @@ public class FortuneUserInfoUpdateService {
 			.youn(fortuneUserInfo.getYoun())
 			.solunar(fortuneUserInfo.getSolunar())
 			.build();
+	}
+	public void updateFortuneUserNickname(String id, String nickname) {
+		List<FortuneUserInfo> fortuneUserInfoList = fortuneUserInfoRepository.findByMemberIdAndRelation(id,"본인");
+
+		if (fortuneUserInfoList.isEmpty()) {
+			throw new GeneralException(ResponseCode.ERROR_SEARCH, "해당 회원의 본인 사주정보를 찾지 못했습니다.");
+		}
+
+		// 첫 번째 사주 정보를 가져와서 닉네임 변경
+		FortuneUserInfo fortuneUserInfo = fortuneUserInfoList.get(0);
+		fortuneUserInfo.updateFortuneNickname(nickname);
+
+		// 변경된 정보 저장
+		fortuneUserInfoRepository.save(fortuneUserInfo);
 	}
 }

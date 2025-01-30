@@ -12,4 +12,10 @@ import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 public interface FortuneUserInfoRepository extends JpaRepository<FortuneUserInfo, Long> {
 	@Query("SELECT f FROM FortuneUserInfo f WHERE f.member.id = :id AND f.isDeleted = false")
 	List<FortuneUserInfo> findByMemberId(String id);
+
+	@Query("SELECT f FROM FortuneUserInfo f " +
+		"JOIN f.relation r " +
+		"WHERE f.member.id = :id AND r.relationName = :relationName AND f.isDeleted = false")
+	List<FortuneUserInfo> findByMemberIdAndRelation(String id, String relationName);
+
 }
