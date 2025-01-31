@@ -76,5 +76,31 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("size") int size
 	);
 
+	// 게시글 검색
+	@Query("""
+    SELECT p FROM Post p
+    WHERE (p.id < :cursorId OR :cursorId IS NULL)
+    AND (
+        (:searchType = 'all' AND (
+            LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+            LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+            LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        ))
+        OR (:searchType = 'title' AND LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        OR (:searchType = 'content' AND LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        OR (:searchType = 'writer' AND LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    )
+    AND p.isVisible = true
+    AND p.isDeleted = false
+    ORDER BY p.id DESC
+    LIMIT :size
+""")
+	List<Post> searchPosts(
+			@Param("keyword") String keyword,
+			@Param("searchType") String searchType,
+			@Param("cursorId") Long cursorId,
+			@Param("size") int size
+	);
+
 	Optional<Post> findByIdAndIsDeletedFalse(Long id);
 }

@@ -46,4 +46,31 @@ public class PostListController {
 
 		return ResponseEntity.ok(response);
 	}
+
+	@Operation(
+			description = """
+			검색 및 페이지네이션 기반 게시글 목록 조회<br>
+			searchType: all, title, content, writer (기본값은 all)
+			""",
+			summary = "게시글 검색")
+	@GetMapping("/posts/search")
+	public ResponseEntity<LongCursorResponse<PostListResponse>> searchPosts(
+			@RequestParam String keyword,
+			@RequestParam(required = false, defaultValue = "all") String searchType,
+			@RequestParam(required = false) Long cursorId,
+			@RequestParam(required = false, defaultValue = "10") Integer size
+	) {
+		// CursorRequest 생성
+		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorId, size);
+
+		// 서비스 호출
+		LongCursorResponse<PostListResponse> response = postListService.searchPosts(
+				keyword,
+				searchType,
+				cursorRequest
+		);
+
+		return ResponseEntity.ok(response);
+	}
+
 }
