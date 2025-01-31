@@ -11,7 +11,10 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
+import com.palbang.unsemawang.community.constant.CommunityCategory;
+import com.palbang.unsemawang.community.constant.Sortingtype;
 import com.palbang.unsemawang.community.dto.response.MyCommentsReadResponse;
+import com.palbang.unsemawang.community.dto.response.PostListResponse;
 import com.palbang.unsemawang.community.service.MyCommunityService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
@@ -45,6 +48,31 @@ public class MyCommunityController {
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
 
 		LongCursorResponse<MyCommentsReadResponse> response = myService.commentListRead(cursorRequest, auth.getId());
+
+		return ResponseEntity.ok(response);
+	}
+
+	@Operation(
+		description = "나의 커뮤니티 작성 게시글 조회 API 입니다.",
+		summary = "커뮤니티 내 작성 게시글 목록 조회"
+	)
+	@GetMapping("/posts")
+	public ResponseEntity<LongCursorResponse<PostListResponse>> readMyPostsList(
+		@AuthenticationPrincipal CustomOAuth2User auth,
+		@RequestParam(required = false) Long cursorKey,
+		@RequestParam(defaultValue = "10") Integer size,
+		@RequestParam(required = false) CommunityCategory category,
+		@RequestParam(required = false, defaultValue = "LATEST") Sortingtype sort
+	) {
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		// cursorRequest 객체 생성
+		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
+
+		LongCursorResponse<PostListResponse> response = myService.postListRead(cursorRequest, auth.getId(), category,
+			sort);
 
 		return ResponseEntity.ok(response);
 	}

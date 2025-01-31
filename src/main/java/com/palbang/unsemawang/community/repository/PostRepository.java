@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +15,7 @@ import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.member.entity.Member;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
 	Optional<Post> findByIdAndMember(Long id, Member member);
 
@@ -30,21 +29,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// 카테고리에 따른 최신 게시글 가져오기
 	@Query("""
-	SELECT p FROM Post p
-	WHERE p.communityCategory = :category
-	AND p.isVisible = true
-	AND p.isDeleted = false
-	AND (:cursorId IS NULL OR 
-         p.registeredAt < :cursorRegisteredAt OR 
-         (p.registeredAt = :cursorRegisteredAt AND p.id < :cursorId))
-	ORDER BY p.registeredAt DESC, p.id DESC
-	LIMIT :size
-	""")
+		SELECT p FROM Post p
+		WHERE p.communityCategory = :category
+		AND p.isVisible = true
+		AND p.isDeleted = false
+		AND (:cursorId IS NULL OR 
+		        p.registeredAt < :cursorRegisteredAt OR 
+		        (p.registeredAt = :cursorRegisteredAt AND p.id < :cursorId))
+		ORDER BY p.registeredAt DESC, p.id DESC
+		LIMIT :size
+		""")
 	List<Post> findLatestPostsByCategory(
-			@Param("category") CommunityCategory category,
-			@Param("cursorId") Long cursorId,
-			@Param("cursorRegisteredAt") LocalDateTime cursorRegisteredAt,
-			@Param("size") int size
+		@Param("category") CommunityCategory category,
+		@Param("cursorId") Long cursorId,
+		@Param("cursorRegisteredAt") LocalDateTime cursorRegisteredAt,
+		@Param("size") int size
 	);
 
 	@Query("SELECT p.registeredAt FROM Post p WHERE p.id = :id")
@@ -84,28 +83,28 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// 게시글 검색
 	@Query("""
-    SELECT p FROM Post p
-    WHERE (p.id < :cursorId OR :cursorId IS NULL)
-    AND (
-        (:searchType = 'all' AND (
-            LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-            LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-            LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        ))
-        OR (:searchType = 'title' AND LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
-        OR (:searchType = 'content' AND LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
-        OR (:searchType = 'writer' AND LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    )
-    AND p.isVisible = true
-    AND p.isDeleted = false
-    ORDER BY p.id DESC
-    LIMIT :size
-""")
+		    SELECT p FROM Post p
+		    WHERE (p.id < :cursorId OR :cursorId IS NULL)
+		    AND (
+		        (:searchType = 'all' AND (
+		            LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+		            LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+		            LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		        ))
+		        OR (:searchType = 'title' AND LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+		        OR (:searchType = 'content' AND LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+		        OR (:searchType = 'writer' AND LOWER(p.member.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')))
+		    )
+		    AND p.isVisible = true
+		    AND p.isDeleted = false
+		    ORDER BY p.id DESC
+		    LIMIT :size
+		""")
 	List<Post> searchPosts(
-			@Param("keyword") String keyword,
-			@Param("searchType") String searchType,
-			@Param("cursorId") Long cursorId,
-			@Param("size") int size
+		@Param("keyword") String keyword,
+		@Param("searchType") String searchType,
+		@Param("cursorId") Long cursorId,
+		@Param("size") int size
 	);
 
 	Optional<Post> findByIdAndIsDeletedFalse(Long id);
