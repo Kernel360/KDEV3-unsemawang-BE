@@ -16,6 +16,7 @@ import com.palbang.unsemawang.common.response.Response;
 import com.palbang.unsemawang.common.util.file.service.FileServiceImpl;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
+import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
 import com.palbang.unsemawang.member.dto.MemberProfileDto;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
 import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
@@ -40,6 +41,7 @@ public class MemberController {
 	private final MemberService memberService;
 	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
 	private final FileServiceImpl fileService;
+	private final FortuneUserInfoUpdateService fortuneUserInfoUpdateService;
 
 	@Operation(
 		summary = "회원 닉네임 중복 체크",
@@ -148,7 +150,11 @@ public class MemberController {
 
 		String id = auth.getId();
 
+		//회원정보수정
 		UpdateMemberResponse updateMemberResponse = memberService.updateMemberProfile(id, updateMemberRequest);
+
+		//본인사주 닉네임 수정
+		fortuneUserInfoUpdateService.updateFortuneUserNickname(id,updateMemberResponse.getNickname());
 
 		return ResponseEntity.ok(
 			Response.success(ResponseCode.SUCCESS_UPDATE, updateMemberResponse, "회원정보가 정상적으로 수정되었습니다.")
