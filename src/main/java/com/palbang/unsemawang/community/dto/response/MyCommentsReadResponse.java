@@ -2,6 +2,8 @@ package com.palbang.unsemawang.community.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.community.constant.CommunityCategory;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +22,7 @@ public class MyCommentsReadResponse {
 	private Long postId;
 
 	@Schema(required = true)
-	private String communityCategory;
+	private CommunityCategory communityCategory;
 
 	@Schema(required = true)
 	private String postTitle;

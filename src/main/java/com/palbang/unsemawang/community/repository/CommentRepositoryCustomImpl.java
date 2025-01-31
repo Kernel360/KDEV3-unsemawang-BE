@@ -6,8 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
+import com.palbang.unsemawang.community.dto.response.MyCommentsReadResponse;
 import com.palbang.unsemawang.community.entity.Comment;
 import com.palbang.unsemawang.community.entity.QComment;
+import com.palbang.unsemawang.community.entity.QPost;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -60,5 +63,42 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 			)
 			.orderBy(comment.parentComment.id.asc(), comment.id.asc()) // 부모 ID 및 자식 정렬
 			.fetch();
+	}
+
+	@Override
+	public LongCursorResponse<MyCommentsReadResponse> findMyCommentsByCursor(String memberId,
+		CursorRequest<Long> cursorRequest) {
+		QComment comment = QComment.comment;
+		QPost post = QPost.post;
+
+		List<MyCommentsReadResponse> comments = queryFactory
+			.select(Projections.constructor(MyCommentsReadResponse.class,
+				comment.id,
+				post.id,
+				post.communityCategory.stringValue(),
+				post.title,
+				comment.content,
+				comment.registeredAt
+			))
+			.from(comment)
+			.join(comment.post, post) // Post와 함께 가져옴
+			.where(
+				comment.member.id.eq(memberId),
+				comment.isDeleted.eq(false),
+				cursorRequest.key() == null ? null : comment.id.lt(cursorRequest.key())
+			)
+			.orderBy(comment.registeredAt.desc(), comment.id.desc())
+			.limit(cursorRequest.size() + 1)
+			.fetch();
+
+		// 다음 커서 계산
+		boolean hasNext = comments.size() > cursorRequest.size();
+		if (hasNext) {
+			comments.remove(comments.size() - 1); // 초과 데이터 제거
+		}
+
+		Long nextCursorKey = hasNext ? comments.get(comments.size() - 1).getCommentId() : null;
+
+		return LongCursorResponse.of(cursorRequest.next(nextCursorKey), comments);
 	}
 }
