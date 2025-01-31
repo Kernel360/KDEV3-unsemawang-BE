@@ -30,19 +30,25 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// 카테고리에 따른 최신 게시글 가져오기
 	@Query("""
-			SELECT p FROM Post p
-			WHERE (p.id < :cursorId OR :cursorId IS NULL)
-			AND p.communityCategory = :category
-			AND p.isVisible = true
-			AND p.isDeleted = false
-			ORDER BY p.registeredAt DESC
-			LIMIT :size
-		""")
+	SELECT p FROM Post p
+	WHERE p.communityCategory = :category
+	AND p.isVisible = true
+	AND p.isDeleted = false
+	AND (:cursorId IS NULL OR 
+         p.registeredAt < :cursorRegisteredAt OR 
+         (p.registeredAt = :cursorRegisteredAt AND p.id < :cursorId))
+	ORDER BY p.registeredAt DESC, p.id DESC
+	LIMIT :size
+	""")
 	List<Post> findLatestPostsByCategory(
-		@Param("category") CommunityCategory category,
-		@Param("cursorId") Long cursorId,
-		@Param("size") int size
+			@Param("category") CommunityCategory category,
+			@Param("cursorId") Long cursorId,
+			@Param("cursorRegisteredAt") LocalDateTime cursorRegisteredAt,
+			@Param("size") int size
 	);
+
+	@Query("SELECT p.registeredAt FROM Post p WHERE p.id = :id")
+	LocalDateTime findRegisteredAtById(@Param("id") Long id);
 
 	// 카테고리별 조회수 순 게시글 가져오기
 	@Query("""
