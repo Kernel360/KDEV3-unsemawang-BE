@@ -54,20 +54,21 @@ public class PostListResponse {
 
 	public static PostListResponse fromEntity(Post post, String imageUrl, String profileImageUrl) {
 		return PostListResponse.builder()
-			.cursorId(post.getId())
-			.id(post.getId())
-			.title(post.getTitle())
-			.snippet(post.getContent().substring(0, Math.min(post.getContent().length(), 100)))
-			.viewCount(post.getViewCount())
-			.likeCount(post.getLikeCount())
-			.commentCount(post.getCommentCount())
-			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())
-			.profileImageUrl(profileImageUrl)
-			.communityCategory(post.getCommunityCategory())
-			.registeredAt(post.getRegisteredAt())
-			.updatedAt(post.getUpdatedAt())
-			.imageUrl(imageUrl)
-			.build();
+				.cursorId(post.getId())
+				.id(post.getId())
+				.title(post.getTitle())
+				.snippet(post.getContent().substring(0, Math.min(post.getContent().length(), 100)))
+				.viewCount(post.getViewCount())
+				.likeCount(post.getLikeCount())
+				.commentCount(post.getCommentCount())
+				.nickname(post.getIsAnonymous() ? "익명"
+						: (post.getMember() != null ? post.getMember()
+						.getNickname() : "탈퇴한 사용자"))
+				.profileImageUrl(profileImageUrl)
+				.communityCategory(post.getCommunityCategory())
+				.registeredAt(post.getRegisteredAt())
+				.updatedAt(post.getUpdatedAt())
+				.imageUrl(imageUrl)
+				.build();
 	}
-
 }

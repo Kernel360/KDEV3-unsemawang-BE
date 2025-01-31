@@ -48,10 +48,16 @@ public class PostListService {
 
 		// 데이터 변환
 		List<PostListResponse> data = posts.stream()
-				.map(post -> PostListResponse.fromEntity(
-						post,
-						fileService.getPostThumbnailImgUrl(post.getId()),
-						post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId())))
+				.map(post -> {
+					String profileImageUrl = post.getMember() == null ? null :
+							(post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId()));
+
+					return PostListResponse.fromEntity(
+							post,
+							fileService.getPostThumbnailImgUrl(post.getId()),
+							profileImageUrl
+					);
+				})
 				.toList();
 
 		// LongCursorResponse 생성 및 반환
