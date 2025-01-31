@@ -98,7 +98,8 @@ public class PostListService {
 			return postRepository.findPopularPosts(cursorId, thirtyDaysAgo, size + 1); // size + 1 사용
 		}
 		if (Sortingtype.LATEST.equals(sort)) {
-			return postRepository.findLatestPostsByCategory(category, cursorId, size + 1); // size + 1 사용
+			LocalDateTime cursorRegisteredAt = cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null;
+			return postRepository.findLatestPostsByCategory(category, cursorId, cursorRegisteredAt, size + 1);
 		}
 		throw new IllegalArgumentException("지원하지 않는 정렬 옵션입니다. 'latest' 또는 'mostViewed' 만 가능합니다.");
 	}

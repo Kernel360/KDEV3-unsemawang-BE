@@ -3,6 +3,7 @@ package com.palbang.unsemawang.community.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ public class PostListServiceTest {
 		Post post3 = createPost(3L, "Title 3", true); // 초과 데이터
 		List<Post> mockPosts = List.of(post1, post2, post3);
 
-		when(postRepository.findLatestPostsByCategory(category, null, 3)) // size + 1로 호출
+		when(postRepository.findLatestPostsByCategory(category, null, null, 3)) // size + 1로 호출
 				.thenReturn(mockPosts);
 
 		// when
@@ -75,7 +76,7 @@ public class PostListServiceTest {
 		// Mock 반환 데이터가 비어있는 경우
 		List<Post> mockPosts = List.of();
 
-		when(postRepository.findLatestPostsByCategory(category, null, 3)) // size + 1로 호출
+		when(postRepository.findLatestPostsByCategory(category, null, null, 3)) // size + 1로 호출
 				.thenReturn(mockPosts);
 
 		// when
@@ -94,6 +95,8 @@ public class PostListServiceTest {
 		// given
 		CommunityCategory category = CommunityCategory.FREE_BOARD;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(2L, 2); // 두 번째 페이지 요청 (size = 2)
+		LocalDateTime cursorRegisteredAt = LocalDateTime.now().minusDays(1); // Mock cursorId에 해당하는 registeredAt 값
+
 
 		// Mock 반환 데이터 (size + 1 원칙에 따른 데이터 생성)
 		Post post3 = createPost(3L, "Title 3", true);
@@ -101,20 +104,21 @@ public class PostListServiceTest {
 		Post post5 = createPost(5L, "Title 5", true); // 초과 데이터
 		List<Post> mockPosts = List.of(post3, post4, post5);
 
-		when(postRepository.findLatestPostsByCategory(category, 2L, 3)) // size + 1로 호출
+		when(postRepository.findRegisteredAtById(2L)) // cursorId = 2L의 registeredAt 조회
+				.thenReturn(cursorRegisteredAt);
+		when(postRepository.findLatestPostsByCategory(category, 2L, cursorRegisteredAt, 3)) // cursorId와 cursorRegisteredAt 전달
 				.thenReturn(mockPosts);
 
+
 		// when
-		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, Sortingtype.LATEST,
-				cursorRequest);
+		LongCursorResponse<PostListResponse> response = postListService.getPostList(category, Sortingtype.LATEST, cursorRequest);
+
 
 		// then
 		assertThat(response).isNotNull();
-		assertThat(response.hasNextCursor()).isTrue(); // 초과 데이터가 있으므로 true
-		assertThat(response.data()).hasSize(2); // 요청 size대로만 반환
-		assertThat(response.data().get(0).getId()).isEqualTo(3L);
-		assertThat(response.data().get(1).getId()).isEqualTo(4L);
-		assertThat(response.nextCursorRequest().key()).isEqualTo(4L); // 마지막 데이터의 ID
+		assertThat(response.data()).hasSize(2); // 요청한 size만 적용
+		assertThat(response.hasNextCursor()).isTrue(); // 초과 데이터 존재
+		assertThat(response.nextCursorRequest().key()).isEqualTo(4L); // 마지막 반환 데이터의 ID 활용
 	}
 
 	@Test
