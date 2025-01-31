@@ -75,7 +75,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 			.select(Projections.constructor(MyCommentsReadResponse.class,
 				comment.id,
 				post.id,
-				post.communityCategory.stringValue(),
+				post.communityCategory,
 				post.title,
 				comment.content,
 				comment.registeredAt
