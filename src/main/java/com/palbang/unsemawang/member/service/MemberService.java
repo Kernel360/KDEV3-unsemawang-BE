@@ -122,6 +122,14 @@ public class MemberService {
 			.maxAge(maxAge)   // 만료 시간 설정
 			.build();
 	}
+	private ResponseCookie createJsessionCookie(String key, String value, int maxAge){
+		return ResponseCookie.from(key, value)
+			.path("/")
+			.domain("dev.unsemawang.com") // 도메인 지정 (필요한 경우 설정)
+			.httpOnly(true)   // JavaScript 접근 불가
+			.maxAge(maxAge)   // 만료 시간 설정
+			.build();
+	}
 
 	//쿠키를 지워주는 로그아웃
 	public HttpHeaders invalidateJwtCookie(@AuthenticationPrincipal CustomOAuth2User auth){
@@ -129,9 +137,9 @@ public class MemberService {
 		String token = jwtUtil.createJTwt(auth.getId(), auth.getEmail(),"GENERAL",0L);
 		// 쿠키 추가
 		ResponseCookie responseCookie = createResponseCookie("Authorization", token, 0);
-
+		ResponseCookie jsessionCookie = createJsessionCookie("JSESSIONID", "", 0);
 		headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());
-
+		headers.add(HttpHeaders.SET_COOKIE, jsessionCookie.toString());
 		return headers;
 	}
 }
