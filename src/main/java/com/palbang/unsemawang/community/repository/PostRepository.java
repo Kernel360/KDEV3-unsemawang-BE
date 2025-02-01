@@ -16,7 +16,7 @@ import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.member.entity.Member;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
 	Optional<Post> findByIdAndMember(Long id, Member member);
 

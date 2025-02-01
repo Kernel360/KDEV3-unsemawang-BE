@@ -35,7 +35,7 @@ public class PostListService {
 			CursorRequest<Long> cursorRequest) {
 
 		// 게시글 조회
-		List<Post> posts = new ArrayList<>(fetchPosts(category, sort, cursorRequest.key(), cursorRequest.size()));
+		List<Post> posts = new ArrayList<>(fetchPosts(category, cursorRequest.key(), sort, cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -48,19 +48,34 @@ public class PostListService {
 
 		// 데이터 변환
 		List<PostListResponse> data = posts.stream()
-				.map(post -> {
-					String profileImageUrl = post.getMember() == null ? null :
-							(post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId()));
-
-					return PostListResponse.fromEntity(
-							post,
-							fileService.getPostThumbnailImgUrl(post.getId()),
-							profileImageUrl
-					);
-				})
+				.map(post -> PostListResponse.fromEntity(post,
+						fileService.getPostThumbnailImgUrl(post.getId()),
+						post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId())))
 				.toList();
 
-		// LongCursorResponse 생성 및 반환
+		return LongCursorResponse.of(cursorRequest.next(nextCursor), data);
+	}
+
+	// 인기 게시판 조회 로직
+	public LongCursorResponse<PostListResponse> getPopularPosts(CursorRequest<Long> cursorRequest) {
+		LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+		List<Post> posts = new ArrayList<>(postRepository.findPopularPosts(cursorRequest.key(), thirtyDaysAgo, cursorRequest.size() + 1));
+
+		// hasNext 판단 후 초과 데이터 제거
+		boolean hasNext = posts.size() > cursorRequest.size();
+		if (hasNext) {
+			posts.remove(posts.size() - 1);
+		}
+
+		Long nextCursor = !posts.isEmpty() ? posts.get(posts.size() - 1).getId() : null;
+
+		List<PostListResponse> data = posts.stream()
+				.map(post -> PostListResponse.fromEntity(post,
+						fileService.getPostThumbnailImgUrl(post.getId()),
+						null)) // 익명 처리
+				.toList();
+
 		return LongCursorResponse.of(cursorRequest.next(nextCursor), data);
 	}
 
@@ -94,18 +109,21 @@ public class PostListService {
 	}
 
 
-	// Helper 메서드: 게시글 조회 분기 처리
-	private List<Post> fetchPosts(CommunityCategory category, Sortingtype sort, Long cursorId, int size) {
+	// 일반 게시판용 게시글 조회 로직
+	private List<Post> fetchPosts(CommunityCategory category, Long cursorId, Sortingtype sort, int size) {
 		if (Sortingtype.MOST_VIEWED.equals(sort)) {
-			return postRepository.findMostViewedPostsByCategory(category, cursorId, size + 1); // size + 1 사용
-		}
-		if (CommunityCategory.POPULAR_BOARD.equals(category)) {
-			LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-			return postRepository.findPopularPosts(cursorId, thirtyDaysAgo, size + 1); // size + 1 사용
+			return postRepository.findMostViewedPostsByCategory(
+					category,
+					cursorId,
+					size + 1 // size + 1로 hasNext 확인
+			);
 		}
 		if (Sortingtype.LATEST.equals(sort)) {
-			LocalDateTime cursorRegisteredAt = cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null;
-			return postRepository.findLatestPostsByCategory(category, cursorId, cursorRegisteredAt, size + 1);
+			return postRepository.findLatestPostsByCategory(
+					category,
+					cursorId,
+					cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null,
+					size + 1);
 		}
 		throw new IllegalArgumentException("지원하지 않는 정렬 옵션입니다. 'latest' 또는 'mostViewed' 만 가능합니다.");
 	}
