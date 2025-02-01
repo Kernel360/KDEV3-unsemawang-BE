@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.member.controller;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -161,4 +162,18 @@ public class MemberController {
 		);
 	}
 
+	@PostMapping("/logout")
+	public ResponseEntity<Response> logout(
+		@AuthenticationPrincipal CustomOAuth2User auth){
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		//쿠키의 유효기간 변경해주는 서비스호출
+		HttpHeaders headers = memberService.invalidateJwtCookie(auth);
+		return ResponseEntity.ok()
+			.headers(headers)
+			.body(Response.success(ResponseCode.SUCCESS_REQUEST));
+	}
 }

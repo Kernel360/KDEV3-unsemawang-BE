@@ -122,4 +122,16 @@ public class MemberService {
 			.maxAge(maxAge)   // 만료 시간 설정
 			.build();
 	}
+
+	//쿠키를 지워주는 로그아웃
+	public HttpHeaders invalidateJwtCookie(@AuthenticationPrincipal CustomOAuth2User auth){
+		HttpHeaders headers = new HttpHeaders();
+		String token = jwtUtil.createJTwt(auth.getId(), auth.getEmail(),"GENERAL",0L);
+		// 쿠키 추가
+		ResponseCookie responseCookie = createResponseCookie("Authorization", token, 0);
+
+		headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());
+
+		return headers;
+	}
 }
