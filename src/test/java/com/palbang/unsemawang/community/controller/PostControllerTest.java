@@ -44,7 +44,8 @@ class PostControllerTest {
 	public void post_failedValidation_titleSize() throws Exception {
 		// given
 		PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
-			.title("제목이란다라림쥐안녕하세요30자넘기기위해서제가이렇게노력하는모습을봐주세요로로라리리이히히히힣히히힣ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ")
+			.title(
+				"제목이란다라림쥐안녕하세요30자넘기기위해서제가이렇게노력하는모습을봐주세요로로라리리이히히히힣히히힣ㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎㅎ1000002k10201012021030123012302103120301230120301203012301023012030120dsdlfdsklfal;sdkf;lsadkf;asdjfjwejncm,dncvjdsfnvks")
 			.category(CommunityCategory.FREE_BOARD)
 			.content("hello")
 			.build();
@@ -57,7 +58,7 @@ class PostControllerTest {
 					.with(csrf())
 			)
 			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.message").value("제목은 30자 이내여야 합니다"));
+			.andExpect(jsonPath("$.message").value("제목은 100자 이내여야 합니다"));
 	}
 
 	@Test
