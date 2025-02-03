@@ -47,7 +47,7 @@ public class PostListService {
 		List<PostListResponse> data = posts.stream()
 			.map(post -> PostListResponse.fromEntity(post,
 				fileService.getPostThumbnailImgUrl(post.getId()),
-				post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl(post.getWriterId()) :
+				post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl() :
 					fileService.getProfileImgUrl(post.getWriterId())))
 			.toList();
 
