@@ -80,6 +80,16 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
+	public String getAnonymousProfileImgUrl() {
+
+		String key;
+
+		key = "MEMBER_PROFILE_IMG/anoymous_profile_image.webp";
+
+		return s3Service.createPresignedGetUrl(key);
+	}
+
+	@Override
 	public String getPostThumbnailImgUrl(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
