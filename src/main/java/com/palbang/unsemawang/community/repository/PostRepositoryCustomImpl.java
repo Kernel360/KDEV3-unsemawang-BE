@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -9,10 +10,12 @@ import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.constant.Sortingtype;
 import com.palbang.unsemawang.community.dto.response.PostProjectionDto;
+import com.palbang.unsemawang.community.entity.Post;
 import com.palbang.unsemawang.community.entity.QPost;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -78,4 +81,91 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
 		return LongCursorResponse.of(cursorRequest.next(nextCursorKey), posts);
 	}
+
+	private BooleanExpression isCursorBefore(Long cursorId, LocalDateTime cursorRegisteredAt) {
+		if (cursorId == null || cursorRegisteredAt == null) {
+			return null;
+		}
+		return QPost.post.registeredAt.lt(cursorRegisteredAt)
+			.or(QPost.post.registeredAt.eq(cursorRegisteredAt)
+				.and(QPost.post.id.lt(cursorId)));
+	}
+
+	private BooleanExpression isVisible() {
+		return QPost.post.isVisible.isTrue().and(QPost.post.isDeleted.isFalse());
+	}
+
+	@Override
+	public List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorId,
+		LocalDateTime cursorRegisteredAt, int size) {
+		return queryFactory
+			.selectFrom(QPost.post)
+			.where(
+				QPost.post.communityCategory.eq(category),
+				isVisible(),
+				isCursorBefore(cursorId, cursorRegisteredAt)
+			)
+			.orderBy(QPost.post.registeredAt.desc(), QPost.post.id.desc())
+			.limit(size)
+			.fetch();
+	}
+
+	@Override
+	public List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorId, int size) {
+		return queryFactory
+			.selectFrom(QPost.post)
+			.where(
+				QPost.post.communityCategory.eq(category),
+				isVisible(),
+				cursorId != null ? QPost.post.id.lt(cursorId) : null
+			)
+			.orderBy(QPost.post.viewCount.desc(), QPost.post.id.desc())
+			.limit(size)
+			.fetch();
+	}
+
+	@Override
+	public List<Post> findPopularPosts(Long cursorId, LocalDateTime thirtyDaysAgo, int size) {
+		return queryFactory
+			.selectFrom(QPost.post)
+			.where(
+				isVisible(),
+				cursorId != null ? QPost.post.id.lt(cursorId) : null,
+				QPost.post.registeredAt.goe(thirtyDaysAgo)
+			)
+			.orderBy(QPost.post.viewCount.multiply(7).add(QPost.post.likeCount.multiply(3)).desc(),
+				QPost.post.id.desc())
+			.limit(size)
+			.fetch();
+	}
+
+	@Override
+	public List<Post> searchPosts(String keyword, String searchType, Long cursorId, int size) {
+		return queryFactory
+			.selectFrom(QPost.post)
+			.where(
+				cursorId != null ? QPost.post.id.lt(cursorId) : null,
+				isVisible(),
+				buildSearchCondition(keyword, searchType)
+			)
+			.orderBy(QPost.post.id.desc())
+			.limit(size)
+			.fetch();
+	}
+
+	private BooleanExpression buildSearchCondition(String keyword, String searchType) {
+		if ("all".equals(searchType)) {
+			return QPost.post.title.containsIgnoreCase(keyword)
+				.or(QPost.post.content.containsIgnoreCase(keyword))
+				.or(QPost.post.member.nickname.containsIgnoreCase(keyword).and(QPost.post.isAnonymous.isFalse()));
+		} else if ("title".equals(searchType)) {
+			return QPost.post.title.containsIgnoreCase(keyword);
+		} else if ("content".equals(searchType)) {
+			return QPost.post.content.containsIgnoreCase(keyword);
+		} else if ("writer".equals(searchType)) {
+			return QPost.post.member.nickname.containsIgnoreCase(keyword).and(QPost.post.isAnonymous.isFalse());
+		}
+		return null;
+	}
+
 }
