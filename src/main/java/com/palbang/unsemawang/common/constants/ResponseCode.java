@@ -57,6 +57,7 @@ public enum ResponseCode implements Codable {
 	NOT_ALLOWED_NESTED_COMMENT("6119", HttpStatus.BAD_REQUEST, "대댓글에는 추가 댓글을 달 수 없습니다."),
 	NOT_AUTHORIZED_COMMENT_MODIFICATION("6120", HttpStatus.FORBIDDEN, "댓글 수정 권한이 없습니다."),
 	INVALID_CATEGORY("6121", HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 입니다."),
+	ALREADY_REGISTERED_MEMBER("6130", HttpStatus.CONFLICT, "이미 가입된 회원입니다"),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
