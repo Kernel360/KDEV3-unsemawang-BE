@@ -2,11 +2,14 @@ package com.palbang.unsemawang.common.util.pagination;
 
 import java.util.List;
 
-import org.springframework.lang.NonNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record LongCursorResponse<T>(
-	@NonNull CursorRequest<Long> nextCursorRequest, // 커서는 항상 Long 타입
-	@NonNull Boolean hasNextCursor,
+	@Schema(required = true)
+	CursorRequest<Long> nextCursorRequest,// 커서는 항상 Long 타입
+	@Schema(required = true)
+	Boolean hasNextCursor,
+	@Schema(required = true)
 	List<T> data                           // 실제 데이터는 T 타입
 ) {
 	public static <T> LongCursorResponse<T> of(CursorRequest<Long> nextCursorRequest, List<T> data) {
