@@ -139,7 +139,9 @@ public class FileServiceImpl implements FileService {
 			validFileSize(file);
 			validImageFileExtension(file);
 
-			String path = s3Service.upload(file, fileRequest);
+			String key = fileRepository.findFilesByFileReference(fileRequest).get(0).getS3Key();
+
+			String path = s3Service.updateObject(file, key);
 			File fileEntity = buildUpdatedFileEntity(file, path, fileRequest);
 			saveFileOrRollback(fileEntity, path, fileRequest);
 		}
