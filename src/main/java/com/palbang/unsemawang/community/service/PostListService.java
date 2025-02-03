@@ -4,10 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.palbang.unsemawang.community.constant.CommunityListCategory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +76,8 @@ public class PostListService {
 		List<PostListResponse> data = posts.stream()
 			.map(post -> PostListResponse.fromEntity(post,
 				fileService.getPostThumbnailImgUrl(post.getId()),
-				null)) // 익명 처리
+				post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl() :
+					fileService.getProfileImgUrl(post.getWriterId())))
 			.toList();
 
 		return LongCursorResponse.of(cursorRequest.next(nextCursor), data);
@@ -109,7 +106,8 @@ public class PostListService {
 			.map(post -> PostListResponse.fromEntity(
 				post,
 				fileService.getPostThumbnailImgUrl(post.getId()),
-				post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId())))
+				post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl() :
+					fileService.getProfileImgUrl(post.getWriterId())))
 			.toList();
 
 		// LongCursorResponse 생성 및 반환
