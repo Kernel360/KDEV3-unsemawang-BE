@@ -76,9 +76,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 				comment.id,
 				post.id,
 				post.communityCategory,
-				post.title,
+				post.isDeleted.when(true).then("삭제된 게시글입니다.").otherwise(post.title),
 				comment.content,
-				comment.registeredAt
+				comment.registeredAt,
+				post.isDeleted
 			))
 			.from(comment)
 			.join(comment.post, post) // Post와 함께 가져옴
