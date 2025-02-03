@@ -394,7 +394,7 @@ public class FileServiceImpl implements FileService {
 	 */
 	private void validImageFileExtension(MultipartFile file) {
 
-		List<String> allowedContentTypes = List.of("jpeg", "png", "webp", "heic");
+		List<String> allowedContentTypes = List.of("jpeg", "png", "webp", "heic", "gif");
 
 		String contentType = file.getContentType();
 		if (contentType == null || contentType.isEmpty()) {
