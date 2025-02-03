@@ -78,7 +78,8 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 				post.communityCategory,
 				post.title,
 				comment.content,
-				comment.registeredAt
+				comment.registeredAt,
+				post.isDeleted
 			))
 			.from(comment)
 			.join(comment.post, post) // Post와 함께 가져옴

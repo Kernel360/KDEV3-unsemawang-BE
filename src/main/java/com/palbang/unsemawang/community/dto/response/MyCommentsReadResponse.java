@@ -32,4 +32,7 @@ public class MyCommentsReadResponse {
 
 	@Schema(required = true)
 	private LocalDateTime registeredAt;
+
+	@Schema(required = true)
+	private Boolean postDeleted;
 }
