@@ -106,7 +106,8 @@ public class PostListService {
 			.map(post -> PostListResponse.fromEntity(
 				post,
 				fileService.getPostThumbnailImgUrl(post.getId()),
-				post.getIsAnonymous() ? null : fileService.getProfileImgUrl(post.getWriterId())))
+				post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl() :
+					fileService.getProfileImgUrl(post.getWriterId())))
 			.toList();
 
 		// LongCursorResponse 생성 및 반환
