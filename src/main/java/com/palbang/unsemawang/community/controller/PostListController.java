@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.controller;
 
+import com.palbang.unsemawang.community.constant.CommunityListCategory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,7 +33,7 @@ public class PostListController {
 			summary = "게시글 목록 조회")
 	@GetMapping("/posts")
 	public ResponseEntity<LongCursorResponse<PostListResponse>> getPostList(
-		@RequestParam(required = false) CommunityCategory category,
+		@RequestParam(required = false) CommunityListCategory category,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(required = false, defaultValue = "10") Integer size,
 		@RequestParam(required = false, defaultValue = "LATEST") Sortingtype sort
@@ -41,7 +42,7 @@ public class PostListController {
 		LongCursorResponse<PostListResponse> response;
 
 		// 인기 게시판 요청이 따로 들어오면 처리
-		if (category == null) { // 또는 별도 필드에 따라 판단해도 됨
+		if (category == CommunityListCategory.POPULAR_BOARD) { // 또는 별도 필드에 따라 판단해도 됨
 			response = postListService.getPopularPosts(cursorRequest);
 		} else {
 			// 카테고리 기반의 기본 게시판 처리
