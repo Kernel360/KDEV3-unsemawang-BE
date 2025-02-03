@@ -133,7 +133,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 				cursorId != null ? QPost.post.id.lt(cursorId) : null,
 				QPost.post.registeredAt.goe(thirtyDaysAgo)
 			)
-			.orderBy(QPost.post.viewCount.multiply(7).add(QPost.post.likeCount.multiply(3)).desc(),
+			.orderBy(QPost.post.viewCount.multiply(7).add(QPost.post.commentCount.multiply(3)).desc(),
 				QPost.post.id.desc())
 			.limit(size)
 			.fetch();
