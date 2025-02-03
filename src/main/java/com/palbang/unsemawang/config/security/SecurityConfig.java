@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -49,7 +50,10 @@ public class SecurityConfig {
 			.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
 		//oauth2
+		//세션 설정 : STATELESS
 		http
+			.sessionManagement((session) -> session
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.oauth2Login(oauth2 -> oauth2
 				.userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
 					.userService(customOAuth2UserService)))
@@ -61,11 +65,6 @@ public class SecurityConfig {
 		//                .authorizeHttpRequests((auth) -> auth
 		//                        .requestMatchers("/").permitAll()
 		//                        .anyRequest().authenticated());
-
-		//세션 설정 : STATELESS
-		//        http
-		//                .sessionManagement((session) -> session
-		//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		http.authorizeHttpRequests(auth -> auth
 			.requestMatchers("/favicon.ico").permitAll()
