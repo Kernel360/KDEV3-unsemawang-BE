@@ -25,11 +25,11 @@ import lombok.RequiredArgsConstructor;
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
 	private final JPAQueryFactory queryFactory;
+	private final QPost post = QPost.post;
 
 	@Override
 	public LongCursorResponse<PostProjectionDto> findMyPostsByCursor(String memberId, CursorRequest<Long> cursorRequest,
 		CommunityCategory category, Sortingtype sortType) {
-		QPost post = QPost.post;
 
 		BooleanBuilder whereClause = new BooleanBuilder();
 		whereClause.and(post.member.id.eq(memberId));
@@ -86,26 +86,26 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		if (cursorId == null || cursorRegisteredAt == null) {
 			return null;
 		}
-		return QPost.post.registeredAt.lt(cursorRegisteredAt)
-			.or(QPost.post.registeredAt.eq(cursorRegisteredAt)
-				.and(QPost.post.id.lt(cursorId)));
+		return post.registeredAt.lt(cursorRegisteredAt)
+			.or(post.registeredAt.eq(cursorRegisteredAt)
+				.and(post.id.lt(cursorId)));
 	}
 
 	private BooleanExpression isVisible() {
-		return QPost.post.isVisible.isTrue().and(QPost.post.isDeleted.isFalse());
+		return post.isVisible.isTrue().and(post.isDeleted.isFalse());
 	}
 
 	@Override
 	public List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorId,
 		LocalDateTime cursorRegisteredAt, int size) {
 		return queryFactory
-			.selectFrom(QPost.post)
+			.selectFrom(post)
 			.where(
-				QPost.post.communityCategory.eq(category),
+				post.communityCategory.eq(category),
 				isVisible(),
 				isCursorBefore(cursorId, cursorRegisteredAt)
 			)
-			.orderBy(QPost.post.registeredAt.desc(), QPost.post.id.desc())
+			.orderBy(post.registeredAt.desc(), post.id.desc())
 			.limit(size)
 			.fetch();
 	}
@@ -113,13 +113,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	@Override
 	public List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorId, int size) {
 		return queryFactory
-			.selectFrom(QPost.post)
+			.selectFrom(post)
 			.where(
-				QPost.post.communityCategory.eq(category),
+				post.communityCategory.eq(category),
 				isVisible(),
-				cursorId != null ? QPost.post.id.lt(cursorId) : null
+				cursorId != null ? post.id.lt(cursorId) : null
 			)
-			.orderBy(QPost.post.viewCount.desc(), QPost.post.id.desc())
+			.orderBy(post.viewCount.desc(), post.id.desc())
 			.limit(size)
 			.fetch();
 	}
@@ -127,14 +127,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	@Override
 	public List<Post> findPopularPosts(Long cursorId, LocalDateTime thirtyDaysAgo, int size) {
 		return queryFactory
-			.selectFrom(QPost.post)
+			.selectFrom(post)
 			.where(
 				isVisible(),
-				cursorId != null ? QPost.post.id.lt(cursorId) : null,
-				QPost.post.registeredAt.goe(thirtyDaysAgo)
+				cursorId != null ? post.id.lt(cursorId) : null,
+				post.registeredAt.goe(thirtyDaysAgo)
 			)
-			.orderBy(QPost.post.viewCount.multiply(7).add(QPost.post.commentCount.multiply(3)).desc(),
-				QPost.post.id.desc())
+			.orderBy(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).desc(),
+				post.id.desc())
 			.limit(size)
 			.fetch();
 	}
@@ -142,28 +142,28 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	@Override
 	public List<Post> searchPosts(String keyword, String searchType, Long cursorId, int size) {
 		return queryFactory
-			.selectFrom(QPost.post)
+			.selectFrom(post)
 			.where(
-				cursorId != null ? QPost.post.id.lt(cursorId) : null,
+				cursorId != null ? post.id.lt(cursorId) : null,
 				isVisible(),
 				buildSearchCondition(keyword, searchType)
 			)
-			.orderBy(QPost.post.id.desc())
+			.orderBy(post.id.desc())
 			.limit(size)
 			.fetch();
 	}
 
 	private BooleanExpression buildSearchCondition(String keyword, String searchType) {
 		if ("all".equals(searchType)) {
-			return QPost.post.title.containsIgnoreCase(keyword)
-				.or(QPost.post.content.containsIgnoreCase(keyword))
-				.or(QPost.post.member.nickname.containsIgnoreCase(keyword).and(QPost.post.isAnonymous.isFalse()));
+			return post.title.containsIgnoreCase(keyword)
+				.or(post.content.containsIgnoreCase(keyword))
+				.or(post.member.nickname.containsIgnoreCase(keyword).and(post.isAnonymous.isFalse()));
 		} else if ("title".equals(searchType)) {
-			return QPost.post.title.containsIgnoreCase(keyword);
+			return post.title.containsIgnoreCase(keyword);
 		} else if ("content".equals(searchType)) {
-			return QPost.post.content.containsIgnoreCase(keyword);
+			return post.content.containsIgnoreCase(keyword);
 		} else if ("writer".equals(searchType)) {
-			return QPost.post.member.nickname.containsIgnoreCase(keyword).and(QPost.post.isAnonymous.isFalse());
+			return post.member.nickname.containsIgnoreCase(keyword).and(post.isAnonymous.isFalse());
 		}
 		return null;
 	}
