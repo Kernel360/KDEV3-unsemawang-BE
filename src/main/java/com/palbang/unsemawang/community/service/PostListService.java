@@ -11,6 +11,7 @@ import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.common.util.pagination.CursorRequest;
 import com.palbang.unsemawang.common.util.pagination.LongCursorResponse;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
+import com.palbang.unsemawang.community.constant.CommunityListCategory;
 import com.palbang.unsemawang.community.constant.Sortingtype;
 import com.palbang.unsemawang.community.dto.response.PostListResponse;
 import com.palbang.unsemawang.community.entity.Post;
@@ -27,12 +28,15 @@ public class PostListService {
 	private final FileService fileService;
 
 	public LongCursorResponse<PostListResponse> getPostList(
-		CommunityCategory category,
+		CommunityListCategory category,
 		Sortingtype sort,
 		CursorRequest<Long> cursorRequest) {
 
+		CommunityCategory communityCategory = CommunityCategory.valueOf(category.name());
+
 		// 게시글 조회
-		List<Post> posts = new ArrayList<>(fetchPosts(category, cursorRequest.key(), sort, cursorRequest.size()));
+		List<Post> posts = new ArrayList<>(
+			fetchPosts(communityCategory, cursorRequest.key(), sort, cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -109,17 +113,17 @@ public class PostListService {
 	}
 
 	// 일반 게시판용 게시글 조회 로직
-	private List<Post> fetchPosts(CommunityCategory category, Long cursorId, Sortingtype sort, int size) {
+	private List<Post> fetchPosts(CommunityCategory communityCategory, Long cursorId, Sortingtype sort, int size) {
 		if (Sortingtype.MOST_VIEWED.equals(sort)) {
 			return postRepository.findMostViewedPostsByCategory(
-				category,
+				communityCategory,
 				cursorId,
 				size + 1 // size + 1로 hasNext 확인
 			);
 		}
 		if (Sortingtype.LATEST.equals(sort)) {
 			return postRepository.findLatestPostsByCategory(
-				category,
+				communityCategory,
 				cursorId,
 				cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null,
 				size + 1);

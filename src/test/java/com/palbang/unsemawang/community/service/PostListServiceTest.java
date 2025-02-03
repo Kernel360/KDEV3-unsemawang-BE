@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.palbang.unsemawang.community.constant.CommunityListCategory;
 import com.palbang.unsemawang.community.constant.Sortingtype;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,8 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_firstPage() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CommunityListCategory category = CommunityListCategory.FREE_BOARD;
+		CommunityCategory communityCategory = CommunityCategory.valueOf(category.name());
 		Sortingtype sort = Sortingtype.LATEST;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 2); // 첫 페이지 요청 (size = 2)
 
@@ -51,7 +53,7 @@ public class PostListServiceTest {
 		Post post3 = createPost(3L, "Title 3"); // 초과 데이터
 		List<Post> mockPosts = List.of(post1, post2, post3);
 
-		when(postRepository.findLatestPostsByCategory(category, null, null, 3)) // size + 1로 호출
+		when(postRepository.findLatestPostsByCategory(communityCategory, null, null, 3)) // size + 1로 호출
 				.thenReturn(mockPosts);
 
 		// when
@@ -69,14 +71,15 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_emptyResult() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CommunityListCategory category = CommunityListCategory.FREE_BOARD;
+		CommunityCategory communityCategory = CommunityCategory.valueOf(category.name());
 		Sortingtype sort = Sortingtype.LATEST;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 2); // 첫 페이지 요청 (size = 2)
 
 		// Mock 반환 데이터가 비어있는 경우
 		List<Post> mockPosts = List.of();
 
-		when(postRepository.findLatestPostsByCategory(category, null, null, 3)) // size + 1로 호출
+		when(postRepository.findLatestPostsByCategory(communityCategory, null, null, 3)) // size + 1로 호출
 				.thenReturn(mockPosts);
 
 		// when
@@ -92,7 +95,8 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_nextPage() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CommunityListCategory category = CommunityListCategory.FREE_BOARD;
+		CommunityCategory communityCategory = CommunityCategory.valueOf(category.name());
 		Sortingtype sort = Sortingtype.LATEST;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(2L, 2); // 두 번째 페이지 요청 (size = 2)
 		LocalDateTime cursorRegisteredAt = LocalDateTime.now().minusDays(1); // Mock cursorId에 해당하는 registeredAt 값
@@ -106,7 +110,7 @@ public class PostListServiceTest {
 
 		when(postRepository.findRegisteredAtById(2L)) // cursorId = 2L의 registeredAt 조회
 				.thenReturn(cursorRegisteredAt);
-		when(postRepository.findLatestPostsByCategory(category, 2L, cursorRegisteredAt, 3)) // cursorId와 cursorRegisteredAt 전달
+		when(postRepository.findLatestPostsByCategory(communityCategory, 2L, cursorRegisteredAt, 3)) // cursorId와 cursorRegisteredAt 전달
 				.thenReturn(mockPosts);
 
 
@@ -124,7 +128,8 @@ public class PostListServiceTest {
 	@Test
 	void testGetPostList_sortedByViewCount() {
 		// given
-		CommunityCategory category = CommunityCategory.FREE_BOARD;
+		CommunityListCategory category = CommunityListCategory.FREE_BOARD;
+		CommunityCategory communityCategory = CommunityCategory.valueOf(category.name());
 		Sortingtype sort = Sortingtype.MOST_VIEWED;
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(null, 3); // 첫 페이지 요청 (size = 3)
 
@@ -135,7 +140,7 @@ public class PostListServiceTest {
 		Post post4 = createPostWithViews(4L, "Title 4", 5);  // 초과 데이터
 		List<Post> mockPosts = List.of(post1, post2, post3, post4);
 
-		when(postRepository.findMostViewedPostsByCategory(category, null, 4))
+		when(postRepository.findMostViewedPostsByCategory(communityCategory, null, 4))
 				.thenReturn(mockPosts);
 
 		// when
