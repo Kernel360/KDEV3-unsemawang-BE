@@ -50,6 +50,13 @@ public interface FileService {
 	List<String> getPostImgUrls(Long referenceId);
 
 	/**
+	 * 컨텐츠 대표 이미지 url 반환
+	 * @param referenceId 참조된 게시글 id
+	 * @return 해당 컨텐츠의 대표 이미지
+	 */
+	String getContentThumbnailImgUrl(Long referenceId);
+
+	/**
 	 * 파일 url 리스트 반환
 	 * @param fileRequest ReferenceType(참조 테이블명)과 ReferenceId(참조 id) 입력
 	 * @return 파일 url 리스트
