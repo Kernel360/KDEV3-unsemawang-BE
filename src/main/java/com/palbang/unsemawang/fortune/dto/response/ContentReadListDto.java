@@ -51,7 +51,19 @@ public class ContentReadListDto {
 			.nameEn(fortuneContent.getNameEn())
 			.nameKo(fortuneContent.getNameKo())
 			.shortDescription(fortuneContent.getShortDescription())
-			.thumbnailUrl(fortuneContent.getThumbnailUrl())
+			.build();
+	}
+
+	public static ContentReadListDto of(FortuneContent fortuneContent, String thumbnailUrl) {
+		return ContentReadListDto.builder()
+			.id(fortuneContent.getId())
+			.categoryId(fortuneContent.getFortuneCategory().getId())
+			.categoryNameEn(fortuneContent.getFortuneCategory().getNameEn())
+			.categoryNameKo(fortuneContent.getFortuneCategory().getName())
+			.nameEn(fortuneContent.getNameEn())
+			.nameKo(fortuneContent.getNameKo())
+			.shortDescription(fortuneContent.getShortDescription())
+			.thumbnailUrl(thumbnailUrl)
 			.build();
 	}
 

@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
@@ -27,6 +28,9 @@ class FortuneContentServiceTest {
 
 	@MockBean
 	private FortuneContentRepository fortuneContentRepository;
+
+	@MockBean
+	private FileService fileService;
 
 	/**
 	 *  [ 조회 테스트 ]
