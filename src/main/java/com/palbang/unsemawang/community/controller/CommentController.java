@@ -42,16 +42,10 @@ public class CommentController {
 		@RequestParam(required = false) Long cursorKey, @RequestParam(defaultValue = "10") Integer size) {
 
 		String memberId = null; // 비회원일 경우 null
-		String memberRole = null;
 
 		// 로그인한 사용자일 경우
 		if (auth != null && auth.getId() != null) {
 			memberId = auth.getId();
-			memberRole = auth.getAuthorities()
-				.stream()
-				.findFirst()
-				.orElseThrow(() -> new GeneralException(ResponseCode.FORBIDDEN))
-				.getAuthority();  // role 가져오기
 		}
 
 		// cursorRequest 객체 생성
