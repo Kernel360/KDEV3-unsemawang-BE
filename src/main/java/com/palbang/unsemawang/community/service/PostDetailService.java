@@ -61,7 +61,7 @@ public class PostDetailService {
 		boolean isMyPost) {
 		return PostDetailResponse.builder()
 			.id(post.getId())
-			.memberId(post.getMember().getId())
+			// .memberId(post.getMember().getId())
 			.title(post.getTitle())
 			.content(post.getContent())
 			.nickname(post.getIsAnonymous() ? "익명" : post.getMember().getNickname())
