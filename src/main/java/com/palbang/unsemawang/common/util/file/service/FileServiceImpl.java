@@ -119,6 +119,19 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
+	public String getContentThumbnailImgUrl(Long referenceId) {
+		FileRequest fileRequest = FileRequest.of(FileReferenceType.CONTENT_THUMBNAIL_IMG, referenceId);
+
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
+		if (files.isEmpty()) {
+			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+			return null;
+		}
+
+		return s3Service.createPresignedGetUrl(files.get(0).getS3Key());
+	}
+
+	@Override
 	public List<String> getFileUrls(FileRequest fileRequest) {
 
 		List<File> files = fileRepository.findFilesByFileReference(fileRequest);

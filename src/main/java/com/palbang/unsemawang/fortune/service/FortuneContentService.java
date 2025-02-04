@@ -2,32 +2,34 @@ package com.palbang.unsemawang.fortune.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.dto.request.SearchRequest;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadDetailDto;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
 import com.palbang.unsemawang.fortune.repository.FortuneContentRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class FortuneContentService {
 	private final FortuneContentRepository fortuneContentRepository;
-
-	@Autowired
-	public FortuneContentService(
-		FortuneContentRepository fortuneContentRepository
-	) {
-		this.fortuneContentRepository = fortuneContentRepository;
-	}
+	private final FileService fileService;
 
 	public List<ContentReadListDto> getList() {
-		List<FortuneContent> findList = fortuneContentRepository.findAll();
+		List<FortuneContent> findList = fortuneContentRepository.findAllByIsVisibleIsTrue();
 
-		return ContentReadListDto.of(findList);
+		return findList.stream()
+			.map(content -> ContentReadListDto.of(
+				content,
+				fileService.getContentThumbnailImgUrl(content.getId()))
+			)
+			.toList();
 	}
 
 	public List<ContentReadListDto> getList(String categoryName) {
@@ -39,7 +41,13 @@ public class FortuneContentService {
 
 		// 카테고리명이 있을 경우 필터링 조회
 		List<FortuneContent> findListByCategory = fortuneContentRepository.findAllByFortuneCategory(categoryName);
-		return ContentReadListDto.of(findListByCategory);
+
+		return findListByCategory.stream()
+			.map(content -> ContentReadListDto.of(
+				content,
+				fileService.getContentThumbnailImgUrl(content.getId()))
+			)
+			.toList();
 	}
 
 	public ContentReadDetailDto getContentById(Long id) {

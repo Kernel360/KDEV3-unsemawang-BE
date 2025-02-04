@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "운세 분야")
+@Tag(name = "운세 컨텐츠")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/fortune-category")
@@ -25,8 +25,8 @@ public class FortuneCategoryController {
 	private final FortuneCategoryService fortuneCategoryService;
 
 	@Operation(
-		summary = "운세 분야 목록 조회",
-		description = "공개 처리된 운세 분야 목록을 조회한다",
+		summary = "운세 카테고리 목록 조회",
+		description = "공개 처리된 운세 카테고리 목록을 조회한다",
 		responses = {
 			@ApiResponse(
 				description = "Success",
