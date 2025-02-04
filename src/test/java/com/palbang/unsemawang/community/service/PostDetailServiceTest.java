@@ -39,7 +39,8 @@ class PostDetailServiceTest {
 	void getPostDetail_SuccessfullyIncrementsViewCount() {
 		// Given
 		Long postId = 1L;
-		String memberId = "test-member-id";
+		String memberId = null;  // 기본적으로 비회원일 경우 null로 설정
+		String role = null;
 
 		Member member = Member.builder().id(memberId).build();
 		Post post = Post.builder()
@@ -54,7 +55,7 @@ class PostDetailServiceTest {
 		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
 		// Act
-		PostDetailResponse response = postDetailService.getPostDetail(memberId, postId);
+		PostDetailResponse response = postDetailService.getPostDetail(memberId, role, postId);
 
 		// Assert
 		assertNotNull(response);
@@ -67,6 +68,7 @@ class PostDetailServiceTest {
 		// Given
 		Long postId = 2L;
 		String memberId = "test-member-id";
+		String role = "GENERAL";
 
 		Member member = Member.builder().id(memberId).build();
 		Post post = Post.builder()
@@ -81,7 +83,7 @@ class PostDetailServiceTest {
 		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
 		// Act
-		PostDetailResponse response = postDetailService.getPostDetail(memberId, postId);
+		PostDetailResponse response = postDetailService.getPostDetail(memberId, role, postId);
 
 		// Assert
 		assertNotNull(response);
@@ -94,6 +96,7 @@ class PostDetailServiceTest {
 		// Given
 		Long postId = 3L;
 		String memberId = "unauthorized-user-id";
+		String role = "GENERAL";
 
 		Member owner = Member.builder().id("owner-id").build();
 		Post post = Post.builder()
@@ -110,7 +113,7 @@ class PostDetailServiceTest {
 		// Act & Assert
 		GeneralException exception = assertThrows(
 			GeneralException.class,
-			() -> postDetailService.getPostDetail(memberId, postId)
+			() -> postDetailService.getPostDetail(memberId, role, postId)
 		);
 
 		assertEquals(ResponseCode.FORBIDDEN, exception.getErrorCode()); // 예외 코드 확인
@@ -123,13 +126,14 @@ class PostDetailServiceTest {
 		// Given
 		Long postId = 4L;
 		String memberId = "test-member-id";
+		String role = "GENERAL";
 
 		when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
 		// Act & Assert
 		GeneralException exception = assertThrows(
 			GeneralException.class,
-			() -> postDetailService.getPostDetail(memberId, postId)
+			() -> postDetailService.getPostDetail(memberId, role, postId)
 		);
 
 		assertEquals(ResponseCode.RESOURCE_NOT_FOUND, exception.getErrorCode()); // 예외 코드 확인

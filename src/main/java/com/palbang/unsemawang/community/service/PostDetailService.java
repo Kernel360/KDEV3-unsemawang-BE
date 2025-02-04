@@ -22,12 +22,12 @@ public class PostDetailService {
 	private final PostRepository postRepository;
 
 	@Transactional(readOnly = true)
-	public PostDetailResponse getPostDetail(String memberId, Long postId) {
+	public PostDetailResponse getPostDetail(String memberId, String role, Long postId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		// 비공개 접근 권한 확인
-		if (!post.getIsVisible() && !post.getMember().getId().equals(memberId)) {
+		// 비공개 접근 권한 확인 - 비회원과 게스트는 비공개된 게시글에 접근 불가
+		if (!post.getIsVisible() && (memberId == null || !post.getMember().getId().equals(memberId))) {
 			throw new GeneralException(ResponseCode.FORBIDDEN);
 		}
 
@@ -43,8 +43,8 @@ public class PostDetailService {
 		String profileImage = post.getIsAnonymous() ? fileService.getAnonymousProfileImgUrl() :
 			fileService.getProfileImgUrl(post.getWriterId());
 
-		// 본인 글 여부 확인
-		boolean isMyPost = post.getMember().getId().equals(memberId);
+		// 본인 글 여부 확인 - 회원(GENERAL)인 경우에만 확인
+		boolean isMyPost = "GENERAL".equals(role) && post.getMember().getId().equals(memberId);
 
 		// ResponseDto 생성
 		return toResponseDto(post, imageUrls, profileImage, isMyPost);
