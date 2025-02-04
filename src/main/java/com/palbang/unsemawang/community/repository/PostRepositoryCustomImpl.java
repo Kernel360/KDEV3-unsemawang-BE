@@ -197,10 +197,9 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
 	private BooleanExpression buildSearchCondition(String keyword, String searchType) {
 		if ("all".equals(searchType)) {
-			return post.isAnonymous.isFalse() // 익명 글 제외 조건 추가
-				.and(post.title.containsIgnoreCase(keyword)
-					.or(post.content.containsIgnoreCase(keyword))
-					.or(post.member.nickname.containsIgnoreCase(keyword)));
+			return post.title.containsIgnoreCase(keyword)
+				.or(post.content.containsIgnoreCase(keyword))
+				.or(post.member.nickname.containsIgnoreCase(keyword).and(post.isAnonymous.isFalse()));
 		} else if ("title".equals(searchType)) {
 			return post.title.containsIgnoreCase(keyword);
 		} else if ("content".equals(searchType)) {
