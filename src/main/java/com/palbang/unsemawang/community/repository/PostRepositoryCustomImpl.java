@@ -91,6 +91,49 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 				.and(post.id.lt(cursorId)));
 	}
 
+	private BooleanExpression isCursorForMostViewed(Long cursorId) {
+		if (cursorId == null) {
+			return null;
+		}
+
+		// 현재 커서 ID 기준으로 viewCount와 ID를 조회
+		Integer cursorViewCount = queryFactory
+			.select(post.viewCount)
+			.from(post)
+			.where(post.id.eq(cursorId))
+			.fetchOne();
+
+		if (cursorViewCount == null) {
+			return null; // 조회된 커서가 없으면 조건 없음
+		}
+
+		// 커서 기반 조건 추가: viewCount가 작거나 같고 viewCount가 동일하면 ID가 작은 게시글만
+		return post.viewCount.lt(cursorViewCount)
+			.or(post.viewCount.eq(cursorViewCount).and(post.id.lt(cursorId)));
+	}
+
+	private BooleanExpression isCursorForPopular(Long cursorId) {
+		if (cursorId == null) {
+			return null;
+		}
+
+		// 현재 커서 ID 기준으로 점수(`popularityScore`)와 ID를 조회
+		Integer cursorPopularityScore = queryFactory
+			.select(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).intValue())
+			.from(post)
+			.where(post.id.eq(cursorId))
+			.fetchOne();
+
+		if (cursorPopularityScore == null) {
+			return null; // 조회된 커서가 없으면 조건 없음
+		}
+
+		// 커서 기반 조건: 점수가 낮거나 같고, 점수가 동일한 경우 ID가 작은 게시글만
+		return post.viewCount.multiply(7).add(post.likeCount.multiply(3)).lt(cursorPopularityScore)
+			.or(post.viewCount.multiply(7).add(post.likeCount.multiply(3)).eq(cursorPopularityScore)
+				.and(post.id.lt(cursorId)));
+	}
+
 	private BooleanExpression isVisible() {
 		return post.isVisible.isTrue().and(post.isDeleted.isFalse());
 	}
@@ -117,7 +160,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 			.where(
 				post.communityCategory.eq(category),
 				isVisible(),
-				cursorId != null ? post.id.lt(cursorId) : null
+				isCursorForMostViewed(cursorId) // updated 커서 조건
 			)
 			.orderBy(post.viewCount.desc(), post.id.desc())
 			.limit(size)
@@ -129,13 +172,12 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		return queryFactory
 			.selectFrom(post)
 			.where(
-				isVisible(),
-				cursorId != null ? post.id.lt(cursorId) : null,
-				post.registeredAt.goe(thirtyDaysAgo)
+				isVisible(), // 게시글 상태 조건
+				post.registeredAt.goe(thirtyDaysAgo), // 30일 이내의 데이터만 조회
+				isCursorForPopular(cursorId) // 수정된 커서 조건
 			)
-			.orderBy(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).desc(),
-				post.id.desc())
-			.limit(size)
+			.orderBy(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).desc(), post.id.desc()) // 정렬 조건
+			.limit(size) // 페이징
 			.fetch();
 	}
 
@@ -155,15 +197,17 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
 	private BooleanExpression buildSearchCondition(String keyword, String searchType) {
 		if ("all".equals(searchType)) {
-			return post.title.containsIgnoreCase(keyword)
-				.or(post.content.containsIgnoreCase(keyword))
-				.or(post.member.nickname.containsIgnoreCase(keyword).and(post.isAnonymous.isFalse()));
+			return post.isAnonymous.isFalse() // 익명 글 제외 조건 추가
+				.and(post.title.containsIgnoreCase(keyword)
+					.or(post.content.containsIgnoreCase(keyword))
+					.or(post.member.nickname.containsIgnoreCase(keyword)));
 		} else if ("title".equals(searchType)) {
 			return post.title.containsIgnoreCase(keyword);
 		} else if ("content".equals(searchType)) {
 			return post.content.containsIgnoreCase(keyword);
 		} else if ("writer".equals(searchType)) {
-			return post.member.nickname.containsIgnoreCase(keyword).and(post.isAnonymous.isFalse());
+			return post.member.nickname.containsIgnoreCase(keyword)
+				.and(post.isAnonymous.isFalse());
 		}
 		return null;
 	}
