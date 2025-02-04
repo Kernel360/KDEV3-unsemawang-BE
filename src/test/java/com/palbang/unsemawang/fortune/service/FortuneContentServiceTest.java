@@ -71,7 +71,7 @@ class FortuneContentServiceTest {
 		fortuneContentListAll.addAll(fortuneContentListOfC2);
 
 		// when
-		when(fortuneContentRepository.findAll()).thenReturn(fortuneContentListAll);
+		when(fortuneContentRepository.findAllByIsVisibleIsTrue()).thenReturn(fortuneContentListAll);
 		when(fortuneContentRepository.findAllByFortuneCategory(category1.getNameEn())).thenReturn(
 			fortuneContentListOfC1);
 		when(fortuneContentRepository.findAllByFortuneCategory(category2.getNameEn())).thenReturn(
@@ -81,7 +81,7 @@ class FortuneContentServiceTest {
 		List<ContentReadListDto> getList = fortuneContentService.getList(null);
 		assertEquals(fortuneContentListAll.size(), getList.size());
 
-		verify(fortuneContentRepository, times(1)).findAll();
+		verify(fortuneContentRepository, times(1)).findAllByIsVisibleIsTrue();
 		verify(fortuneContentRepository, times(0)).findAllByFortuneCategory(anyString());
 	}
 
