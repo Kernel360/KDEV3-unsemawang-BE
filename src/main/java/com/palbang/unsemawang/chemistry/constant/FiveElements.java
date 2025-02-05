@@ -1,71 +1,39 @@
 package com.palbang.unsemawang.chemistry.constant;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum FiveElements {
-	MINUS_FIRE("-화", "丁"),
-	PLUS_FIRE("+화", "丙"),
-	MINUS_TREE("-목", "乙"),
-	PLUS_TREE("+목", "甲"),
-	MINUS_GOLD("-금", "辛"),
-	PLUS_GOLD("+금", "庚"),
-	MINUS_SOIL("-토", "己"),
-	PLUS_SOIL("+토", "戊"),
-	MINUS_WATER("-수", "癸"),
-	PLUS_WATER("+수", "壬");
+	PLUS_TREE("목", "甲", "갑", true),
+	MINUS_TREE("목", "乙", "을", false),
+	PLUS_FIRE("화", "丙", "병", true),
+	MINUS_FIRE("화", "丁", "정", false),
+	PLUS_SOIL("토", "戊", "무", true),
+	MINUS_SOIL("토", "己", "기", false),
+	PLUS_GOLD("금", "庚", "경", true),
+	MINUS_GOLD("금", "辛", "신", false),
+	PLUS_WATER("수", "壬", "임", true),
+	MINUS_WATER("수", "癸", "계", false);
 
-	private final String korean;
-	private final String chinese;
+	private static final Map<String, FiveElements> lookup = new HashMap<>();
 
-	// 상생 관계
-	private static final Map<String, String> good = Map.of(
-		"화", "토",
-		"토", "금",
-		"금", "수",
-		"수", "목",
-		"목", "화"
-	);
-
-	// 상극 관계
-	private static final Map<String, String> bad = Map.of(
-		"목", "토",
-		"토", "수",
-		"수", "화",
-		"화", "금",
-		"금", "목"
-	);
-
-	FiveElements(String korean, String chinese) {
-		this.korean = korean;
-		this.chinese = chinese;
+	static {
+		for (FiveElements fe : FiveElements.values()) {
+			lookup.put(fe.reading, fe);
+		}
 	}
 
-	public static List<String> getKoreans() {
-		List<String> koreans = new ArrayList<>();
+	private final String element;
+	private final String hanja;
+	private final String reading;
+	private final boolean isYang;
 
-		for (FiveElements wuXing : values()) {
-			koreans.add(wuXing.korean);
-		}
-
-		return koreans;
-	}
-
-	// 궁합 점수 계산 메서드
-	public static int getChemistryScore(String e1, String e2) {
-		if (valueOf(e1) == valueOf(e2)) {
-			return 1;
-		}
-
-		if (good.get(e2).equals(e1)) {
-			return 5;
-		}
-
-		if (bad.get(e2).equals(e1)) {
-			return -5;
-		}
-
-		return 0;
+	public static FiveElements fromReading(String reading) {
+		return lookup.get(reading);
 	}
 }
