@@ -14,7 +14,7 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.response.ErrorResponse;
 import com.palbang.unsemawang.common.response.Response;
-import com.palbang.unsemawang.common.util.file.service.FileServiceImpl;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.dto.request.FortuneInfoRegisterRequest;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	private final MemberService memberService;
 	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
-	private final FileServiceImpl fileService;
+	private final FileService fileService;
 	private final FortuneUserInfoUpdateService fortuneUserInfoUpdateService;
 
 	@Operation(
