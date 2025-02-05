@@ -58,6 +58,9 @@ public class FortuneUserInfoRegisterService {
 			.updatedAt(LocalDateTime.now())
 			.build();
 
+		// 일주 정보 갱신
+		fortuneUserInfo.updateDayGanZhiFromBirthday();
+
 		// 5. 데이터 저장
 		fortuneUserInfoRepository.save(fortuneUserInfo);
 
