@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.member.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -93,6 +94,18 @@ public class SignupExtraInfoRequest {
 
 		// 일수가 유효한 범위에 있는지 확인
 		return this.day >= 1 && this.day <= daysInMonth[this.month - 1];
+	}
+
+	@AssertTrue(message = "올바른 생년월일을 입력해주세요")
+	private boolean isValidBirthday() {
+		LocalDate currentDate = LocalDate.now();
+		LocalDate birthday = LocalDate.of(year, month, day);
+
+		if (currentDate.isBefore(birthday)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public void updateMemberId(String id) {
