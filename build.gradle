@@ -97,6 +97,9 @@ dependencies {
     implementation 'org.apache.httpcomponents.core5:httpcore5:5.2'
 
     implementation 'com.github.usingsky:KoreanLunarCalendar:0.3.1'
+
+    // Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 }
 
 tasks.named('test') {
