@@ -1,10 +1,11 @@
-package com.palbang.unsemawang.chemistry.constant;
+package com.palbang.unsemawang.chemistry.service;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 
