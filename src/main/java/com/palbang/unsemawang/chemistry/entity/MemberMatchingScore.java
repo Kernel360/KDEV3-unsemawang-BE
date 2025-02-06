@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chemistry.constant;
+package com.palbang.unsemawang.chemistry.entity;
 
 import java.time.LocalDateTime;
 
