@@ -11,7 +11,7 @@ public class ChemistryRecommendResponse {
 	@Schema(required = true, description = "나와의 궁합 매칭 점수")
 	private Integer score;
 
-	@Schema(required = true, description = "나의 오행")
+	@Schema(required = true, description = "상대방의 오행")
 	private char fiveElementCn;
 
 	@Schema(required = true, description = "상대방 닉네임")
