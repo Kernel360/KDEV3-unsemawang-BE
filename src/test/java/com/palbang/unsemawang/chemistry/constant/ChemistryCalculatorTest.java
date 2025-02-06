@@ -9,7 +9,7 @@ class ChemistryCalculatorTest {
 	@Test
 	void testGoodDayStemMatch() {
 		assertEquals(1, ChemistryCalculator.getChemistryScore("갑", "갑"));
-		assertEquals(2, ChemistryCalculator.getChemistryScore("갑", "을"));
+		assertEquals(3, ChemistryCalculator.getChemistryScore("갑", "을"));
 		assertEquals(6, ChemistryCalculator.getChemistryScore("갑", "병"));
 		assertEquals(8, ChemistryCalculator.getChemistryScore("갑", "정"));
 		assertEquals(-7, ChemistryCalculator.getChemistryScore("갑", "무"));
