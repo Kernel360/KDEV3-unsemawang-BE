@@ -43,15 +43,24 @@ public class TotalCalculationService {
 				int score = ChemistryCalculator.getChemistryScore(baseMemberDto.getDayGan(),
 					targetMemberDto.getDayGan());
 
-				MemberMatchingScore matchingScore = MemberMatchingScore.builder()
-					.member(baseMember)
-					.matchMember(targetMember)
-					.score(score)
-					.build();
+				// 기존 데이터가 있는지 확인
+				MemberMatchingScore existingScore = scoreRepository.findByMemberAndMatchMember(baseMember,
+					targetMember);
 
-				scoreRepository.save(matchingScore);
+				if (existingScore != null) {
+					// 기존 회원 → UPDATE
+					existingScore.updateScore(score);
+					scoreRepository.save(existingScore);
+				} else {
+					// 새로운 회원 → INSERT
+					MemberMatchingScore newScore = MemberMatchingScore.builder()
+						.member(baseMember)
+						.matchMember(targetMember)
+						.score(score)
+						.build();
+					scoreRepository.save(newScore);
+				}
 			}
 		}
 	}
-
 }
