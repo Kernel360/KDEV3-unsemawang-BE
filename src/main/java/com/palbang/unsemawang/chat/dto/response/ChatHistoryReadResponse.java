@@ -2,8 +2,9 @@ package com.palbang.unsemawang.chat.dto.response;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,8 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ChatHistoryReadResponse {
-	@JsonAlias("partner")
+
+	@Schema(required = true, description = "채팅 상대 닉네임")
+	@JsonProperty("partner")
 	String partnerNickname;
 
+	@Schema(required = false, description = "채팅 메세지 목록")
 	List<ChatMessageResponse> messages;
 }

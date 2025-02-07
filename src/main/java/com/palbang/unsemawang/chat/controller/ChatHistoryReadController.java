@@ -15,10 +15,18 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "궁합 채팅")
 @RestController
 @RequestMapping("/chemistry/chat-room")
 public class ChatHistoryReadController {
 
+	@Operation(
+		description = "특정 채팅방의 지난 채팅 내역을 조회합니다",
+		summary = "지난 채팅 내역 조회"
+	)
 	@GetMapping("/{chatRoomId}/history")
 	public ResponseEntity<List<ChatHistoryReadResponse>> readChatHistory(
 		@AuthenticationPrincipal CustomOAuth2User user,
