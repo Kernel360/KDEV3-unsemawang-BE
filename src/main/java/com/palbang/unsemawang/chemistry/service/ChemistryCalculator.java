@@ -5,13 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 
-@Component
 public class ChemistryCalculator {
 	private static final Map<String, Set<String>> good = new HashMap<>(); // 상생 관계
 	private static final Map<String, Set<String>> bad = new HashMap<>(); // 상극 관계
