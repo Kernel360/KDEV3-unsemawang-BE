@@ -11,6 +11,8 @@ import com.palbang.unsemawang.chemistry.entity.MemberMatchingScore;
 import com.palbang.unsemawang.chemistry.repository.MemberMatchingScoreRepository;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
+import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
@@ -23,6 +25,7 @@ public class RecommendService {
 	private final MemberMatchingScoreRepository memberMatchingScoreRepository;
 	private final MemberRepository memberRepository;
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
+	private final FileService fileService;
 
 	@Transactional(readOnly = true)
 	public List<ChemistryRecommendResponse> getTop5Matches(String memberId) {
@@ -38,18 +41,16 @@ public class RecommendService {
 
 		// 최대 점수 찾기
 		int maxScore = matchingScores.get(0).getScore(); // 가장 높은 점수 기준으로 스케일링
-		// if (maxScore == 0) {
-		// 	maxScore = 1; // 0 방지 (나누기 오류 방지)
-		// }
+		String imgUrl = fileService.getProfileImgUrl(memberId);
 
 		// ✅ 4. 상대방 matchMember.id를 이용해서 FortuneUserInfo에서 오행(dayGan) 가져오기
 		return matchingScores.stream()
 			.map(score -> {
 				String matchMemberId = score.getMatchMember().getId();
-				String dayGan = fortuneUserInfoRepository.findDayGanByMemberId(matchMemberId)
+				FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(matchMemberId)
 					.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
 
-				return ChemistryRecommendResponse.from(score, dayGan, maxScore);
+				return ChemistryRecommendResponse.from(score, fortuneUserInfo, maxScore, imgUrl);
 			})
 			.collect(Collectors.toList());
 	}
