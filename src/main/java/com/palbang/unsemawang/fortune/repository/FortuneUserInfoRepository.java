@@ -19,4 +19,5 @@ public interface FortuneUserInfoRepository extends JpaRepository<FortuneUserInfo
 		"WHERE f.member.id = :id AND r.relationName = :relationName AND f.isDeleted = false")
 	List<FortuneUserInfo> findByMemberIdAndRelation(@Param("id") String id, @Param("relationName") String relationName);
 
+	boolean existsByMemberIdAndRelationId(String memberId, Long relationId);
 }
