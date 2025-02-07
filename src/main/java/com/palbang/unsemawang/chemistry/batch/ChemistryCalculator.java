@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chemistry.service;
+package com.palbang.unsemawang.chemistry.batch;
 
 import java.util.HashMap;
 import java.util.HashSet;

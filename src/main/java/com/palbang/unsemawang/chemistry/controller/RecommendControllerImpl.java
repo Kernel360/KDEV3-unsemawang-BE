@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.chemistry.batch.TotalCalculationService;
 import com.palbang.unsemawang.chemistry.dto.response.ChemistryRecommendResponse;
 import com.palbang.unsemawang.chemistry.service.RecommendService;
-import com.palbang.unsemawang.chemistry.service.TotalCalculationService;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
