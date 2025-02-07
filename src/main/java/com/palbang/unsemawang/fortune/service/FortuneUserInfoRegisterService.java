@@ -43,9 +43,11 @@ public class FortuneUserInfoRegisterService {
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관계입니다."));
 
 		// relatiionId = 1 (본인)이 이미 있으면 등록 불가
-		boolean existMe = fortuneUserInfoRepository.existsByMemberIdAndRelationId(dto.getMemberId(), 1L);
-		if (relation.getId() == 1 && existMe) {
-			throw new GeneralException(ResponseCode.NOT_ADD_SELF_RELATION);
+		if (relation.getId() == 1) {
+			boolean existMe = fortuneUserInfoRepository.existsByMemberIdAndRelationId(dto.getMemberId(), 1L);
+			if (existMe) {
+				throw new GeneralException(ResponseCode.NOT_ADD_SELF_RELATION);
+			}
 		}
 
 		// 3. FortuneUserInfo 엔티티 생성
