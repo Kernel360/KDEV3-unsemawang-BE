@@ -47,4 +47,9 @@ public class MemberMatchingScore extends BaseEntity {
 	@Column(name = "updated_at")
 	@Builder.Default
 	private LocalDateTime updatedAt = LocalDateTime.now();
+
+	public void updateScore(int score) {
+		this.score = score;
+		this.updatedAt = LocalDateTime.now();
+	}
 }
