@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.chat.service;
 
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,9 @@ public class RabbitMQConsumerService {
 			// 메시지 처리
 			chatMessageService.processIncomingMessage(chatMessage);
 		} catch (Exception e) {
-			System.err.println("Error processing message: " + e.getMessage());
-			e.printStackTrace();
+			// DLQ로 처리하기 위한 로깅
+			System.err.println("Error processing message. Sending to DLQ: " + RabbitMQConfig.DLQ_NAME);
+			throw new AmqpRejectAndDontRequeueException("Error processing message");
 		}
 	}
 }

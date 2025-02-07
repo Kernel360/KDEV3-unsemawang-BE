@@ -1,6 +1,8 @@
 package com.palbang.unsemawang.chat.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +23,11 @@ public class ChatMessage {
 	private String sender;         // 발신자
 	private String content;        // 메시지 내용
 	private String type;           // 메시지 유형 (CHAT, JOIN, LEAVE 등)
+
 	private Long timestamp;        // 메시지 전송 시각 (epoch time)
+
+	@Enumerated(EnumType.STRING)
+	private MessageStatus status;  // 메시지 상태 (SENT, DELIVERED, READ)
 
 	// 생성자 오버로드
 	public ChatMessage(String sender, String content, String type) {
@@ -29,5 +35,6 @@ public class ChatMessage {
 		this.content = content;
 		this.type = type;
 		this.timestamp = System.currentTimeMillis();
+		this.status = MessageStatus.SENT; // 기본 상태: SENT
 	}
 }
