@@ -31,14 +31,14 @@ public class MemberMatchingScore extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
-	private Member memberId;
+	private Member member;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "match_member_id", nullable = false)
-	private Member matchMemberId;
+	private Member matchMember;
 
 	@Column(name = "score", nullable = false)
-	private int score; // 100점 만점
+	private int score;
 
 	@Column(name = "registered_at", updatable = false)
 	@Builder.Default
@@ -47,4 +47,9 @@ public class MemberMatchingScore extends BaseEntity {
 	@Column(name = "updated_at")
 	@Builder.Default
 	private LocalDateTime updatedAt = LocalDateTime.now();
+
+	public void updateScore(int score) {
+		this.score = score;
+		this.updatedAt = LocalDateTime.now();
+	}
 }
