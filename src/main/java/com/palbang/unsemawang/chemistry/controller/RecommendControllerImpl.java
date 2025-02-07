@@ -34,9 +34,6 @@ public class RecommendControllerImpl implements RecommendController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		// 모든 사용자에 대한 궁합 점수 DB에 저장
-		totalCalculationService.calculateAndSaveChemistryScores();
-
 		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTop5Matches(auth.getId());
 
 		return ResponseEntity.ok(recommendedMemberList);
