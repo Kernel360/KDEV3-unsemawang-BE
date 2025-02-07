@@ -3,7 +3,7 @@ package com.palbang.unsemawang.chat.dto.response;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.palbang.unsemawang.chat.constant.SendType;
+import com.palbang.unsemawang.chat.constant.SenderType;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class ChatMessageResponse {
 	private String content;
 
-	private SendType sendType;
+	private SenderType senderType;
 
 	@JsonAlias("userId")
 	private String partnerId;
