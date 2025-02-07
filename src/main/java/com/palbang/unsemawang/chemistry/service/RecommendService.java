@@ -42,8 +42,7 @@ public class RecommendService {
 		// 최대 점수 찾기
 		int maxScore = matchingScores.get(0).getScore(); // 가장 높은 점수 기준으로 스케일링
 		String imgUrl = fileService.getProfileImgUrl(memberId);
-
-		// ✅ 4. 상대방 matchMember.id를 이용해서 FortuneUserInfo에서 오행(dayGan) 가져오기
+		
 		return matchingScores.stream()
 			.map(score -> {
 				String matchMemberId = score.getMatchMember().getId();
