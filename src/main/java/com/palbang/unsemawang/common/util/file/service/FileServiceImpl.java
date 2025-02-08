@@ -80,6 +80,16 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
+	public String getAnonymousProfileImgUrl() {
+
+		String key;
+
+		key = "MEMBER_PROFILE_IMG/anoymous_profile_image.webp";
+
+		return s3Service.createPresignedGetUrl(key);
+	}
+
+	@Override
 	public String getPostThumbnailImgUrl(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
@@ -106,6 +116,19 @@ public class FileServiceImpl implements FileService {
 			paths.add(s3Service.createPresignedGetUrl(f.getS3Key()));
 		}
 		return paths;
+	}
+
+	@Override
+	public String getContentThumbnailImgUrl(Long referenceId) {
+		FileRequest fileRequest = FileRequest.of(FileReferenceType.CONTENT_THUMBNAIL_IMG, referenceId);
+
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
+		if (files.isEmpty()) {
+			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+			return null;
+		}
+
+		return s3Service.createPresignedGetUrl(files.get(0).getS3Key());
 	}
 
 	@Override
@@ -139,7 +162,9 @@ public class FileServiceImpl implements FileService {
 			validFileSize(file);
 			validImageFileExtension(file);
 
-			String path = s3Service.upload(file, fileRequest);
+			String key = fileRepository.findFilesByFileReference(fileRequest).get(0).getS3Key();
+
+			String path = s3Service.updateObject(file, key);
 			File fileEntity = buildUpdatedFileEntity(file, path, fileRequest);
 			saveFileOrRollback(fileEntity, path, fileRequest);
 		}
@@ -382,7 +407,7 @@ public class FileServiceImpl implements FileService {
 	 */
 	private void validImageFileExtension(MultipartFile file) {
 
-		List<String> allowedContentTypes = List.of("jpeg", "png", "webp", "heic");
+		List<String> allowedContentTypes = List.of("jpeg", "png", "webp", "heic", "gif");
 
 		String contentType = file.getContentType();
 		if (contentType == null || contentType.isEmpty()) {

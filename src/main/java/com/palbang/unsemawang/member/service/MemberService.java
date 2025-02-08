@@ -40,6 +40,10 @@ public class MemberService {
 		Member member = memberRepository.findById(signupExtraInfo.getId())
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO, "회원을 찾을 수 없습니다"));
 
+		if (member.getIsJoin()) {
+			throw new GeneralException(ResponseCode.ALREADY_REGISTERED_MEMBER);
+		}
+
 		// 닉네임 중복체크
 		duplicateNicknameCheck(signupExtraInfo.getNickname());
 
@@ -84,7 +88,7 @@ public class MemberService {
 		String nickname = updateMemberRequest.getNickname();
 		String detailBio = updateMemberRequest.getDetailBio();
 
-		if(!member.getNickname().equals(nickname)) {
+		if (!member.getNickname().equals(nickname)) {
 			//닉네임 중복 체크
 			duplicateNicknameCheck(nickname);
 		}
@@ -100,9 +104,9 @@ public class MemberService {
 	}
 
 	//jwt 발급후 쿠키에 넣어서 전달
-	public HttpHeaders addJwtToCookie(@AuthenticationPrincipal CustomOAuth2User auth){
+	public HttpHeaders addJwtToCookie(@AuthenticationPrincipal CustomOAuth2User auth) {
 		HttpHeaders headers = new HttpHeaders();
-		String token = jwtUtil.createJTwt(auth.getId(), auth.getEmail(),"GENERAL",60 * 60 * 1000L * 24 * 3);
+		String token = jwtUtil.createJTwt(auth.getId(), auth.getEmail(), "GENERAL", 60 * 60 * 1000L * 24 * 3);
 		// 쿠키 추가
 		ResponseCookie responseCookie = createResponseCookie("Authorization", token, 60 * 60 * 24 * 3);
 
@@ -121,5 +125,26 @@ public class MemberService {
 			.httpOnly(true)   // JavaScript 접근 불가
 			.maxAge(maxAge)   // 만료 시간 설정
 			.build();
+	}
+
+	private ResponseCookie createJsessionCookie(String key, String value, int maxAge) {
+		return ResponseCookie.from(key, value)
+			.path("/")
+			.domain("dev.unsemawang.com") // 도메인 지정 (필요한 경우 설정)
+			.httpOnly(true)   // JavaScript 접근 불가
+			.maxAge(maxAge)   // 만료 시간 설정
+			.build();
+	}
+
+	//쿠키를 지워주는 로그아웃
+	public HttpHeaders invalidateJwtCookie(@AuthenticationPrincipal CustomOAuth2User auth) {
+		HttpHeaders headers = new HttpHeaders();
+		String token = jwtUtil.createJTwt(auth.getId(), auth.getEmail(), "GENERAL", 0L);
+		// 쿠키 추가
+		ResponseCookie responseCookie = createResponseCookie("Authorization", token, 0);
+		ResponseCookie jsessionCookie = createJsessionCookie("JSESSIONID", "", 0);
+		headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());
+		headers.add(HttpHeaders.SET_COOKIE, jsessionCookie.toString());
+		return headers;
 	}
 }

@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.community.controller;
 
+import com.palbang.unsemawang.community.constant.CommunityListCategory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,25 +25,29 @@ public class PostListController {
 	private final PostListService postListService;
 
 	@Operation(
-		description = """
+			description = """
 			sort(정렬 분류) : latest || mostViewed <br>
+			카테고리 미지정 시 인기 게시글 조회 <br>
 			인기 게시글 조회 시 sort = null
 			""",
-		summary = "게시글 목록 조회")
+			summary = "게시글 목록 조회")
 	@GetMapping("/posts")
 	public ResponseEntity<LongCursorResponse<PostListResponse>> getPostList(
-		@RequestParam CommunityCategory category,
+		@RequestParam(required = false) CommunityListCategory category,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(required = false, defaultValue = "10") Integer size,
 		@RequestParam(required = false, defaultValue = "LATEST") Sortingtype sort
 	) {
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorId, size);
+		LongCursorResponse<PostListResponse> response;
 
-		LongCursorResponse<PostListResponse> response = postListService.getPostList(
-			category,
-			sort,
-			cursorRequest
-		);
+		// 인기 게시판 요청이 따로 들어오면 처리
+		if (category == CommunityListCategory.POPULAR_BOARD) { // 또는 별도 필드에 따라 판단해도 됨
+			response = postListService.getPopularPosts(cursorRequest);
+		} else {
+			// 카테고리 기반의 기본 게시판 처리
+			response = postListService.getPostList(category, sort, cursorRequest);
+		}
 
 		return ResponseEntity.ok(response);
 	}

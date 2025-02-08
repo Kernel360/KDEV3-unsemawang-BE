@@ -1,8 +1,10 @@
 package com.palbang.unsemawang.fortune.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
+import com.palbang.unsemawang.common.util.saju.SajuCalculator;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -61,6 +63,12 @@ public class FortuneUserInfo extends BaseEntity {
 	@Column(name = "solunar", nullable = false)
 	private String solunar;
 
+	@Column(name = "day_gan")
+	private String dayGan;
+
+	@Column(name = "day_zhi")
+	private String dayZhi;
+
 	@Column(name = "registered_at", nullable = false, updatable = false)
 	@Builder.Default
 	private LocalDateTime registeredAt = LocalDateTime.now(); // 생성일시
@@ -104,8 +112,18 @@ public class FortuneUserInfo extends BaseEntity {
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
 	}
 
-	public void updateFortuneNickname(String nickname){
+	public void updateFortuneNickname(String nickname) {
 		this.nickname = nickname;
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+	}
+
+	public void updateDayGanZhiFromBirthday() {
+		boolean isLunar = solunar.equals("lunar");
+		boolean isIntercalation = youn == 1;
+
+		LocalDate lunarBirthday = SajuCalculator.getSolarDate(year, month, day, isLunar, isIntercalation);
+
+		this.dayGan = SajuCalculator.getDayGan(lunarBirthday);
+		this.dayZhi = SajuCalculator.getDayZhi(lunarBirthday);
 	}
 }

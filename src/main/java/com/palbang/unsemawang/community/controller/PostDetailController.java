@@ -31,12 +31,20 @@ public class PostDetailController {
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable Long id) {
 
-		if (auth == null || auth.getId() == null) {
-			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		String memberId = null;  // 기본적으로 비회원일 경우 null로 설정
+		String role = null;
+
+		if (auth != null && auth.getId() != null) {
+			memberId = auth.getId();
+			role = auth.getAuthorities().stream()
+				.findFirst().orElseThrow(() -> new GeneralException(ResponseCode.FORBIDDEN))
+				.getAuthority();  // role 가져오기
 		}
 
-		PostDetailResponse response = postDetailService.getPostDetail(auth.getId(), id);
+		// 게시글 조회
+		PostDetailResponse response = postDetailService.getPostDetail(memberId, role, id);
 
+		// 조회수 증가
 		postDetailService.incrementViewCount(id);
 
 		return ResponseEntity.ok(response);

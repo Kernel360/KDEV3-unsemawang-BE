@@ -127,7 +127,7 @@ public class CommentService {
 	private String resolveProfileImageForReadResponse(Comment comment, CommunityCategory category) {
 		if (category == CommunityCategory.ANONYMOUS_BOARD) {
 			// 익명 게시판: 고정된 익명 이미지 반환
-			return "MEMBER_PROFILE_IMG/default_profile.png";
+			return fileService.getAnonymousProfileImgUrl();
 		} else if (category == CommunityCategory.FREE_BOARD) {
 			// 자유 게시판: 사용자의 프로필 이미지 반환 (fileService 활용)
 			return fileService.getProfileImgUrl(comment.getMember().getId());

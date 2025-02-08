@@ -50,6 +50,10 @@ public class FortuneUserInfoUpdateService {
 			req.getYoun(),
 			req.getSolunar()
 		);
+
+		// 일주 정보 갱신
+		fortuneUserInfo.updateDayGanZhiFromBirthday();
+
 		fortuneUserInfoRepository.save(fortuneUserInfo);
 
 		// 4. 응답 생성
@@ -65,8 +69,9 @@ public class FortuneUserInfoUpdateService {
 			.solunar(fortuneUserInfo.getSolunar())
 			.build();
 	}
+
 	public void updateFortuneUserNickname(String id, String nickname) {
-		List<FortuneUserInfo> fortuneUserInfoList = fortuneUserInfoRepository.findByMemberIdAndRelation(id,"본인");
+		List<FortuneUserInfo> fortuneUserInfoList = fortuneUserInfoRepository.findByMemberIdAndRelation(id, "본인");
 
 		if (fortuneUserInfoList.isEmpty()) {
 			throw new GeneralException(ResponseCode.ERROR_SEARCH, "해당 회원의 본인 사주정보를 찾지 못했습니다.");
