@@ -1,8 +1,6 @@
 package com.palbang.unsemawang.chat.dto;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
@@ -16,6 +14,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ChatRoomDto {
+
 	private Long chatRoomId;
 	private String userId;
 	private String nickname;
@@ -35,7 +34,7 @@ public class ChatRoomDto {
 
 		// ✅ timestamp(Long)을 LocalDateTime으로 변환
 		LocalDateTime lastMessageTime = lastMessage != null
-			? Instant.ofEpochMilli(lastMessage.getTimestamp()).atZone(ZoneId.systemDefault()).toLocalDateTime()
+			? lastMessage.getTimestamp()  // ✅ LocalDateTime을 직접 사용
 			: chatRoom.getCreatedAt();
 
 		return ChatRoomDto.builder()

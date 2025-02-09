@@ -22,15 +22,14 @@ public class ChatMessageProducer {
 
 	public void sendMessageToQueue(ChatMessageDto chatMessage) {
 		try {
-			// ✅ chatRoomId가 없으면 전송하지 않음
 			if (chatMessage.getChatRoomId() == null) {
 				log.error("❌ chatRoomId가 없는 메시지는 전송 불가: {}", chatMessage);
 				return;
 			}
 
-			// ✅ timestamp가 없으면 자동 설정
+			// ✅ LocalDateTime이 null이면 현재 시간을 설정
 			if (chatMessage.getTimestamp() == null) {
-				chatMessage.setTimestamp(System.currentTimeMillis());
+				chatMessage.setTimestamp(System.currentTimeMillis());  // ✅ long 유지
 			}
 
 			String messageJson = objectMapper.writeValueAsString(chatMessage);

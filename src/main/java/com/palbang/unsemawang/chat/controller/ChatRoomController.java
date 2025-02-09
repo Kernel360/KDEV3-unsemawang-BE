@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
-import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
 import com.palbang.unsemawang.chat.service.ChatRoomService;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
@@ -59,7 +59,7 @@ public class ChatRoomController {
 
 	// 추가된 API - 기존 ChatRoomReadController 기능 포함
 	@GetMapping("/{chatRoomId}/history")
-	public ResponseEntity<List<ChatHistoryReadResponse>> readChatHistory(
+	public ResponseEntity<List<ChatMessageDto>> readChatHistory(
 		@AuthenticationPrincipal CustomOAuth2User user,
 		@PathVariable("chatRoomId") Long chatRoomId
 	) {
@@ -67,7 +67,7 @@ public class ChatRoomController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		List<ChatHistoryReadResponse> chatHistory = chatRoomService.getChatHistory(chatRoomId, user.getId());
+		List<ChatMessageDto> chatHistory = chatRoomService.getChatHistory(chatRoomId, user.getId());
 		return ResponseEntity.ok(chatHistory);
 	}
 

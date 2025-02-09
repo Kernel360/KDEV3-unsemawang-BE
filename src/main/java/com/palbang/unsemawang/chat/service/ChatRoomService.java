@@ -1,18 +1,20 @@
 package com.palbang.unsemawang.chat.service;
 
-import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.chat.constant.SenderType;
+import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
-import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
-import com.palbang.unsemawang.chat.dto.response.ChatMessageResponse;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
@@ -23,7 +25,9 @@ import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -86,34 +90,56 @@ public class ChatRoomService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChatHistoryReadResponse> getChatHistory(Long chatRoomId, String userId) {
+	public List<ChatMessageDto> getChatHistory(Long chatRoomId, String userId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음"));
+			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
 
-		// 사용자가 채팅방에 속해 있는지 확인
-		if (!chatRoom.getUser1().getId().equals(userId) && !chatRoom.getUser2().getId().equals(userId)) {
-			throw new IllegalArgumentException("채팅방에 속한 사용자가 아닙니다.");
-		}
-
-		// 채팅 내역 조회
 		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
 
-		// DTO 변환
-		return chatMessages.stream()
-			.map(message -> ChatHistoryReadResponse.builder()
-				.partnerNickname(message.getSender().getNickname())
-				.messages(List.of(ChatMessageResponse.builder()
-					.content(message.getContent())
-					.senderType(message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER)
+		if (chatMessages.isEmpty()) {
+			log.warn("⚠️ 채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
+			return Collections.emptyList();
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		List<ChatMessageDto> chatMessageDtos = chatMessages.stream()
+			.map(message -> {
+				if (message == null || message.getSender() == null) {
+					log.warn("⚠️ sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
+					return null;
+				}
+
+				// ✅ Lazy Loading 문제 해결 (sender 강제 초기화)
+				Hibernate.initialize(message.getSender());
+
+				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
+
+				ChatMessageDto dto = ChatMessageDto.builder()
+					.chatRoomId(chatRoom.getId())
 					.senderId(message.getSender().getId())
-					.senderNickname(message.getSender().getNickname())
-					.senderProfileImageUrl(message.getSender().getProfileUrl())
-					.timestamp(Instant.ofEpochMilli(message.getTimestamp())
-						.atZone(ZoneId.systemDefault())
-						.toLocalDateTime()) // ✅ 변환
-					.build()))
-				.build())
+					.nickname(message.getSender().getNickname() != null ? message.getSender().getNickname() : "Unknown")
+					.profileImageUrl(
+						message.getSender().getProfileUrl() != null ? message.getSender().getProfileUrl() : "")
+					.content(message.getContent())
+					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+					.status(message.getStatus())
+					.senderType(senderType)
+					.build();
+
+				try {
+					String jsonOutput = objectMapper.writeValueAsString(dto);
+					log.info("📩 직렬화된 메시지 JSON: {}", jsonOutput);
+				} catch (Exception e) {
+					log.error("❌ JSON 직렬화 오류 발생", e);
+				}
+
+				return dto;
+			})
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
+
+		return chatMessageDtos;
 	}
 
 	@Transactional

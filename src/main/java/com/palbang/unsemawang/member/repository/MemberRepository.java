@@ -33,4 +33,8 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 		    WHERE f.relation.id = 1
 		""")
 	List<MemberWithDayGanDto> findAllMembersWithDayGan();
+
+	@EntityGraph(attributePaths = {"nickname", "profileUrl"})
+	@Query("SELECT m FROM Member m WHERE m.id = :id")
+	Optional<Member> findWithDetailsById(@Param("id") String id);
 }

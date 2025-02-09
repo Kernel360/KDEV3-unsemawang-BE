@@ -19,18 +19,21 @@ public class ChatController {
 		this.chatMessageProducer = chatMessageProducer;
 	}
 
-	// ✅ WebSocket 메시지 핸들링
-	@MessageMapping("chat/sendMessage") // 🔥 슬래시 없이 사용
+	@MessageMapping("/chat/sendMessage")  // ✅ 경로 앞에 '/' 추가!
 	public void sendMessage(@Payload ChatMessageDto chatMessageDto) {
 		log.info("📩 Received WebSocket message: {}", chatMessageDto);
 
-		// ✅ chatRoomId가 없으면 메시지 무시
 		if (chatMessageDto.getChatRoomId() == null) {
 			log.error("❌ chatRoomId가 누락됨! {}", chatMessageDto);
 			return;
 		}
 
-		// ✅ 메시지를 RabbitMQ로 전송
-		chatMessageProducer.sendMessageToQueue(chatMessageDto);
+		try {
+			log.info("📨 Sending message to RabbitMQ: {}", chatMessageDto);
+			chatMessageProducer.sendMessageToQueue(chatMessageDto);
+			log.info("✅ Message sent to RabbitMQ successfully!");
+		} catch (Exception e) {
+			log.error("❌ Failed to send message to RabbitMQ", e);
+		}
 	}
 }
