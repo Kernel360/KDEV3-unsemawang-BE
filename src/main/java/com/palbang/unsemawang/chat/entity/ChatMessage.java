@@ -1,40 +1,58 @@
 package com.palbang.unsemawang.chat.entity;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.palbang.unsemawang.member.entity.Member;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+@Builder
+@Table(name = "chat_message")
+@JsonIgnoreProperties(ignoreUnknown = true) // ✅ JSON 변환 시 알 수 없는 필드 무시
+public class ChatMessage implements Serializable {
+
+	private static final long serialVersionUID = 1L; // ✅ 직렬화 버전 UID 추가
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;               // 메시지 ID (자동 생성)
+	private Long id;
 
-	private String sender;         // 발신자
-	private String content;        // 메시지 내용
-	private String type;           // 메시지 유형 (CHAT, JOIN, LEAVE 등)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chat_room_id", nullable = false)
+	private ChatRoom chatRoom; // ✅ chatRoomId 필드 제거
 
-	private Long timestamp;        // 메시지 전송 시각 (epoch time)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id", nullable = false)
+	private Member sender;
 
+	@Column(nullable = false)
+	private String content;
+
+	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private MessageStatus status;  // 메시지 상태 (SENT, DELIVERED, READ)
+	private MessageStatus status;
 
-	// 생성자 오버로드
-	public ChatMessage(String sender, String content, String type) {
-		this.sender = sender;
-		this.content = content;
-		this.type = type;
-		this.timestamp = System.currentTimeMillis();
-		this.status = MessageStatus.SENT; // 기본 상태: SENT
-	}
+	@Column(nullable = false)
+	private Long timestamp;
 }

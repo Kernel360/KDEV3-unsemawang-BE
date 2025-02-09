@@ -1,7 +1,7 @@
 package com.palbang.unsemawang.activity.aop;
 
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -19,29 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ActivityTraceAspect {
 
-	private final RedisTemplate redisTemplate;
 	private final ActiveMemberService activeMemberService;
-
-	public boolean isRedisConnected() {
-		try {
-			String pingResult = redisTemplate.getConnectionFactory().getConnection().ping();
-			return "PONG".equalsIgnoreCase(pingResult);
-		} catch (Exception e) {
-			return false;
-		}
-	}
 
 	/**
 	 * 회원이 API 요청을 수행한 후 활동 내역을 Redis에 저장
 	 */
-	// @AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
+	@AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
 	public void trackUserActivity() {
-
-		if (!isRedisConnected()) {
-			log.error("레디스 연결 정보 없음");
-			return;
-		}
-
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if (auth == null || !auth.isAuthenticated()) {
@@ -49,11 +33,19 @@ public class ActivityTraceAspect {
 			return;
 		}
 
-		String memberId = ((CustomOAuth2User)auth.getPrincipal()).getId();
+		Object principal = auth.getPrincipal(); // Principal 확인
 
-		// 레디스 활동 리스트 갱신
-		ActiveMember savedActiveMember = activeMemberService.saveAndUpdateActiveMember(memberId);
-		log.info("저장된 회원 활동 정보: {}", savedActiveMember);
+		String memberId;
+		if (principal instanceof CustomOAuth2User) {
+			memberId = ((CustomOAuth2User)principal).getId();
+		} else if (principal instanceof String) {
+			memberId = (String)principal; // Principal이 String인 경우
+		} else {
+			log.error("예상치 못한 Principal 타입: {}", principal.getClass().getName());
+			return;
+		}
 
+		log.info("회원 활동 기록: {}", memberId);
+		activeMemberService.saveAndUpdateActiveMember(memberId);
 	}
 }
