@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class ChatParticipant extends BaseEntity {
 	@Id
 	@Column(name = "chat_room_id")
-	private Long id;
+	private Long chatRoomId;
 
 	@Id
 	@Column(name = "participant_id")

@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -31,12 +32,11 @@ public class ChatMessage extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chat_room_id", nullable = false)
-	private ChatRoom chatRoom;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sender_id", nullable = false)
-	private ChatParticipant senderId;
+	@JoinColumns({
+		@JoinColumn(name = "chat_room_id", referencedColumnName = "chat_room_id"),
+		@JoinColumn(name = "participant_id", referencedColumnName = "participant_id")
+	})
+	private ChatParticipant sender;
 
 	@Column(name = "message")
 	private String message;
