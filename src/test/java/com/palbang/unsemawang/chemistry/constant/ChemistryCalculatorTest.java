@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.palbang.unsemawang.chemistry.batch.ChemistryCalculator;
+
 class ChemistryCalculatorTest {
 
 	@Test
