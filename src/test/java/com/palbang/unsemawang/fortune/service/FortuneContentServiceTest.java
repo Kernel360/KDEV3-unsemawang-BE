@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.dto.response.ContentReadListDto;
 import com.palbang.unsemawang.fortune.entity.FortuneCategory;
 import com.palbang.unsemawang.fortune.entity.FortuneContent;
@@ -27,6 +28,9 @@ class FortuneContentServiceTest {
 
 	@MockBean
 	private FortuneContentRepository fortuneContentRepository;
+
+	@MockBean
+	private FileService fileService;
 
 	/**
 	 *  [ 조회 테스트 ]
@@ -67,7 +71,7 @@ class FortuneContentServiceTest {
 		fortuneContentListAll.addAll(fortuneContentListOfC2);
 
 		// when
-		when(fortuneContentRepository.findAll()).thenReturn(fortuneContentListAll);
+		when(fortuneContentRepository.findAllByIsVisibleIsTrue()).thenReturn(fortuneContentListAll);
 		when(fortuneContentRepository.findAllByFortuneCategory(category1.getNameEn())).thenReturn(
 			fortuneContentListOfC1);
 		when(fortuneContentRepository.findAllByFortuneCategory(category2.getNameEn())).thenReturn(
@@ -77,7 +81,7 @@ class FortuneContentServiceTest {
 		List<ContentReadListDto> getList = fortuneContentService.getList(null);
 		assertEquals(fortuneContentListAll.size(), getList.size());
 
-		verify(fortuneContentRepository, times(1)).findAll();
+		verify(fortuneContentRepository, times(1)).findAllByIsVisibleIsTrue();
 		verify(fortuneContentRepository, times(0)).findAllByFortuneCategory(anyString());
 	}
 

@@ -46,14 +46,18 @@ public class CommentController {
 		@RequestParam(required = false) Long cursorKey,
 		@RequestParam(defaultValue = "10") Integer size) {
 
-		if (auth == null || auth.getId() == null) {
-			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		String memberId = null; // 비회원일 경우 null
+
+		// 로그인한 사용자일 경우
+		if (auth != null && auth.getId() != null) {
+			memberId = auth.getId();
 		}
+
 		// cursorRequest 객체 생성
 		CursorRequest<Long> cursorRequest = new CursorRequest<>(cursorKey, size);
 
 		LongCursorResponse<CommentReadResponse> response = commentService.getAllCommentsByPostId(postId, cursorRequest,
-			auth.getId());
+			memberId);
 
 		return ResponseEntity.ok(response);
 	}
@@ -66,8 +70,8 @@ public class CommentController {
 	public ResponseEntity<Void> registerCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@RequestParam Long postId,
-		@RequestBody @Valid CommentRegisterRequest request
-	) {
+		@RequestBody @Valid CommentRegisterRequest request) {
+
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
@@ -85,8 +89,8 @@ public class CommentController {
 	public ResponseEntity<Void> updateCommentByPostId(
 		@AuthenticationPrincipal CustomOAuth2User auth,
 		@PathVariable Long commentId,
-		@RequestBody @Valid CommentUpdateRequest request
-	) {
+		@RequestBody @Valid CommentUpdateRequest request) {
+
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}

@@ -30,6 +30,12 @@ public interface FileService {
 	String getProfileImgUrl(String referenceId);
 
 	/**
+	 * 지정된 익명 프로필 이미지 url 반환
+	 * @return 디폴트 프로필 이미지
+	 */
+	String getAnonymousProfileImgUrl();
+
+	/**
 	 * 게시글 대표 이미지 url 반환
 	 * @param referenceId 참조된 게시글 id
 	 * @return 해당 게시글의 대표 이미지
@@ -42,6 +48,13 @@ public interface FileService {
 	 * @return 해당 게시글에 연관된 이미지 리스트
 	 */
 	List<String> getPostImgUrls(Long referenceId);
+
+	/**
+	 * 컨텐츠 대표 이미지 url 반환
+	 * @param referenceId 참조된 게시글 id
+	 * @return 해당 컨텐츠의 대표 이미지
+	 */
+	String getContentThumbnailImgUrl(Long referenceId);
 
 	/**
 	 * 파일 url 리스트 반환

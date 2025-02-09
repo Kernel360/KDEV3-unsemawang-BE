@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/fortune-users")
 @RequiredArgsConstructor
-public class FortuneInfoRegisterController {
+public class FortuneUserInfoRegisterController {
 	private final FortuneUserInfoRegisterService registerService;
 
 	@Operation(

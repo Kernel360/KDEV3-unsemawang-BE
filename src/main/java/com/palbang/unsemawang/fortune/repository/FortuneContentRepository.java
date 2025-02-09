@@ -11,6 +11,8 @@ import com.palbang.unsemawang.fortune.entity.FortuneContent;
 @Repository
 public interface FortuneContentRepository extends JpaRepository<FortuneContent, Long> {
 
+	List<FortuneContent> findAllByIsVisibleIsTrue();
+
 	@Query("SELECT fc FROM FortuneContent fc WHERE (fc.nameEn LIKE %:keyword% OR fc.nameKo LIKE %:keyword%) AND fc.isVisible = true")
 	List<FortuneContent> findByKeyword(String keyword);
 

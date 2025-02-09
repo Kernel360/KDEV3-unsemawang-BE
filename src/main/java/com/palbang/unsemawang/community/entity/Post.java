@@ -41,7 +41,7 @@ public class Post extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "member_id", nullable = false)
+	@JoinColumn(name = "member_id", nullable = true)
 	private Member member;
 
 	@Column(name = "is_anonymous", nullable = false)

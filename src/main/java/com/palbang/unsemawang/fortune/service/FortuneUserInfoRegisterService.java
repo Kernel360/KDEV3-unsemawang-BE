@@ -42,6 +42,14 @@ public class FortuneUserInfoRegisterService {
 		UserRelation relation = userRelationRepository.findByRelationName(dto.getRelationName())
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관계입니다."));
 
+		// relatiionId = 1 (본인)이 이미 있으면 등록 불가
+		if (relation.getId() == 1) {
+			boolean existMe = fortuneUserInfoRepository.existsByMemberIdAndRelationId(dto.getMemberId(), 1L);
+			if (existMe) {
+				throw new GeneralException(ResponseCode.NOT_ADD_SELF_RELATION);
+			}
+		}
+
 		// 3. FortuneUserInfo 엔티티 생성
 		FortuneUserInfo fortuneUserInfo = FortuneUserInfo.builder()
 			.member(member)
@@ -57,6 +65,9 @@ public class FortuneUserInfoRegisterService {
 			.registeredAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
 			.build();
+
+		// 일주 정보 갱신
+		fortuneUserInfo.updateDayGanZhiFromBirthday();
 
 		// 5. 데이터 저장
 		fortuneUserInfoRepository.save(fortuneUserInfo);

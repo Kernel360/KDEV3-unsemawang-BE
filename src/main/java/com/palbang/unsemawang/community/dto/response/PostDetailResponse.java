@@ -20,8 +20,8 @@ public class PostDetailResponse {
 	@Schema(description = "게시글 ID", required = true, example = "1")
 	private Long id;
 
-	@Schema(description = "작성자 ID", required = true, example = "UUID")
-	private String memberId;
+	// @Schema(description = "작성자 ID", required = true, example = "UUID")
+	// private String memberId;
 
 	@Schema(description = "게시글 제목", required = true, example = "게시글 제목")
 	private String title;

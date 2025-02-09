@@ -28,15 +28,20 @@ public class FortuneUserInfoUpdateService {
 	public FortuneUserInfoUpdateResponse updateFortuneUserInfo(FortuneInfoUpdateRequest req) {
 		// Member 조회
 		memberRepository.findById(req.getMemberId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "회원을 찾지 못했습니다."));
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
 		// 사주 정보 조회
 		FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findById(req.getRelationId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "해당 사주 정보를 찾지 못했습니다."));
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_FORTUNE_USER_INFO));
 
 		// UserRelation 조회
 		UserRelation userRelation = userRelationRepository.findByRelationName(req.getRelationName())
-			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH, "해당 관계명을 찾을 수 없습니다."));
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_USER_RELATION));
+
+		// 본인 사주 정보를 수정 할 때, 다른 관계(가족, 지인 등)로 수정할 수 없음
+		if (fortuneUserInfo.getRelation().getId() == 1 && userRelation.getId() != 1) {
+			throw new GeneralException(ResponseCode.NOT_CHANGED_RELATION);
+		}
 
 		// 사주 정보 수정
 		fortuneUserInfo.updateFortuneInfo(
@@ -50,6 +55,10 @@ public class FortuneUserInfoUpdateService {
 			req.getYoun(),
 			req.getSolunar()
 		);
+
+		// 일주 정보 갱신
+		fortuneUserInfo.updateDayGanZhiFromBirthday();
+
 		fortuneUserInfoRepository.save(fortuneUserInfo);
 
 		// 4. 응답 생성
@@ -65,8 +74,9 @@ public class FortuneUserInfoUpdateService {
 			.solunar(fortuneUserInfo.getSolunar())
 			.build();
 	}
+
 	public void updateFortuneUserNickname(String id, String nickname) {
-		List<FortuneUserInfo> fortuneUserInfoList = fortuneUserInfoRepository.findByMemberIdAndRelation(id,"본인");
+		List<FortuneUserInfo> fortuneUserInfoList = fortuneUserInfoRepository.findByMemberIdAndRelation(id, "본인");
 
 		if (fortuneUserInfoList.isEmpty()) {
 			throw new GeneralException(ResponseCode.ERROR_SEARCH, "해당 회원의 본인 사주정보를 찾지 못했습니다.");

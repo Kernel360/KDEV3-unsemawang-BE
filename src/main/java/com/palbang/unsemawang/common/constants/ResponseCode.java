@@ -57,6 +57,12 @@ public enum ResponseCode implements Codable {
 	NOT_ALLOWED_NESTED_COMMENT("6119", HttpStatus.BAD_REQUEST, "대댓글에는 추가 댓글을 달 수 없습니다."),
 	NOT_AUTHORIZED_COMMENT_MODIFICATION("6120", HttpStatus.FORBIDDEN, "댓글 수정 권한이 없습니다."),
 	INVALID_CATEGORY("6121", HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 입니다."),
+	ALREADY_REGISTERED_MEMBER("6130", HttpStatus.CONFLICT, "이미 가입된 회원입니다"),
+	NOT_ADD_SELF_RELATION("6131", HttpStatus.BAD_REQUEST, "본인 사주는 추가 할 수 없습니다."),
+	NOT_DELETE_SELF_RELATION("6132", HttpStatus.BAD_REQUEST, "본인 사주는 삭제 할 수 없습니다."),
+	NOT_EXIST_FORTUNE_USER_INFO("6133", HttpStatus.BAD_REQUEST, "해당 사주 정보를 찾을 수 없습니다."),
+	NOT_EXIST_USER_RELATION("6134", HttpStatus.BAD_REQUEST, "해당 사주 관계를 찾을 수 없습니다."),
+	NOT_CHANGED_RELATION("6135", HttpStatus.BAD_REQUEST, "본인 관계는 수정할 수 없습니다."),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
@@ -68,6 +74,7 @@ public enum ResponseCode implements Codable {
 	MIN_VALUE("6221", HttpStatus.BAD_REQUEST, "최소 값 기준치 미달"),
 	MAX_VALUE("6222", HttpStatus.BAD_REQUEST, "최대 값 기준치 초과"),
 	DUPLICATED_VALUE("6223", HttpStatus.CONFLICT, "이미 사용 중인 닉네임 입니다."),
+	NOT_EXIST_TENGAN("6224", HttpStatus.BAD_REQUEST, "십간(十干)이 존재하지 않습니다."),
 
 	// 유효성 검사 오류 (값: 63xx)
 	EMPTY_PARAM_BLANK_OR_NULL("6300", HttpStatus.BAD_REQUEST, "Request Parameter 빈 값, NULL 또는 공백"),

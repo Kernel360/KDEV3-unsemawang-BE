@@ -48,7 +48,7 @@ public class S3Service {
 		long part4 = (id / 10000) % 10000;        // 네 번째 4자리
 		long part5 = id % 10000;                  // 다섯 번째 4자리
 
-		return String.format("/%d/%04d/%04d/%04d/%04d/", part1, part2, part3, part4, part5);
+		return String.format("%d/%04d/%04d/%04d/%04d/", part1, part2, part3, part4, part5);
 	}
 
 	/**
@@ -61,11 +61,11 @@ public class S3Service {
 
 		String structuredReferenceId;
 		if (fileRequest.referenceStringId() == null) {
-			structuredReferenceId = createFolderStructure(fileRequest.referenceId());
+			structuredReferenceId = createFolderStructure(fileRequest.referenceId()) + UUID.randomUUID();
 		} else {
 			structuredReferenceId = fileRequest.referenceStringId();
 		}
-		String keyName = fileRequest.referenceType() + structuredReferenceId + UUID.randomUUID();
+		String keyName = fileRequest.referenceType() + "/" + structuredReferenceId;
 
 		try (InputStream inputStream = file.getInputStream()) {
 			RequestBody requestBody = RequestBody.fromInputStream(inputStream, file.getSize());
@@ -108,7 +108,7 @@ public class S3Service {
 			.build();
 
 		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-			.signatureDuration(Duration.ofMinutes(10))  // URL duration
+			.signatureDuration(Duration.ofHours(1))  // URL duration
 			.getObjectRequest(objectRequest)
 			.build();
 
