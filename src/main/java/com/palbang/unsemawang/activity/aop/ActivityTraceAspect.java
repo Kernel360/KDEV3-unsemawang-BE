@@ -33,10 +33,19 @@ public class ActivityTraceAspect {
 			return;
 		}
 
-		String memberId = ((CustomOAuth2User)auth.getPrincipal()).getId();
+		Object principal = auth.getPrincipal(); // Principal 확인
 
-		// 레디스 활동 리스트 갱신
-		ActiveMember savedActiveMember = activeMemberService.saveAndUpdateActiveMember(memberId);
-		log.info("저장된 회원 활동 정보: {}", savedActiveMember);
+		String memberId;
+		if (principal instanceof CustomOAuth2User) {
+			memberId = ((CustomOAuth2User)principal).getId();
+		} else if (principal instanceof String) {
+			memberId = (String)principal; // Principal이 String인 경우
+		} else {
+			log.error("예상치 못한 Principal 타입: {}", principal.getClass().getName());
+			return;
+		}
+
+		log.info("회원 활동 기록: {}", memberId);
+		activeMemberService.saveAndUpdateActiveMember(memberId);
 	}
 }

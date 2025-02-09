@@ -6,8 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.palbang.unsemawang.jwt.JWTFilter;
 import com.palbang.unsemawang.jwt.JWTUtil;
@@ -31,47 +31,71 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		//csrf disable
-
 		http
-			//.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.csrf((auth) -> auth.disable());
-
-		//기본 Form 로그인 방식 disable
-		http
-			.formLogin((auth) -> auth.disable());
-
-		//HTTP Basic 인증 방식 disable
-		http
-			.httpBasic((auth) -> auth.disable());
-
-		//JWTFilter 추가
-		http
-			.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
-
-		//oauth2
-		//세션 설정 : STATELESS
-		http
-			.sessionManagement((session) -> session
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.csrf(csrf -> csrf.disable())  // CSRF 비활성화
+			.formLogin(formLogin -> formLogin.disable()) // 기본 로그인 방식 비활성화
+			.httpBasic(httpBasic -> httpBasic.disable()) // HTTP Basic 인증 비활성화
+			.sessionManagement(
+				session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용을 위해 세션 관리 비활성화
+			.addFilterBefore(new JWTFilter(jwtUtil),
+				UsernamePasswordAuthenticationFilter.class) // ✅ JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
 			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
-					.userService(customOAuth2UserService)))
+				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 				.successHandler(customSuccessHandler)
 			);
 
-		//경로별 인가 작업
-		//        http
-		//                .authorizeHttpRequests((auth) -> auth
-		//                        .requestMatchers("/").permitAll()
-		//                        .anyRequest().authenticated());
-
+		// ✅ 인증이 필요한 엔드포인트 지정
 		http.authorizeHttpRequests(auth -> auth
 			.requestMatchers("/favicon.ico").permitAll()
+			.requestMatchers("/chat/rooms/**").authenticated()  // ✅ 채팅 관련 API는 JWT 인증 필요
 			.anyRequest().permitAll());
 
 		return http.build();
 	}
+
+	// @Bean
+	// public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	// 	//csrf disable
+	//
+	// 	http
+	// 		//.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+	// 		.csrf((auth) -> auth.disable());
+	//
+	// 	//기본 Form 로그인 방식 disable
+	// 	http
+	// 		.formLogin((auth) -> auth.disable());
+	//
+	// 	//HTTP Basic 인증 방식 disable
+	// 	http
+	// 		.httpBasic((auth) -> auth.disable());
+	//
+	// 	//JWTFilter 추가
+	// 	http
+	// 		.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+	//
+	// 	//oauth2
+	// 	//세션 설정 : STATELESS
+	// 	http
+	// 		.sessionManagement((session) -> session
+	// 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	// 		.oauth2Login(oauth2 -> oauth2
+	// 			.userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
+	// 				.userService(customOAuth2UserService)))
+	// 			.successHandler(customSuccessHandler)
+	// 		);
+	//
+	// 	//경로별 인가 작업
+	// 	//        http
+	// 	//                .authorizeHttpRequests((auth) -> auth
+	// 	//                        .requestMatchers("/").permitAll()
+	// 	//                        .anyRequest().authenticated());
+	//
+	// 	http.authorizeHttpRequests(auth -> auth
+	// 		.requestMatchers("/favicon.ico").permitAll()
+	// 		.anyRequest().permitAll());
+	//
+	// 	return http.build();
+	// }
 
 	/**
 	 * 패스워드 암호화를 위한 BCryptPasswordEncoder Bean 등록

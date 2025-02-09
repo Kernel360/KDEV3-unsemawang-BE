@@ -1,18 +1,19 @@
 package com.palbang.unsemawang.chat.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.palbang.unsemawang.chat.entity.ChatMessage;
+import com.palbang.unsemawang.chat.entity.ChatRoom;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-	// 사용자 ID로 메시지 검색
-	List<ChatMessage> findBySender(String sender);
+	List<ChatMessage> findByChatRoomOrderByTimestampAsc(ChatRoom chatRoom);
 
-	// 특정 메시지 유형으로 검색
-	List<ChatMessage> findByType(String type);
+	// 채팅방의 마지막 메시지를 가져오는 메서드 추가
+	Optional<ChatMessage> findTopByChatRoomOrderByTimestampDesc(ChatRoom chatRoom);
 }

@@ -1,14 +1,22 @@
 package com.palbang.unsemawang.chat.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.palbang.unsemawang.chat.entity.MessageStatus;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatMessageDto {
-	private String sender;    // 발신자 ID
-	private String content;   // 메시지 내용
-	private String type;      // 메시지 타입 (CHAT, JOIN, LEAVE 등)
+	private Long chatRoomId;  // ✅ chatRoom 객체 대신 ID만 저장
+	private String senderId;
+	private String content;
+	private MessageStatus status;
+	private Long timestamp;
 }
