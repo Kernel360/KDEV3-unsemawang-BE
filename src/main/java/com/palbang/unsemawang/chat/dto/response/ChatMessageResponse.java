@@ -2,7 +2,6 @@ package com.palbang.unsemawang.chat.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palbang.unsemawang.chat.constant.SenderType;
 
@@ -25,7 +24,7 @@ public class ChatMessageResponse {
 	private SenderType senderType;
 
 	@Schema(required = false, description = "보낸 사람 ID")
-	@JsonAlias("userId")
+	@JsonProperty("userId")
 	private String senderId;
 
 	@Schema(required = false, description = "보낸 사람 닉네임")
