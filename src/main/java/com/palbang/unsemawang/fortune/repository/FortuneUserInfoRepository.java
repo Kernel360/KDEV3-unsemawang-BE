@@ -22,6 +22,8 @@ public interface FortuneUserInfoRepository extends JpaRepository<FortuneUserInfo
 		""")
 	List<FortuneUserInfo> findByMemberIdAndRelation(@Param("id") String id, @Param("relationName") String relationName);
 
+	boolean existsByMemberIdAndRelationId(String memberId, Long relationId);
+
 	// FortuneUserInfo에서 dayGan 조회
 	@Query("SELECT f FROM FortuneUserInfo f WHERE f.member.id = :memberId AND f.relation.id = 1")
 	Optional<FortuneUserInfo> findByMemberIdRelationIdIsOne(String memberId);

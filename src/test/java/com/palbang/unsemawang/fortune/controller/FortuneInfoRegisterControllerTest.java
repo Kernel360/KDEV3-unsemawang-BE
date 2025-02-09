@@ -21,7 +21,7 @@ import com.palbang.unsemawang.fortune.dto.response.FortuneInfoRegisterResponseDt
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 
 @WebMvcTest(
-	controllers = FortuneInfoRegisterController.class
+	controllers = FortuneUserInfoRegisterController.class
 )
 @WithCustomMockUser
 class FortuneInfoRegisterControllerTest {
