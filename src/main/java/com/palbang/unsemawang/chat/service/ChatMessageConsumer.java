@@ -1,8 +1,14 @@
 package com.palbang.unsemawang.chat.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+import org.hibernate.Hibernate;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
@@ -11,6 +17,8 @@ import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
+import com.palbang.unsemawang.member.entity.Member;
+import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,29 +28,38 @@ public class ChatMessageConsumer {
 
 	private final ChatMessageRepository chatMessageRepository;
 	private final ChatRoomRepository chatRoomRepository;
+	private final MemberRepository memberRepository;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ObjectMapper objectMapper;
 
-	public ChatMessageConsumer(ChatMessageRepository chatMessageRepository,
+	public ChatMessageConsumer(
+		ChatMessageRepository chatMessageRepository,
 		ChatRoomRepository chatRoomRepository,
+		MemberRepository memberRepository,
 		SimpMessagingTemplate messagingTemplate,
 		ObjectMapper objectMapper) {
 		this.chatMessageRepository = chatMessageRepository;
 		this.chatRoomRepository = chatRoomRepository;
+		this.memberRepository = memberRepository;
 		this.messagingTemplate = messagingTemplate;
 		this.objectMapper = objectMapper;
 	}
 
 	@RabbitListener(queues = "chat.queue")
+	@Transactional // ✅ 트랜잭션 적용
 	public void consumeMessage(String messageJson) {
 		try {
+			log.info("📩 Received message from RabbitMQ: {}", messageJson);
 			ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
 
-			// ✅ chatRoomId 확인 (senderId 검증 제거)
-			if (chatMessageDto.getChatRoomId() == null) {
-				log.error("❌ chatRoomId가 없는 메시지는 처리 불가! {}", chatMessageDto);
+			if (chatMessageDto.getSenderId() == null) {
+				log.error("❌ SenderId가 없는 메시지는 처리 불가! {}", chatMessageDto);
 				return;
 			}
+
+			Member sender = memberRepository.findById(chatMessageDto.getSenderId())
+				.orElseThrow(
+					() -> new IllegalStateException("❌ Sender를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
 
 			ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
 				.orElseThrow(() -> new IllegalStateException(
@@ -50,21 +67,42 @@ public class ChatMessageConsumer {
 
 			ChatMessage chatMessage = ChatMessage.builder()
 				.chatRoom(chatRoom)
+				.sender(sender)
 				.content(chatMessageDto.getContent())
 				.status(MessageStatus.RECEIVED)
-				.timestamp(
-					chatMessageDto.getTimestamp() != null ? chatMessageDto.getTimestamp() : System.currentTimeMillis())
+				.timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()),
+					ZoneId.systemDefault()))
 				.build();
 
-			chatMessageRepository.save(chatMessage);
-			log.info("✅ Chat message saved: {}", chatMessage);
+			// ✅ sender.nickname을 강제 로딩하여 Hibernate Proxy 문제 방지
+			Hibernate.initialize(sender.getFavorites());
 
-			messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), chatMessageDto);
-			log.info("📩 Forwarded WebSocket message: {}", chatMessageDto);
+			chatMessageRepository.save(chatMessage);
+
+			// ✅ WebSocket 메시지 전송 시 timestamp 변환
+			ChatMessageDto responseMessage = convertToDto(chatMessage);
+
+			messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
+			log.info("📩 Forwarded WebSocket message: {}", responseMessage);
 
 		} catch (Exception e) {
 			log.error("❌ 메시지 처리 실패", e);
 		}
+	}
+
+	// ✅ Lazy Loading 해결 후 DTO 변환
+	private ChatMessageDto convertToDto(ChatMessage message) {
+		Hibernate.initialize(message.getSender());
+
+		return ChatMessageDto.builder()
+			.chatRoomId(message.getChatRoom().getId())
+			.senderId(message.getSender().getId())
+			.nickname(message.getSender().getNickname())
+			.profileImageUrl(message.getSender().getProfileUrl())
+			.content(message.getContent())
+			.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+			.status(message.getStatus())
+			.build();
 	}
 }
 

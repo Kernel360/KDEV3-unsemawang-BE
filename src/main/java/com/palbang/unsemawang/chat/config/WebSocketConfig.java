@@ -34,19 +34,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		registry.addEndpoint("/ws")
 			.setAllowedOriginPatterns("*")
 			.withSockJS();
+		log.info("✅ WebSocket Endpoint Registered: /ws");
 	}
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
 		config.enableSimpleBroker("/topic"); // ✅ 구독 엔드포인트
 		config.setApplicationDestinationPrefixes("/app"); // ✅ 메시지 전송 경로 설정
+		log.info("✅ WebSocket Message Broker Configured.");
 	}
 
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
-		// ✅ Query Parameter 또는 Native Headers에서 token 가져오기
 		String token = headerAccessor.getFirstNativeHeader("Authorization");
 
 		if (token == null) {
@@ -54,7 +54,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			return;
 		}
 
-		// ✅ JWT에서 userId 추출
 		String userId = extractUserIdFromJwt(token);
 		if (userId != null) {
 			redisTemplate.opsForValue().set("online:" + userId, "true");

@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.chat.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.palbang.unsemawang.member.entity.Member;
@@ -42,7 +43,7 @@ public class ChatMessage implements Serializable {
 	@JoinColumn(name = "chat_room_id", nullable = false)
 	private ChatRoom chatRoom; // ✅ chatRoomId 필드 제거
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "sender_id", nullable = false)
 	private Member sender;
 
@@ -54,5 +55,5 @@ public class ChatMessage implements Serializable {
 	private MessageStatus status;
 
 	@Column(nullable = false)
-	private Long timestamp;
+	private LocalDateTime timestamp;
 }
