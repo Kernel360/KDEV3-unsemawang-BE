@@ -86,7 +86,7 @@ public class ChatRoomController {
 
 	@GetMapping("/user-status/{userId}")
 	public ResponseEntity<Boolean> isUserOnline(@PathVariable String userId) {
-		Boolean isOnline = redisTemplate.hasKey("online:" + userId);
-		return ResponseEntity.ok(isOnline);
+		String isOnline = redisTemplate.opsForValue().get("online:" + userId);
+		return ResponseEntity.ok(isOnline != null); // ✅ 키가 있으면 true, 없으면 false 반환
 	}
 }

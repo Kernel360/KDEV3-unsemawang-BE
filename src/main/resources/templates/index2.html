@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .chat-container {
+            width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .messages {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #e0e0e0;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .input-container button {
+            padding: 10px 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>Chat Room</h2>
+
+    <label>JWT Token:</label>
+    <input type="text" id="tokenInput" placeholder="Enter JWT Token">
+
+    <label>Receiver ID:</label>
+    <input type="text" id="receiverIdInput" placeholder="Enter Receiver ID">
+
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+
+    <div id="status">Disconnected</div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="Type a message">
+        <button id="sendMessageButton">Send</button>
+    </div>
+</div>
+<script>
+    let stompClient = null;
+    let chatRoomId = null;
+    let senderId = null;
+    let nickname = null;
+    let profileImageUrl = null;
+
+    function extractUserInfo(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const decoded = JSON.parse(atob(base64));
+            return {
+                senderId: decoded.id,
+                nickname: decoded.nickname || "Unknown",
+                profileImageUrl: decoded.profileImageUrl || ""
+            };
+        } catch (e) {
+            console.error("❌ Failed to extract user info from JWT:", e);
+            return null;
+        }
+    }
+
+    async function connect() {
+        const token = document.getElementById("tokenInput").value.trim();
+        const receiverId = document.getElementById("receiverIdInput").value.trim();
+
+        if (!token || !receiverId) {
+            alert("Please enter JWT Token and Receiver ID!");
+            return;
+        }
+
+        const userInfo = extractUserInfo(token);
+        if (!userInfo) {
+            alert("Invalid JWT Token! Cannot extract user info.");
+            return;
+        }
+
+        senderId = userInfo.senderId;
+        nickname = userInfo.nickname;
+        profileImageUrl = userInfo.profileImageUrl;
+
+        try {
+            const response = await fetch("/chat/rooms", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({receiverId})
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create or fetch chat room.");
+            }
+
+            const data = await response.json();
+            chatRoomId = data.chatRoomId;
+            console.log("✅ Chat Room ID:", chatRoomId);
+
+            const socket = new SockJS(`http://localhost:8080/ws?token=${token}`);
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log("✅ Connected to WebSocket:", frame);
+                document.getElementById("status").innerText = "Connected to WebSocket";
+
+                if (stompClient.subscription) {
+                    stompClient.unsubscribe(stompClient.subscription);
+                }
+
+                stompClient.subscription = stompClient.subscribe(`/topic/chat/${chatRoomId}`, function (message) {
+                    console.log("📩 Received message from WebSocket:", message);
+                    onMessageReceived(JSON.parse(message.body));
+                });
+
+                console.log("📢 Subscribed to WebSocket topic:", `/topic/chat/${chatRoomId}`);
+
+                fetchChatHistory(token);
+            }, function (error) {
+                console.error("❌ WebSocket connection error:", error);
+                document.getElementById("status").innerText = "Connection Error!";
+            });
+
+        } catch (error) {
+            console.error("❌ Error creating chat room:", error);
+            alert("Error: " + error.message);
+        }
+    }
+
+    async function fetchChatHistory(token) {
+        try {
+            console.log("📢 Fetching chat history...");
+            const response = await fetch(`/chat/${chatRoomId}/history`, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch chat history.");
+            }
+
+            const messages = await response.json();
+
+            if (!Array.isArray(messages) || messages.length === 0) {
+                console.warn("⚠️ No chat history available.");
+                return;
+            }
+
+            console.log("✅ 채팅 내역 불러오기 성공:", messages);
+
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML = ""; // 이전 채팅 기록 지우기 (중복 방지)
+
+            messages.forEach((message) => {
+                onMessageReceived(message);
+            });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // 최신 메시지로 자동 스크롤
+        } catch (error) {
+            console.error("❌ Error fetching chat history:", error);
+        }
+    }
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const messageContent = messageInput.value.trim();
+
+        if (!messageContent || !stompClient || !chatRoomId) {
+            console.error("❌ Cannot send message - WebSocket not connected or chatRoomId missing.");
+            alert("Cannot send message. Please connect to a chat room first.");
+            return;
+        }
+
+        const chatMessage = {
+            chatRoomId: chatRoomId,
+            senderId: senderId,
+            nickname: nickname,
+            profileImageUrl: profileImageUrl,
+            content: messageContent,
+            timestamp: Date.now(),
+            senderType: "SELF" // ✅ 본인이 보낸 메시지
+        };
+
+        console.log("📤 Preparing to send message:", chatMessage);
+
+        try {
+            stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(chatMessage));
+            console.log("✅ Message sent through WebSocket.");
+        } catch (error) {
+            console.error("❌ Failed to send WebSocket message:", error);
+        }
+
+        messageInput.value = "";
+    }
+
+    function onMessageReceived(message) {
+        console.log("📩 WebSocket 메시지 수신됨:", message);
+
+        try {
+            if (!message || !message.content) {
+                console.warn("⚠️ 유효하지 않은 메시지 수신됨:", message);
+                return;
+            }
+
+            const messagesDiv = document.getElementById("messages");
+
+            const messageDiv = document.createElement("div");
+            messageDiv.innerText = `[${new Date(message.timestamp).toLocaleTimeString()}] ${message.nickname}: ${message.content}`;
+
+            // ✅ senderType을 활용하여 본인/상대 메시지 스타일 변경
+            if (message.senderId === senderId) {
+                messageDiv.style.textAlign = "right";  // 본인 메시지 오른쪽 정렬
+                messageDiv.style.backgroundColor = "#D1ECF1"; // 파란색 배경
+            } else {
+                messageDiv.style.textAlign = "left";   // 상대방 메시지 왼쪽 정렬
+                messageDiv.style.backgroundColor = "#F8D7DA"; // 빨간색 배경
+            }
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // 최신 메시지로 자동 스크롤
+        } catch (e) {
+            console.error("❌ WebSocket 메시지 파싱 오류:", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("sendMessageButton").addEventListener("click", sendMessage);
+    });
+
+</script>
+
+</body>
+</html>

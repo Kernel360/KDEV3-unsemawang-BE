@@ -20,6 +20,7 @@ import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
@@ -37,6 +38,7 @@ public class ChatRoomService {
 	private final ChatMessageRepository chatMessageRepository;
 	private final MemberRepository memberRepository;
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
+	private final FileService fileService;
 
 	/**
 	 * 사용자의 채팅방 목록을 조회
@@ -115,12 +117,18 @@ public class ChatRoomService {
 
 				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
 
+				// ✅ 프로필 이미지 URL 가져오기
+				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
+
+				if (profileImageUrl == null || profileImageUrl.isEmpty()) {
+					profileImageUrl = "https://cdn.example.com/default-profile.png"; // 기본 프로필 이미지 URL
+				}
+
 				ChatMessageDto dto = ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())
 					.senderId(message.getSender().getId())
 					.nickname(message.getSender().getNickname() != null ? message.getSender().getNickname() : "Unknown")
-					.profileImageUrl(
-						message.getSender().getProfileUrl() != null ? message.getSender().getProfileUrl() : "")
+					.profileImageUrl(profileImageUrl) // ✅ 프로필 이미지 추가
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
