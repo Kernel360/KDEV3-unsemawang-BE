@@ -50,9 +50,6 @@
 <div class="chat-container">
     <h2>Chat Room</h2>
 
-    <label>JWT Token:</label>
-    <input type="text" id="tokenInput" placeholder="Enter your JWT Token">
-
     <label>Receiver ID:</label>
     <input type="text" id="receiverIdInput" placeholder="Enter Receiver ID">
 
@@ -72,42 +69,20 @@
 <script>
     let stompClient = null;
     let chatRoomId = null;
-    let senderId = null;
-
-    // ✅ JWT에서 senderId 추출 (디코딩 필요)
-    function extractSenderId(token) {
-        try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const decoded = JSON.parse(atob(base64));
-            return decoded.id; // senderId는 JWT의 "id" 필드에 저장됨
-        } catch (e) {
-            console.error("❌ Failed to extract senderId from JWT:", e);
-            return null;
-        }
-    }
 
     async function connect() {
-        const token = document.getElementById("tokenInput").value.trim();
         const receiverId = document.getElementById("receiverIdInput").value.trim();
 
-        if (!token || !receiverId) {
-            alert("Please enter JWT Token and Receiver ID!");
-            return;
-        }
-
-        senderId = extractSenderId(token); // ✅ JWT에서 senderId 추출
-        if (!senderId) {
-            alert("Invalid JWT Token! Cannot extract senderId.");
+        if (!receiverId) {
+            alert("Please enter Receiver ID!");
             return;
         }
 
         try {
-            // ✅ 채팅방 생성 또는 조회
+            // ✅ 채팅방 생성 또는 조회 (JWT 필요 없음)
             const response = await fetch("/chat/rooms", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + token,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({receiverId})
@@ -121,8 +96,8 @@
             chatRoomId = data.chatRoomId;
             console.log("✅ Chat Room ID:", chatRoomId);
 
-            // ✅ WebSocket 연결 (Query Parameter에 토큰 추가)
-            const socket = new SockJS(`http://localhost:8080/ws?token=${token}`);
+            // ✅ WebSocket 연결 (JWT 인증 X)
+            const socket = new SockJS("http://localhost:8080/ws");
             stompClient = Stomp.over(socket);
 
             stompClient.connect({}, function (frame) {
@@ -134,7 +109,7 @@
                     onMessageReceived(message);
                 });
 
-                fetchChatHistory(token);
+                fetchChatHistory();
             }, function (error) {
                 console.error("❌ WebSocket connection error:", error);
                 document.getElementById("status").innerText = "Connection Error!";
@@ -147,12 +122,11 @@
 
 
     // ✅ 채팅 내역 불러오기
-    async function fetchChatHistory(token) {
+    async function fetchChatHistory() {
         try {
             const response = await fetch(`/chat/${chatRoomId}/history`, {
                 method: "GET",
                 headers: {
-                    "Authorization": "Bearer " + token,
                     "Content-Type": "application/json"
                 }
             });
@@ -177,7 +151,7 @@
         }
     }
 
-    // ✅ 메시지 전송
+    // ✅ 메시지 전송 (senderId 제거)
     function sendMessage() {
         const messageInput = document.getElementById("messageInput");
         const messageContent = messageInput.value.trim();
@@ -189,16 +163,16 @@
 
         const chatMessage = {
             chatRoomId: chatRoomId,
-            senderId: senderId, // ✅ senderId 추가
+            senderId: senderId, // ✅ senderId 유지
             content: messageContent,
-            type: "CHAT",
             timestamp: Date.now()
         };
 
         console.log("📤 Sending message:", chatMessage);
-        stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(chatMessage));
+        stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(chatMessage)); // ✅ "/app" 추가
         messageInput.value = "";
     }
+
 
     // ✅ 메시지 수신
     function onMessageReceived(payload) {

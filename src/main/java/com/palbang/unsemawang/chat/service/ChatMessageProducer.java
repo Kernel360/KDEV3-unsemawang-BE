@@ -22,25 +22,23 @@ public class ChatMessageProducer {
 
 	public void sendMessageToQueue(ChatMessageDto chatMessage) {
 		try {
-			// ✅ chatRoomId와 senderId가 null인지 확인
-			if (chatMessage.getChatRoomId() == null || chatMessage.getSenderId() == null) {
-				log.error("❌ ChatMessage contains null values! chatRoomId={}, senderId={}",
-					chatMessage.getChatRoomId(), chatMessage.getSenderId());
+			// ✅ chatRoomId가 없으면 전송하지 않음
+			if (chatMessage.getChatRoomId() == null) {
+				log.error("❌ chatRoomId가 없는 메시지는 전송 불가: {}", chatMessage);
 				return;
 			}
 
-			// ✅ timestamp가 없으면 현재 시간으로 설정
+			// ✅ timestamp가 없으면 자동 설정
 			if (chatMessage.getTimestamp() == null) {
 				chatMessage.setTimestamp(System.currentTimeMillis());
 			}
 
-			// ✅ JSON 변환 후 RabbitMQ 전송
 			String messageJson = objectMapper.writeValueAsString(chatMessage);
 			log.info("📩 Sending message to RabbitMQ: {}", messageJson);
 			rabbitTemplate.convertAndSend("chat.exchange", "chat.routing.key", messageJson);
-
 		} catch (Exception e) {
 			log.error("❌ 메시지 직렬화 실패", e);
 		}
 	}
 }
+
