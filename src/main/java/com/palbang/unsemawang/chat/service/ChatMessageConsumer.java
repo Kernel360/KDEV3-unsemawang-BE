@@ -17,6 +17,7 @@ import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
+import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
@@ -31,18 +32,20 @@ public class ChatMessageConsumer {
 	private final MemberRepository memberRepository;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ObjectMapper objectMapper;
+	private final FileService fileService;
 
 	public ChatMessageConsumer(
 		ChatMessageRepository chatMessageRepository,
 		ChatRoomRepository chatRoomRepository,
 		MemberRepository memberRepository,
 		SimpMessagingTemplate messagingTemplate,
-		ObjectMapper objectMapper) {
+		ObjectMapper objectMapper, FileService fileService) {
 		this.chatMessageRepository = chatMessageRepository;
 		this.chatRoomRepository = chatRoomRepository;
 		this.memberRepository = memberRepository;
 		this.messagingTemplate = messagingTemplate;
 		this.objectMapper = objectMapper;
+		this.fileService = fileService;
 	}
 
 	@RabbitListener(queues = "chat.queue")
@@ -94,15 +97,23 @@ public class ChatMessageConsumer {
 	private ChatMessageDto convertToDto(ChatMessage message) {
 		Hibernate.initialize(message.getSender());
 
+		// ✅ 프로필 이미지 URL 가져오기
+		String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
+
+		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
+			profileImageUrl = "https://cdn.example.com/default-profile.png"; // 기본 프로필 이미지 URL
+		}
+
 		return ChatMessageDto.builder()
 			.chatRoomId(message.getChatRoom().getId())
 			.senderId(message.getSender().getId())
 			.nickname(message.getSender().getNickname())
-			.profileImageUrl(message.getSender().getProfileUrl())
+			.profileImageUrl(profileImageUrl) // ✅ 백엔드에서도 NULL 방지
 			.content(message.getContent())
 			.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 			.status(message.getStatus())
 			.build();
 	}
+
 }
 
