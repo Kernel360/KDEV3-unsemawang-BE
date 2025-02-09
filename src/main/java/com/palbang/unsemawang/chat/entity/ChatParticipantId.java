@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatParticipantId implements Serializable {
-	private Long chatRoomId;
-	private String participantId;
+	private Long chatRoom;
+	private String participant;
 }

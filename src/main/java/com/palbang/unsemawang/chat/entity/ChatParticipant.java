@@ -28,13 +28,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "chat_participant")
 public class ChatParticipant extends BaseEntity {
 	@Id
-	@Column(name = "chat_room_id")
-	private Long chatRoomId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chat_room_id")
+	private ChatRoom chatRoom;
 
 	@Id
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "participant_id")
-	private Member participantId;
+	private Member participant;
 
 	@Column(name = "is_exit", nullable = false)
 	@Builder.Default
