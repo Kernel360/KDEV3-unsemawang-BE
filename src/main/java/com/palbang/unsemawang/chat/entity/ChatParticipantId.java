@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChatParticipantId implements Serializable {
 	private Long chatRoomId;
-	private Long participantId;
+	private String participantId;
 }

@@ -3,11 +3,15 @@ package com.palbang.unsemawang.chat.entity;
 import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
+import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,8 +32,9 @@ public class ChatParticipant extends BaseEntity {
 	private Long chatRoomId;
 
 	@Id
-	@Column(name = "participant_id")
-	private Long participantId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "participant_id")
+	private Member participantId;
 
 	@Column(name = "is_exit", nullable = false)
 	@Builder.Default
