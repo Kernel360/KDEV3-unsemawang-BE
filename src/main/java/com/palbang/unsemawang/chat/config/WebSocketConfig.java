@@ -1,12 +1,12 @@
 package com.palbang.unsemawang.chat.config;
 
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -36,46 +36,35 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.withSockJS();
 	}
 
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry config) {
+		config.enableSimpleBroker("/topic"); // ✅ 구독 엔드포인트
+		config.setApplicationDestinationPrefixes("/app"); // ✅ 메시지 전송 경로 설정
+	}
+
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
-		// ✅ 세션 속성이 없으면 새로 생성
-		if (headerAccessor.getSessionAttributes() == null) {
-			log.warn("⚠️ WebSocket 세션 속성이 존재하지 않음! 새로 생성합니다.");
-			headerAccessor.setSessionAttributes(new HashMap<>()); // 새 HashMap으로 설정
-		}
 
 		// ✅ Query Parameter 또는 Native Headers에서 token 가져오기
 		String token = headerAccessor.getFirstNativeHeader("Authorization");
 
 		if (token == null) {
-			log.error("❌ WebSocket 연결 시 Authorization 헤더가 없음!");
+			log.warn("⚠️ WebSocket 연결 시 Authorization 헤더가 없음");
 			return;
 		}
 
 		// ✅ JWT에서 userId 추출
 		String userId = extractUserIdFromJwt(token);
-
 		if (userId != null) {
-			// ✅ WebSocket 세션에 userId 저장
-			headerAccessor.getSessionAttributes().put("userId", userId);
 			redisTemplate.opsForValue().set("online:" + userId, "true");
 			log.info("✅ WebSocket 연결 성공! userId={}", userId);
-		} else {
-			log.error("❌ JWT에서 userId를 추출할 수 없음");
 		}
 	}
 
 	@EventListener
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
-		if (headerAccessor.getSessionAttributes() == null) {
-			log.warn("⚠️ WebSocket 세션 속성이 존재하지 않음. 종료 프로세스 생략.");
-			return;
-		}
-
 		String userId = (String)headerAccessor.getSessionAttributes().get("userId");
 
 		if (userId != null) {
@@ -84,7 +73,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		}
 	}
 
-	// ✅ JWT에서 userId 추출하는 메서드
 	private String extractUserIdFromJwt(String jwtToken) {
 		try {
 			if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
@@ -93,13 +81,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 				String base64 = base64Url.replace('-', '+').replace('_', '/');
 				String decoded = new String(Base64.getDecoder().decode(base64));
 
-				// ✅ `Jackson ObjectMapper` 사용하여 JSON 파싱
 				ObjectMapper objectMapper = new ObjectMapper();
 				Map<String, Object> jsonMap = objectMapper.readValue(decoded, Map.class);
-
-				return jsonMap.get("id").toString(); // ✅ `id` 필드 추출
-			} else {
-				log.error("❌ JWT 토큰 형식이 올바르지 않음: {}", jwtToken);
+				return jsonMap.get("id").toString();
 			}
 		} catch (Exception e) {
 			log.error("❌ JWT 파싱 중 오류 발생: {}", e.getMessage());
