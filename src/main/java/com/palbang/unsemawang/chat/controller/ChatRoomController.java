@@ -57,9 +57,9 @@ public class ChatRoomController {
 		return ResponseEntity.ok(chatRooms);
 	}
 
-	// 추가된 API - 기존 ChatRoomReadController 기능 포함
-	@GetMapping("/{chatRoomId}/history")
-	public ResponseEntity<List<ChatMessageDto>> readChatHistory(
+	/** ✅ 채팅방 입장: 기존 채팅 내역 조회 + 안 읽은 메시지 읽음 처리 */
+	@GetMapping("/{chatRoomId}/enter")
+	public ResponseEntity<List<ChatMessageDto>> enterChatRoom(
 		@AuthenticationPrincipal CustomOAuth2User user,
 		@PathVariable("chatRoomId") Long chatRoomId
 	) {
@@ -67,7 +67,12 @@ public class ChatRoomController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
+		// 1️⃣ 기존 채팅 내역 불러오기
 		List<ChatMessageDto> chatHistory = chatRoomService.getChatHistory(chatRoomId, user.getId());
+
+		// 2️⃣ 안 읽은 메시지를 모두 READ로 변경
+		chatRoomService.markMessagesAsRead(chatRoomId, user.getId());
+
 		return ResponseEntity.ok(chatHistory);
 	}
 

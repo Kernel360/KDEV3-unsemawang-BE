@@ -14,7 +14,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ChatRoomDto {
-
 	private Long chatRoomId;
 	private String userId;
 	private String nickname;
@@ -23,31 +22,34 @@ public class ChatRoomDto {
 	private LocalDateTime lastChatTime;
 	private String sex;
 	private String five;
-	private int unreadCount; // ✅ 필드 추가
+	private int unreadCount;
+	private boolean isReadOnly;  // ✅ 읽기 전용 여부 추가
 
 	public static ChatRoomDto fromEntity(ChatRoom chatRoom, ChatMessage lastMessage, Member targetUser,
-		String fiveElement) {
-		if (targetUser == null) {
-			throw new IllegalStateException("❌ ChatRoomDto 변환 중 대상 사용자가 null입니다. " +
-				"chatRoomId=" + chatRoom.getId() + ", receiverId=null (확인 필요)");
-		}
+		String fiveElement, int unreadCount) {
 
-		// ✅ timestamp(Long)을 LocalDateTime으로 변환
-		LocalDateTime lastMessageTime = lastMessage != null
-			? lastMessage.getTimestamp()  // ✅ LocalDateTime을 직접 사용
-			: chatRoom.getCreatedAt();
+		// ✅ 현재 채팅방에 남아 있는 사용자가 혼자이면 isReadOnly = true
+		boolean isReadOnly = (chatRoom.getUser1() == null || chatRoom.getUser2() == null);
+
+		String userId = (targetUser != null) ? targetUser.getId() : "unknown";
+		String nickname = (targetUser != null) ? targetUser.getNickname() : "알 수 없음";
+		String profileUrl =
+			(targetUser != null) ? targetUser.getProfileUrl() : "https://cdn.example.com/default-profile.png";
+		char gender = (targetUser != null) ? targetUser.getGender() : 'N';
+
+		LocalDateTime lastMessageTime = lastMessage != null ? lastMessage.getTimestamp() : chatRoom.getCreatedAt();
 
 		return ChatRoomDto.builder()
 			.chatRoomId(chatRoom.getId())
-			.userId(targetUser.getId())
-			.nickname(targetUser.getNickname())
-			.profileImageUrl(targetUser.getProfileUrl())
+			.userId(userId)
+			.nickname(nickname)
+			.profileImageUrl(profileUrl)
 			.lastChat(lastMessage != null ? lastMessage.getContent() : "")
-			.lastChatTime(lastMessageTime) // ✅ LocalDateTime 사용
-			.sex(targetUser.getGender() == 'M' ? "남" : "여")
+			.lastChatTime(lastMessageTime)
+			.sex(gender == 'M' ? "남" : "여")
 			.five(fiveElement)
-			.unreadCount(0) // 기본 값 설정 (ChatRoom에 unreadCount 필드 추가 필요)
+			.unreadCount(unreadCount)
+			.isReadOnly(isReadOnly)  // ✅ 읽기 전용 여부 설정
 			.build();
 	}
-
 }

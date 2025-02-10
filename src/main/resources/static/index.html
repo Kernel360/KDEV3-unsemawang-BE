@@ -80,6 +80,13 @@
 
     <hr>
 
+    <h3>Create New Chat Room</h3>
+    <label>Receiver ID:</label>
+    <input type="text" id="newReceiverIdInput" placeholder="Enter Receiver ID">
+    <button onclick="createChatRoom()">Create Chat Room</button>
+
+    <hr>
+
     <h3>Participating Chat Rooms</h3>
     <select id="chatRoomSelect" onchange="joinChatRoom()">
         <option value="">Select a Chat Room</option>
@@ -170,6 +177,42 @@
         }
     }
 
+    async function createChatRoom() {
+        const token = document.getElementById("tokenInput").value.trim();
+        const receiverId = document.getElementById("newReceiverIdInput").value.trim();
+
+        if (!token || !receiverId) {
+            alert("Please enter JWT Token and Receiver ID!");
+            return;
+        }
+
+        try {
+            const response = await fetch("/chat/rooms", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({receiverId})
+            });
+
+            if (!response.ok) throw new Error("Failed to create chat room.");
+
+            const chatRoom = await response.json();
+            console.log("✅ New Chat Room Created:", chatRoom);
+
+            // ✅ 생성된 채팅방으로 자동 입장
+            document.getElementById("newReceiverIdInput").value = ""; // 입력 필드 초기화
+            chatRoomId = chatRoom.chatRoomId;
+            joinChatRoom(); // 자동으로 채팅방 입장
+
+            // ✅ 채팅방 목록 새로고침
+            fetchChatRooms(token);
+        } catch (error) {
+            console.error("❌ Error creating chat room:", error);
+        }
+    }
+
     async function fetchChatRooms(token) {
         try {
             const response = await fetch(`/chat/rooms`, {
@@ -188,7 +231,14 @@
             chatRooms.forEach(room => {
                 const option = document.createElement("option");
                 option.value = room.chatRoomId;
-                option.text = `Chat Room ${room.chatRoomId}`;
+
+                // ✅ 안 읽은 메시지가 있으면 개수 표시
+                if (room.unreadCount > 0) {
+                    option.text = `Chat Room ${room.chatRoomId} (${room.unreadCount} unread)`;
+                } else {
+                    option.text = `Chat Room ${room.chatRoomId}`;
+                }
+
                 chatRoomSelect.appendChild(option);
             });
 
@@ -197,7 +247,8 @@
         }
     }
 
-    function joinChatRoom() {
+
+    async function joinChatRoom() {
         const selectedChatRoomId = document.getElementById("chatRoomSelect").value;
         if (!selectedChatRoomId) return;
 
@@ -208,20 +259,14 @@
             onMessageReceived(JSON.parse(message.body));
         });
 
-        fetchChatHistory();
-    }
-
-    async function fetchChatHistory() {
+        const token = document.getElementById("tokenInput").value.trim();
         try {
-            const token = document.getElementById("tokenInput").value.trim();
-            if (!chatRoomId) return;
-
-            const response = await fetch(`/chat/${chatRoomId}/history`, {
+            const response = await fetch(`/chat/${chatRoomId}/enter`, {
                 method: "GET",
                 headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
             });
 
-            if (!response.ok) throw new Error("Failed to fetch chat history.");
+            if (!response.ok) throw new Error("Failed to enter chat room.");
 
             const messages = await response.json();
             console.log("✅ Chat history loaded:", messages);
@@ -233,10 +278,57 @@
                 onMessageReceived(message);
             });
 
+            // ✅ 채팅방이 읽기 전용인지 확인하고 입력창 비활성화
+            const chatRoomData = await fetch(`/chat/rooms`, {
+                method: "GET",
+                headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+            });
+
+            if (!chatRoomData.ok) throw new Error("Failed to fetch chat room data.");
+
+            const chatRooms = await chatRoomData.json();
+            const currentRoom = chatRooms.find(room => room.chatRoomId == chatRoomId);
+
+            if (currentRoom && currentRoom.isReadOnly) {
+                document.getElementById("messageInput").disabled = true;
+                document.getElementById("sendMessageButton").disabled = true;
+                console.log("🔒 채팅 입력 비활성화됨");
+            } else {
+                document.getElementById("messageInput").disabled = false;
+                document.getElementById("sendMessageButton").disabled = false;
+            }
+
         } catch (error) {
-            console.error("❌ Error fetching chat history:", error);
+            console.error("❌ Error entering chat room:", error);
         }
     }
+    
+    //  async function fetchChatHistory() {
+    //     try {
+    //         const token = document.getElementById("tokenInput").value.trim();
+    //         if (!chatRoomId) return;
+    //
+    //         const response = await fetch(`/chat/${chatRoomId}/history`, {
+    //             method: "GET",
+    //             headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+    //         });
+    //
+    //         if (!response.ok) throw new Error("Failed to fetch chat history.");
+    //
+    //         const messages = await response.json();
+    //         console.log("✅ Chat history loaded:", messages);
+    //
+    //         const messagesDiv = document.getElementById("messages");
+    //         messagesDiv.innerHTML = ""; // 기존 메시지 삭제
+    //
+    //         messages.forEach(message => {
+    //             onMessageReceived(message);
+    //         });
+    //
+    //     } catch (error) {
+    //         console.error("❌ Error fetching chat history:", error);
+    //     }
+    // }
 
     async function checkOnlineStatus() {
         const receiverId = document.getElementById("receiverIdInput").value.trim();
@@ -332,6 +424,32 @@
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("sendMessageButton").addEventListener("click", sendMessage);
     });
+
+    async function leaveChatRoom() {
+        const token = document.getElementById("tokenInput").value.trim();
+        if (!chatRoomId) {
+            alert("채팅방을 선택하세요!");
+            return;
+        }
+
+        try {
+            await fetch(`/chat/${chatRoomId}/leave`, {
+                method: "DELETE",
+                headers: {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+            });
+
+            console.log("🚪 채팅방 나가기 완료");
+            chatRoomId = null;
+            document.getElementById("messages").innerHTML = "";
+
+            // ✅ 채팅방 목록 새로고침 (안 읽은 메시지 개수 업데이트)
+            fetchChatRooms(token);
+
+        } catch (error) {
+            console.error("❌ 채팅방 나가기 실패:", error);
+        }
+    }
+
 </script>
 
 </body>
