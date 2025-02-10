@@ -82,7 +82,7 @@ public class PostService {
 	public Post updatePostAndImgFiles(String memberId, Long postId, PostUpdateRequest postUpdateRequest,
 		List<MultipartFile> fileList) {
 
-		if (postUpdateRequest.getCategory() == CommunityCategory.SHARE_FORTUNE_BOARD) {
+		if (postUpdateRequest.getCategory() == CommunityCategory.SHARE_BOARD) {
 			throw new GeneralException(ResponseCode.NOT_UPDATED_SHARE_FORTUNE_CATEGORY);
 		}
 
