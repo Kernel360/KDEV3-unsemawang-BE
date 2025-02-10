@@ -1,6 +1,6 @@
 package com.palbang.unsemawang.chemistry.dto.response;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.chemistry.entity.MemberMatchingScore;
@@ -39,7 +39,7 @@ public class ChemistryRecommendResponse {
 	private char sex;
 
 	@Schema(required = false, description = "상대방 마지막 로그인 날짜")
-	private LocalDate lastActiveDate;
+	private LocalDateTime lastActiveDateTime;
 
 	// 점수 스케일링 포함된 정적 팩토리 메서드
 	public static ChemistryRecommendResponse from(MemberMatchingScore scoreEntity, FortuneUserInfo fortuneUserInfo,
@@ -56,7 +56,7 @@ public class ChemistryRecommendResponse {
 			.profileImageUrl(imgUrl)
 			.profileBio(matchMember.getDetailBio())
 			.sex(fortuneUserInfo.getSex())
-			.lastActiveDate(matchMember.getLastLoginAt() != null ? matchMember.getLastLoginAt().toLocalDate() : null)
+			.lastActiveDateTime(matchMember.getLastActivityAt())
 			.build();
 	}
 }
