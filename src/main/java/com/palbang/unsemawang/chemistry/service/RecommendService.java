@@ -28,24 +28,24 @@ public class RecommendService {
 	private final FileService fileService;
 
 	@Transactional(readOnly = true)
-	public List<ChemistryRecommendResponse> getTop5Matches(String memberId) {
+	public List<ChemistryRecommendResponse> getTopMatches(String memberId) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-		List<MemberMatchingScore> matchingScores = memberMatchingScoreRepository.findTop5ByMemberIdOrderByScoreDesc(
+		List<MemberMatchingScore> matchingScores = memberMatchingScoreRepository.findTop4ByMemberIdOrderByScoreDesc(
 			member.getId());
 
 		if (matchingScores.isEmpty()) {
-			throw new GeneralException(ResponseCode.ERROR_SEARCH);
+			throw new GeneralException(ResponseCode.NOT_MATCHING_PEOPLE);
 		}
 
 		// 최대 점수 찾기
 		int maxScore = matchingScores.get(0).getScore(); // 가장 높은 점수 기준으로 스케일링
-		String imgUrl = fileService.getProfileImgUrl(memberId);
-		
+
 		return matchingScores.stream()
 			.map(score -> {
 				String matchMemberId = score.getMatchMember().getId();
+				String imgUrl = fileService.getProfileImgUrl(matchMemberId);
 				FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(matchMemberId)
 					.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
 

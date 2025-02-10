@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.palbang.unsemawang.chemistry.batch.TotalCalculationService;
 import com.palbang.unsemawang.chemistry.dto.response.ChemistryRecommendResponse;
 import com.palbang.unsemawang.chemistry.service.RecommendService;
 import com.palbang.unsemawang.common.constants.ResponseCode;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 public class RecommendControllerImpl implements RecommendController {
 
 	private final RecommendService recommendService;
-	private final TotalCalculationService totalCalculationService;
 
 	@GetMapping("/recommendations")
 	@Override
@@ -34,7 +32,7 @@ public class RecommendControllerImpl implements RecommendController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTop5Matches(auth.getId());
+		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTopMatches(auth.getId());
 
 		return ResponseEntity.ok(recommendedMemberList);
 	}
