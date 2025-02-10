@@ -11,6 +11,7 @@ import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.constant.FileReferenceType;
 import com.palbang.unsemawang.common.util.file.dto.FileRequest;
 import com.palbang.unsemawang.common.util.file.service.FileService;
+import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.dto.request.PostDeleteRequest;
 import com.palbang.unsemawang.community.dto.request.PostRegisterRequest;
 import com.palbang.unsemawang.community.dto.request.PostUpdateRequest;
@@ -80,6 +81,10 @@ public class PostService {
 	@Transactional(rollbackFor = Exception.class)
 	public Post updatePostAndImgFiles(String memberId, Long postId, PostUpdateRequest postUpdateRequest,
 		List<MultipartFile> fileList) {
+
+		if (postUpdateRequest.getCategory() == CommunityCategory.SHARE_FORTUNE_BOARD) {
+			throw new GeneralException(ResponseCode.NOT_UPDATED_SHARE_FORTUNE_CATEGORY);
+		}
 
 		Post updatedPost = update(memberId, postId, postUpdateRequest);
 

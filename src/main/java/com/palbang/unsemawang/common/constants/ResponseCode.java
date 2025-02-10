@@ -64,6 +64,7 @@ public enum ResponseCode implements Codable {
 	NOT_EXIST_USER_RELATION("6134", HttpStatus.BAD_REQUEST, "해당 사주 관계를 찾을 수 없습니다."),
 	NOT_CHANGED_RELATION("6135", HttpStatus.BAD_REQUEST, "본인 관계는 수정할 수 없습니다."),
 	NOT_MATCHING_PEOPLE("6135", HttpStatus.BAD_REQUEST, "추천된 사용자 리스트가 없습니다."),
+	NOT_UPDATED_SHARE_FORTUNE_CATEGORY("6136", HttpStatus.BAD_REQUEST, "운세공유 게시판은 수정이 불가합니다."),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
