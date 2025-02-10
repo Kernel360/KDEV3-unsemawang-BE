@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -12,11 +11,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-	@Value("${spring.data.redis.host}")
-	public String host;
-
-	@Value("${spring.data.redis.port}")
-	public int port;
+	// @Value("${spring.data.redis.host}")
+	// public String host;
+	//
+	// @Value("${spring.data.redis.port}")
+	// public int port;
 
 	/**
 	 * Redis 연결을 위한 Connection 생성
@@ -24,7 +23,8 @@ public class RedisConfig {
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		// RedisConnectionFactory: Redis 커넥션을 생성하고 관리
-		return new LettuceConnectionFactory(host, port);
+		// return new LettuceConnectionFactory(host, port);
+		return new LettuceConnectionFactory();
 	}
 
 	/**
