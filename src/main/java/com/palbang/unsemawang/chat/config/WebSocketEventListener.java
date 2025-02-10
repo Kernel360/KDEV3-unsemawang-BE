@@ -29,7 +29,7 @@ public class WebSocketEventListener {
 
 		if (userId != null) {
 			log.info("User connected: {}", userId);
-			redisTemplate.opsForValue().set("online:" + userId, "1"); // 유저 온라인 상태 저장
+			// redisTemplate.opsForValue().set("online:" + userId, "1"); // 유저 온라인 상태 저장
 			headerAccessor.getSessionAttributes().put("userId", userId);
 		}
 	}
@@ -44,7 +44,7 @@ public class WebSocketEventListener {
 
 		if (userId != null) {
 			log.info("User disconnected: {}", userId);
-			redisTemplate.delete("online:" + userId); // 유저 온라인 상태 삭제
+			// redisTemplate.delete("online:" + userId); // 유저 온라인 상태 삭제
 		}
 	}
 }

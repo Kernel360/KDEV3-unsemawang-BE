@@ -153,7 +153,7 @@
                 document.getElementById("status").innerText = "Connected";
 
                 // ✅ 서버에 온라인 상태 업데이트 요청
-                await fetch(`/chat/user-status/${senderId}`, {method: "POST"});
+                // await fetch(`/chat/user-status/${senderId}`, {method: "POST"});
 
                 fetchChatRooms(token);
             }, function (error) {
@@ -304,24 +304,24 @@
     }
 
     // ✅ 온라인 상태를 조회하는 요청 (GET)
-    async function checkOnlineStatus() {
-        const receiverId = document.getElementById("receiverIdInput").value.trim();
-        if (!receiverId) {
-            alert("Please enter Receiver ID!");
-            return;
-        }
-
-        try {
-            const response = await fetch(`/chat/user-status/${receiverId}`, {method: "GET"});
-
-            if (!response.ok) throw new Error("Failed to check online status.");
-
-            const isOnline = await response.json();
-            document.getElementById("onlineStatus").innerText = isOnline ? "✅ Online" : "❌ Offline";
-        } catch (error) {
-            console.error("❌ Error checking online status:", error);
-        }
-    }
+    // async function checkOnlineStatus() {
+    //     const receiverId = document.getElementById("receiverIdInput").value.trim();
+    //     if (!receiverId) {
+    //         alert("Please enter Receiver ID!");
+    //         return;
+    //     }
+    //
+    //     try {
+    //         const response = await fetch(`/chat/user-status/${receiverId}`, {method: "GET"});
+    //
+    //         if (!response.ok) throw new Error("Failed to check online status.");
+    //
+    //         const isOnline = await response.json();
+    //         document.getElementById("onlineStatus").innerText = isOnline ? "✅ Online" : "❌ Offline";
+    //     } catch (error) {
+    //         console.error("❌ Error checking online status:", error);
+    //     }
+    // }
 
     function sendMessage() {
         const messageInput = document.getElementById("messageInput");
