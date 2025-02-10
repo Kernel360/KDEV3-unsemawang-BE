@@ -30,10 +30,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Table(name = "chat_message")
-@JsonIgnoreProperties(ignoreUnknown = true) // ✅ JSON 변환 시 알 수 없는 필드 무시
+@JsonIgnoreProperties(ignoreUnknown = true) // JSON 변환 시 알 수 없는 필드 무시
 public class ChatMessage implements Serializable {
 
-	private static final long serialVersionUID = 1L; // ✅ 직렬화 버전 UID 추가
+	private static final long serialVersionUID = 1L; // 직렬화 버전 UID 추가
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +41,7 @@ public class ChatMessage implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "chat_room_id", nullable = false)
-	private ChatRoom chatRoom; // ✅ chatRoomId 필드 제거
+	private ChatRoom chatRoom; // chatRoomId 필드 제거
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "sender_id", nullable = false)

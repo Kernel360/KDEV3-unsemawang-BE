@@ -28,13 +28,13 @@ public class RabbitMQConfig {
 		return BindingBuilder.bind(chatQueue).to(chatExchange).with("chat.routing.key");
 	}
 
-	// ✅ JSON 직렬화 메시지 컨버터 설정
+	// JSON 직렬화 메시지 컨버터 설정
 	@Bean
 	public Jackson2JsonMessageConverter jsonMessageConverter() {
 		return new Jackson2JsonMessageConverter();
 	}
 
-	// ✅ RabbitTemplate에 JSON 컨버터 적용
+	// RabbitTemplate에 JSON 컨버터 적용
 	@Bean
 	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
 		RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

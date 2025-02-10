@@ -6,6 +6,7 @@ import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.member.entity.Member;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@Schema(description = "채팅방 DTO")
 public class ChatRoomDto {
 	private Long chatRoomId;
 	private String userId;
@@ -23,12 +25,12 @@ public class ChatRoomDto {
 	private String sex;
 	private String five;
 	private int unreadCount;
-	private boolean isReadOnly;  // ✅ 읽기 전용 여부 추가
+	private boolean isReadOnly;  // 읽기 전용 여부 추가
 
 	public static ChatRoomDto fromEntity(ChatRoom chatRoom, ChatMessage lastMessage, Member targetUser,
 		String fiveElement, int unreadCount) {
 
-		// ✅ 현재 채팅방에 남아 있는 사용자가 혼자이면 isReadOnly = true
+		// 현재 채팅방에 남아 있는 사용자가 혼자이면 isReadOnly = true
 		boolean isReadOnly = (chatRoom.getUser1() == null || chatRoom.getUser2() == null);
 
 		String userId = (targetUser != null) ? targetUser.getId() : "unknown";
@@ -49,7 +51,7 @@ public class ChatRoomDto {
 			.sex(gender == 'M' ? "남" : "여")
 			.five(fiveElement)
 			.unreadCount(unreadCount)
-			.isReadOnly(isReadOnly)  // ✅ 읽기 전용 여부 설정
+			.isReadOnly(isReadOnly)  // 읽기 전용 여부 설정
 			.build();
 	}
 }

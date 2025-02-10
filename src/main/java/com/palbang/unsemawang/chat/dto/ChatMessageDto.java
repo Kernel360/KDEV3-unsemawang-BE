@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Schema(description = "채팅 메시지 DTO")
 public class ChatMessageDto {
 
 	private Long chatRoomId;

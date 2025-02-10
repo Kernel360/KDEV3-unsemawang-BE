@@ -61,11 +61,11 @@ public class ChatRoomService {
 			return chatRoomRepository.save(newChatRoom);
 		});
 
-		// ✅ receiverId를 기반으로 targetUser 찾기 (이제 NullPointerException 방지 가능)
+		// receiverId를 기반으로 targetUser 찾기 (이제 NullPointerException 방지 가능)
 		Member targetUser = memberRepository.findById(receiverId)
-			.orElseThrow(() -> new IllegalStateException("❌ targetUser를 찾을 수 없습니다. receiverId=" + receiverId));
+			.orElseThrow(() -> new IllegalStateException("targetUser를 찾을 수 없습니다. receiverId=" + receiverId));
 
-		// ✅ unreadCount(안 읽은 메시지 개수) 추가 (기본값: 0)
+		// unreadCount(안 읽은 메시지 개수) 추가 (기본값: 0)
 		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0);
 	}
 
@@ -108,7 +108,7 @@ public class ChatRoomService {
 		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
 
 		if (chatMessages.isEmpty()) {
-			log.warn("⚠️ 채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
+			log.warn("⚠채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
 			return Collections.emptyList();
 		}
 
@@ -117,16 +117,16 @@ public class ChatRoomService {
 		List<ChatMessageDto> chatMessageDtos = chatMessages.stream()
 			.map(message -> {
 				if (message == null || message.getSender() == null) {
-					log.warn("⚠️ sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
+					log.warn("⚠sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
 					return null;
 				}
 
-				// ✅ Lazy Loading 문제 해결 (sender 강제 초기화)
+				// Lazy Loading 문제 해결 (sender 강제 초기화)
 				Hibernate.initialize(message.getSender());
 
 				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
 
-				// ✅ 프로필 이미지 URL 가져오기
+				// 프로필 이미지 URL 가져오기
 				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
 
 				if (profileImageUrl == null || profileImageUrl.isEmpty()) {
@@ -137,7 +137,7 @@ public class ChatRoomService {
 					.chatRoomId(chatRoom.getId())
 					.senderId(message.getSender().getId())
 					.nickname(message.getSender().getNickname() != null ? message.getSender().getNickname() : "Unknown")
-					.profileImageUrl(profileImageUrl) // ✅ 프로필 이미지 추가
+					.profileImageUrl(profileImageUrl) // 프로필 이미지 추가
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
@@ -146,9 +146,9 @@ public class ChatRoomService {
 
 				try {
 					String jsonOutput = objectMapper.writeValueAsString(dto);
-					log.info("📩 직렬화된 메시지 JSON: {}", jsonOutput);
+					log.info("직렬화된 메시지 JSON: {}", jsonOutput);
 				} catch (Exception e) {
-					log.error("❌ JSON 직렬화 오류 발생", e);
+					log.error("JSON 직렬화 오류 발생", e);
 				}
 
 				return dto;
@@ -162,9 +162,9 @@ public class ChatRoomService {
 	@Transactional
 	public void leaveChatRoom(String userId, Long chatRoomId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("❌ 채팅방을 찾을 수 없음: " + chatRoomId));
+			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
 
-		// ✅ 현재 사용자 제거
+		// 현재 사용자 제거
 		boolean isUser1 = chatRoom.getUser1() != null && chatRoom.getUser1().getId().equals(userId);
 		boolean isUser2 = chatRoom.getUser2() != null && chatRoom.getUser2().getId().equals(userId);
 
@@ -173,14 +173,14 @@ public class ChatRoomService {
 		} else if (isUser2) {
 			chatRoom.setUser2(null);
 		} else {
-			throw new IllegalArgumentException("❌ 채팅방에 속한 사용자가 아님");
+			throw new IllegalArgumentException("채팅방에 속한 사용자가 아님");
 		}
 
-		// ✅ 남아있는 사용자가 있는지 확인
+		// 남아있는 사용자가 있는지 확인
 		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
 
 		if (targetUser != null) {
-			// ✅ 남아있는 사용자에게 "상대방이 나갔습니다." 메시지 전송
+			// 남아있는 사용자에게 "상대방이 나갔습니다." 메시지 전송
 			ChatMessage leaveMessage = ChatMessage.builder()
 				.chatRoom(chatRoom)
 				.sender(null) // 시스템 메시지
@@ -204,7 +204,7 @@ public class ChatRoomService {
 			);
 		}
 
-		// ✅ 채팅방이 완전히 비었으면 삭제 처리
+		// 채팅방이 완전히 비었으면 삭제 처리
 		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
 			chatRoom.setDelete(true);
 		}
@@ -218,11 +218,11 @@ public class ChatRoomService {
 	@Transactional
 	public void markMessagesAsRead(Long chatRoomId, String userId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("❌ 채팅방을 찾을 수 없음: " + chatRoomId));
+			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
 
-		// ✅ 상대방이 보낸 안 읽은 메시지 가져오기
+		// 상대방이 보낸 안 읽은 메시지 가져오기
 		List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomAndSenderIdNotAndStatus(
-			chatRoom, userId, MessageStatus.RECEIVED);  // ❗ 변경된 쿼리 적용
+			chatRoom, userId, MessageStatus.RECEIVED);  // 변경된 쿼리 적용
 
 		if (!unreadMessages.isEmpty()) {
 			unreadMessages.forEach(message -> message.setStatus(MessageStatus.READ));
