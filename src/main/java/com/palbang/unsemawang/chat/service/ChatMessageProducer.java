@@ -6,19 +6,16 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class ChatMessageProducer {
 
 	private final RabbitTemplate rabbitTemplate;
 	private final ObjectMapper objectMapper;
-
-	public ChatMessageProducer(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
-		this.rabbitTemplate = rabbitTemplate;
-		this.objectMapper = objectMapper;
-	}
 
 	public void sendMessageToQueue(ChatMessageDto chatMessage) {
 		try {

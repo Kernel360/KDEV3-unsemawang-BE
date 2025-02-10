@@ -21,10 +21,12 @@ import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class ChatMessageConsumer {
 
 	private final ChatMessageRepository chatMessageRepository;
@@ -33,20 +35,6 @@ public class ChatMessageConsumer {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ObjectMapper objectMapper;
 	private final FileService fileService;
-
-	public ChatMessageConsumer(
-		ChatMessageRepository chatMessageRepository,
-		ChatRoomRepository chatRoomRepository,
-		MemberRepository memberRepository,
-		SimpMessagingTemplate messagingTemplate,
-		ObjectMapper objectMapper, FileService fileService) {
-		this.chatMessageRepository = chatMessageRepository;
-		this.chatRoomRepository = chatRoomRepository;
-		this.memberRepository = memberRepository;
-		this.messagingTemplate = messagingTemplate;
-		this.objectMapper = objectMapper;
-		this.fileService = fileService;
-	}
 
 	@RabbitListener(queues = "chat.queue")
 	@Transactional // 트랜잭션 적용
