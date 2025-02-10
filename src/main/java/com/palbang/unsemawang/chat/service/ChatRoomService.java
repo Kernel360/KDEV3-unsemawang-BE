@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.chat.service;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
+import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
@@ -39,6 +42,7 @@ public class ChatRoomService {
 	private final MemberRepository memberRepository;
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
 	private final FileService fileService;
+	private final SimpMessagingTemplate messagingTemplate;
 
 	/**
 	 * 사용자의 채팅방 목록을 조회
@@ -61,7 +65,8 @@ public class ChatRoomService {
 		Member targetUser = memberRepository.findById(receiverId)
 			.orElseThrow(() -> new IllegalStateException("❌ targetUser를 찾을 수 없습니다. receiverId=" + receiverId));
 
-		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null);
+		// ✅ unreadCount(안 읽은 메시지 개수) 추가 (기본값: 0)
+		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0);
 	}
 
 	/**
@@ -69,25 +74,29 @@ public class ChatRoomService {
 	 */
 	@Transactional(readOnly = true)
 	public List<ChatRoomDto> getChatRoomsWithLastMessage(String userId) {
-		// 사용자가 참여한 모든 채팅방 조회
 		List<ChatRoom> chatRooms = chatRoomRepository.findByUserId(userId);
 
 		return chatRooms.stream().map(chatRoom -> {
-			// 채팅방의 마지막 메시지 조회
 			Optional<ChatMessage> lastMessageOpt = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(
 				chatRoom);
 			ChatMessage lastMessage = lastMessageOpt.orElse(null);
 
-			// ✅ `receiverId`를 사용하여 상대방을 찾음
-			String receiverId =
-				chatRoom.getUser1().getId().equals(userId) ? chatRoom.getUser2().getId() : chatRoom.getUser1().getId();
-			Member targetUser = memberRepository.findById(receiverId)
-				.orElseThrow(() -> new IllegalStateException("❌ 대화 상대방을 찾을 수 없습니다. receiverId=" + receiverId));
+			Member targetUser = null;
+			boolean isUser1 = chatRoom.getUser1() != null && !chatRoom.getUser1().getId().equals(userId);
+			boolean isUser2 = chatRoom.getUser2() != null && !chatRoom.getUser2().getId().equals(userId);
 
-			// 상대방의 오행 정보 가져오기
-			String fiveElement = getUserFiveElement(targetUser.getId());
+			if (isUser1) {
+				targetUser = chatRoom.getUser1();
+			} else if (isUser2) {
+				targetUser = chatRoom.getUser2();
+			}
 
-			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement);
+			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, userId,
+				MessageStatus.RECEIVED);
+
+			String fiveElement = (targetUser != null) ? getUserFiveElement(targetUser.getId()) : null;
+
+			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount);
 		}).collect(Collectors.toList());
 	}
 
@@ -153,21 +162,71 @@ public class ChatRoomService {
 	@Transactional
 	public void leaveChatRoom(String userId, Long chatRoomId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음"));
+			.orElseThrow(() -> new IllegalArgumentException("❌ 채팅방을 찾을 수 없음: " + chatRoomId));
 
-		if (chatRoom.getUser1().getId().equals(userId)) {
+		// ✅ 현재 사용자 제거
+		boolean isUser1 = chatRoom.getUser1() != null && chatRoom.getUser1().getId().equals(userId);
+		boolean isUser2 = chatRoom.getUser2() != null && chatRoom.getUser2().getId().equals(userId);
+
+		if (isUser1) {
 			chatRoom.setUser1(null);
-		} else if (chatRoom.getUser2().getId().equals(userId)) {
+		} else if (isUser2) {
 			chatRoom.setUser2(null);
 		} else {
-			throw new IllegalArgumentException("채팅방에 속한 사용자가 아님");
+			throw new IllegalArgumentException("❌ 채팅방에 속한 사용자가 아님");
 		}
 
-		// 두 사용자가 모두 나갔으면 삭제
+		// ✅ 남아있는 사용자가 있는지 확인
+		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
+
+		if (targetUser != null) {
+			// ✅ 남아있는 사용자에게 "상대방이 나갔습니다." 메시지 전송
+			ChatMessage leaveMessage = ChatMessage.builder()
+				.chatRoom(chatRoom)
+				.sender(null) // 시스템 메시지
+				.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+				.status(MessageStatus.RECEIVED)
+				.timestamp(LocalDateTime.now())
+				.build();
+
+			chatMessageRepository.save(leaveMessage);
+
+			messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
+				ChatMessageDto.builder()
+					.chatRoomId(chatRoomId)
+					.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+					.status(MessageStatus.RECEIVED)
+					.timestamp(System.currentTimeMillis())
+					.nickname("시스템")
+					.senderId(null)
+					.senderType(SenderType.OTHER)
+					.build()
+			);
+		}
+
+		// ✅ 채팅방이 완전히 비었으면 삭제 처리
 		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
-			chatRoomRepository.delete(chatRoom);
-		} else {
-			chatRoomRepository.save(chatRoom);
+			chatRoom.setDelete(true);
+		}
+
+		chatRoomRepository.save(chatRoom);
+	}
+
+	/**
+	 * 채팅방의 안 읽은 메시지를 READ 상태로 업데이트
+	 */
+	@Transactional
+	public void markMessagesAsRead(Long chatRoomId, String userId) {
+		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new IllegalArgumentException("❌ 채팅방을 찾을 수 없음: " + chatRoomId));
+
+		// ✅ 상대방이 보낸 안 읽은 메시지 가져오기
+		List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomAndSenderIdNotAndStatus(
+			chatRoom, userId, MessageStatus.RECEIVED);  // ❗ 변경된 쿼리 적용
+
+		if (!unreadMessages.isEmpty()) {
+			unreadMessages.forEach(message -> message.setStatus(MessageStatus.READ));
+			chatMessageRepository.saveAll(unreadMessages);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chat.config;
+package com.palbang.unsemawang.chat.websocket;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +30,7 @@ public class WebSocketEventListener {
 		if (userId != null) {
 			log.info("✅ User connected: {}", userId);
 			redisTemplate.opsForValue().set("online:" + userId, "1"); // ✅ 유저 온라인 상태 저장
+			headerAccessor.getSessionAttributes().put("userId", userId); // ✅ 세션에 저장
 		}
 	}
 
@@ -39,9 +40,7 @@ public class WebSocketEventListener {
 	@EventListener
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		String userId = headerAccessor.getSessionAttributes() != null
-			? (String)headerAccessor.getSessionAttributes().get("userId")
-			: null;
+		String userId = (String)headerAccessor.getSessionAttributes().get("userId");
 
 		if (userId != null) {
 			log.info("❌ User disconnected: {}", userId);
