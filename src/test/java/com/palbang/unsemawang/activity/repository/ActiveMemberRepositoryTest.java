@@ -12,7 +12,7 @@ import com.palbang.unsemawang.activity.entity.ActiveMember;
 @DataRedisTest
 class ActiveMemberRepositoryTest {
 	@Autowired
-	private ActiveMemberRepository activeMemberRepository;
+	private ActiveMemberRedisRepository activeMemberRepository;
 
 	@Test
 	@DisplayName("레디스 테스트 - 저장 후 조회")
