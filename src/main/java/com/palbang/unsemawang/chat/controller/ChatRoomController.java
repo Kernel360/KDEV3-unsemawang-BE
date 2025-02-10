@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.chat.controller;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -90,10 +91,24 @@ public class ChatRoomController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "사용자 온라인 상태 조회", description = "특정 사용자가 현재 온라인 상태인지 확인합니다.")
+	// 온라인 상태 확인 API (GET)
 	@GetMapping("/user-status/{userId}")
 	public ResponseEntity<Boolean> isUserOnline(@PathVariable String userId) {
 		String isOnline = redisTemplate.opsForValue().get("online:" + userId);
-		return ResponseEntity.ok(isOnline != null);
+		return ResponseEntity.ok(isOnline != null); // 키가 있으면 true, 없으면 false 반환
+	}
+
+	// 온라인 상태 업데이트 API (POST) 추가
+	@PostMapping("/user-status/{userId}")
+	public ResponseEntity<Void> updateUserOnlineStatus(@PathVariable String userId) {
+
+		if (redisTemplate == null) {
+			throw new IllegalStateException("RedisTemplate is not initialized.");
+		}
+
+		// 유저를 온라인 상태로 설정 (만료 시간 5분 설정)
+		redisTemplate.opsForValue().set("online:" + userId, "1", Duration.ofMinutes(5));
+
+		return ResponseEntity.ok().build();
 	}
 }

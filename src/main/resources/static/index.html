@@ -303,6 +303,7 @@
         }
     }
 
+    // ✅ 온라인 상태를 조회하는 요청 (GET)
     async function checkOnlineStatus() {
         const receiverId = document.getElementById("receiverIdInput").value.trim();
         if (!receiverId) {
@@ -311,9 +312,7 @@
         }
 
         try {
-            const response = await fetch(`/chat/user-status/${receiverId}`, {
-                method: "GET",
-            });
+            const response = await fetch(`/chat/user-status/${receiverId}`, {method: "GET"});
 
             if (!response.ok) throw new Error("Failed to check online status.");
 
@@ -323,7 +322,6 @@
             console.error("❌ Error checking online status:", error);
         }
     }
-
 
     function sendMessage() {
         const messageInput = document.getElementById("messageInput");
