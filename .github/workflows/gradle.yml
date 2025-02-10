@@ -3,8 +3,6 @@ name: CI/CD with Docker
 on:
   push:
     branches: [ "dev" ]
-  pull_request:
-    branches: [ "dev" ]
   workflow_dispatch:
 
 jobs:
@@ -12,7 +10,6 @@ jobs:
 
     runs-on: ubuntu-24.04-arm 
     # runner 찾기 : https://docs.github.com/ko/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-    if: github.event_name == 'pull_request'
     
     steps:
       - name: Checkout code
@@ -38,7 +35,7 @@ jobs:
   deploy:
     
     runs-on: ubuntu-24.04-arm
-    if: github.event_name == 'push'
+    needs: build
     
     steps:
       - name: Set up SSH

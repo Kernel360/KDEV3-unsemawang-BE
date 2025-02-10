@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.activity.aop;
 
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +33,7 @@ public class ActivityTraceAspect {
 	/**
 	 * 회원이 API 요청을 수행한 후 활동 내역을 Redis에 저장
 	 */
-	@AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
+	// @AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
 	public void trackUserActivity() {
 
 		if (!isRedisConnected()) {
