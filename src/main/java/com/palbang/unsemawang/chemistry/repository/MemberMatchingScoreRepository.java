@@ -11,7 +11,7 @@ import com.palbang.unsemawang.member.entity.Member;
 @Repository
 public interface MemberMatchingScoreRepository extends JpaRepository<MemberMatchingScore, Long> {
 
-	List<MemberMatchingScore> findTop5ByMemberIdOrderByScoreDesc(String memberId);
+	List<MemberMatchingScore> findTop4ByMemberIdOrderByScoreDesc(String memberId);
 
 	MemberMatchingScore findByMemberAndMatchMember(Member member, Member matchMember);
 }
