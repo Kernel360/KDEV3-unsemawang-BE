@@ -16,24 +16,23 @@ import java.io.InputStream;
 @Configuration
 public class FirebaseConfig {
 	private FirebaseApp firebaseApp;
-	//
-	// @PostConstruct
-	// public FirebaseApp initializeFcm() throws IOException {
-	// 	// 프로젝트 내부에 있는 JSON 파일 로드
-	// 	log.info("FirebaseApp 실행되면 안되는디");
-	// 	ClassPathResource resource = new ClassPathResource("firebase/serviceAccountKey.json");
-	// 	InputStream serviceAccount = resource.getInputStream();
-	//
-	// 	FirebaseOptions options = FirebaseOptions.builder()
-	// 		.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-	// 		.build();
-	//
-	// 	firebaseApp = FirebaseApp.initializeApp(options);
-	// 	log.info("FirebaseApp initialized");
-	// 	return firebaseApp;
-	// }
-	// @Bean
-	// public FirebaseMessaging initFirebaseMessaging() {
-	// 	return FirebaseMessaging.getInstance(firebaseApp);
-	// }
+
+	@PostConstruct
+	public FirebaseApp initializeFcm() throws IOException {
+		// 프로젝트 내부에 있는 JSON 파일 로드
+		ClassPathResource resource = new ClassPathResource("firebase/serviceAccountKey.json");
+		InputStream serviceAccount = resource.getInputStream();
+
+		FirebaseOptions options = FirebaseOptions.builder()
+			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+			.build();
+
+		firebaseApp = FirebaseApp.initializeApp(options);
+		log.info("FirebaseApp initialized");
+		return firebaseApp;
+	}
+	@Bean
+	public FirebaseMessaging initFirebaseMessaging() {
+		return FirebaseMessaging.getInstance(firebaseApp);
+	}
 }
