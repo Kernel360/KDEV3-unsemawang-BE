@@ -53,50 +53,6 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	// @Bean
-	// public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	// 	//csrf disable
-	//
-	// 	http
-	// 		//.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-	// 		.csrf((auth) -> auth.disable());
-	//
-	// 	//기본 Form 로그인 방식 disable
-	// 	http
-	// 		.formLogin((auth) -> auth.disable());
-	//
-	// 	//HTTP Basic 인증 방식 disable
-	// 	http
-	// 		.httpBasic((auth) -> auth.disable());
-	//
-	// 	//JWTFilter 추가
-	// 	http
-	// 		.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
-	//
-	// 	//oauth2
-	// 	//세션 설정 : STATELESS
-	// 	http
-	// 		.sessionManagement((session) -> session
-	// 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	// 		.oauth2Login(oauth2 -> oauth2
-	// 			.userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig
-	// 				.userService(customOAuth2UserService)))
-	// 			.successHandler(customSuccessHandler)
-	// 		);
-	//
-	// 	//경로별 인가 작업
-	// 	//        http
-	// 	//                .authorizeHttpRequests((auth) -> auth
-	// 	//                        .requestMatchers("/").permitAll()
-	// 	//                        .anyRequest().authenticated());
-	//
-	// 	http.authorizeHttpRequests(auth -> auth
-	// 		.requestMatchers("/favicon.ico").permitAll()
-	// 		.anyRequest().permitAll());
-	//
-	// 	return http.build();
-	// }
-
 	/**
 	 * 패스워드 암호화를 위한 BCryptPasswordEncoder Bean 등록
 	 * @return PasswordEncoder 객체
