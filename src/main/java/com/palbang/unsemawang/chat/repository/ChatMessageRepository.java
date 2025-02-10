@@ -19,11 +19,11 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 	@EntityGraph(attributePaths = {"sender"})
 	List<ChatMessage> findByChatRoomOrderByTimestampAsc(ChatRoom chatRoom);
 
-	// ✅ 채팅방의 마지막 메시지를 가져오는 메서드 추가 (sender 즉시 로딩)
+	// 채팅방의 마지막 메시지를 가져오는 메서드 추가 (sender 즉시 로딩)
 	@EntityGraph(attributePaths = {"sender"})
 	Optional<ChatMessage> findTopByChatRoomOrderByTimestampDesc(ChatRoom chatRoom);
 
-	// ✅ 특정 사용자가 안 읽은 메시지 개수 가져오기
+	// 특정 사용자가 안 읽은 메시지 개수 가져오기
 	@Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.chatRoom = :chatRoom AND m.sender.id <> :userId AND m.status = :status")
 	int countByChatRoomAndSenderIdNotAndStatus(
 		@Param("chatRoom") ChatRoom chatRoom,
@@ -31,7 +31,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 		@Param("status") MessageStatus status
 	);
 
-	// ✅ 특정 사용자가 안 읽은 메시지 목록 가져오기
+	// 특정 사용자가 안 읽은 메시지 목록 가져오기
 	@Query("SELECT m FROM ChatMessage m WHERE m.chatRoom = :chatRoom AND m.sender.id <> :userId AND m.status = :status")
 	List<ChatMessage> findByChatRoomAndSenderIdNotAndStatus(
 		@Param("chatRoom") ChatRoom chatRoom,

@@ -21,8 +21,11 @@ import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Chat Room", description = "채팅방 관련 API")
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
@@ -31,6 +34,7 @@ public class ChatRoomController {
 	private final ChatRoomService chatRoomService;
 	private final RedisTemplate<String, String> redisTemplate;
 
+	@Operation(summary = "채팅방 생성 또는 가져오기", description = "사용자 간 1:1 채팅방을 생성하거나 기존 채팅방을 가져옵니다.")
 	@PostMapping("/rooms")
 	public ResponseEntity<ChatRoomDto> createOrGetChatRoom(
 		@AuthenticationPrincipal CustomOAuth2User auth,
@@ -45,19 +49,19 @@ public class ChatRoomController {
 		return ResponseEntity.ok(chatRoom);
 	}
 
+	@Operation(summary = "사용자의 채팅방 목록 조회", description = "사용자가 참여 중인 채팅방 목록을 조회합니다.")
 	@GetMapping("/rooms")
 	public ResponseEntity<List<ChatRoomDto>> getUserChatRooms(@AuthenticationPrincipal CustomOAuth2User auth) {
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		// 사용자의 참여 채팅방을 조회하며, 마지막 메시지 및 오행 정보를 포함
 		List<ChatRoomDto> chatRooms = chatRoomService.getChatRoomsWithLastMessage(auth.getId());
 
 		return ResponseEntity.ok(chatRooms);
 	}
 
-	/** ✅ 채팅방 입장: 기존 채팅 내역 조회 + 안 읽은 메시지 읽음 처리 */
+	@Operation(summary = "채팅방 입장", description = "채팅방에 입장하며 기존 채팅 내역을 조회하고 안 읽은 메시지를 읽음 처리합니다.")
 	@GetMapping("/{chatRoomId}/enter")
 	public ResponseEntity<List<ChatMessageDto>> enterChatRoom(
 		@AuthenticationPrincipal CustomOAuth2User user,
@@ -67,16 +71,13 @@ public class ChatRoomController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		// 1️⃣ 기존 채팅 내역 불러오기
 		List<ChatMessageDto> chatHistory = chatRoomService.getChatHistory(chatRoomId, user.getId());
-
-		// 2️⃣ 안 읽은 메시지를 모두 READ로 변경
 		chatRoomService.markMessagesAsRead(chatRoomId, user.getId());
 
 		return ResponseEntity.ok(chatHistory);
 	}
 
-	// 사용자가 채팅방 나가기
+	@Operation(summary = "채팅방 나가기", description = "사용자가 채팅방을 나가고 해당 방에서 더 이상 채팅을 할 수 없도록 처리합니다.")
 	@DeleteMapping("/{chatRoomId}/leave")
 	public ResponseEntity<Void> leaveChatRoom(
 		@AuthenticationPrincipal CustomOAuth2User user,
@@ -89,9 +90,10 @@ public class ChatRoomController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@Operation(summary = "사용자 온라인 상태 조회", description = "특정 사용자가 현재 온라인 상태인지 확인합니다.")
 	@GetMapping("/user-status/{userId}")
 	public ResponseEntity<Boolean> isUserOnline(@PathVariable String userId) {
 		String isOnline = redisTemplate.opsForValue().get("online:" + userId);
-		return ResponseEntity.ok(isOnline != null); // ✅ 키가 있으면 true, 없으면 false 반환
+		return ResponseEntity.ok(isOnline != null);
 	}
 }

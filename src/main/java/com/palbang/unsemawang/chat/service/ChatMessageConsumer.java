@@ -49,24 +49,24 @@ public class ChatMessageConsumer {
 	}
 
 	@RabbitListener(queues = "chat.queue")
-	@Transactional // ✅ 트랜잭션 적용
+	@Transactional // 트랜잭션 적용
 	public void consumeMessage(String messageJson) {
 		try {
-			log.info("📩 Received message from RabbitMQ: {}", messageJson);
+			log.info("Received message from RabbitMQ: {}", messageJson);
 			ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
 
 			if (chatMessageDto.getSenderId() == null) {
-				log.error("❌ SenderId가 없는 메시지는 처리 불가! {}", chatMessageDto);
+				log.error("SenderId가 없는 메시지는 처리 불가! {}", chatMessageDto);
 				return;
 			}
 
 			Member sender = memberRepository.findById(chatMessageDto.getSenderId())
 				.orElseThrow(
-					() -> new IllegalStateException("❌ Sender를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
+					() -> new IllegalStateException("Sender를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
 
 			ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
 				.orElseThrow(() -> new IllegalStateException(
-					"❌ ChatRoom을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
+					"ChatRoom을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
 
 			ChatMessage chatMessage = ChatMessage.builder()
 				.chatRoom(chatRoom)
@@ -77,27 +77,27 @@ public class ChatMessageConsumer {
 					ZoneId.systemDefault()))
 				.build();
 
-			// ✅ sender.nickname을 강제 로딩하여 Hibernate Proxy 문제 방지
+			// Sender.nickname을 강제 로딩하여 Hibernate Proxy 문제 방지
 			Hibernate.initialize(sender.getFavorites());
 
 			chatMessageRepository.save(chatMessage);
 
-			// ✅ WebSocket 메시지 전송 시 timestamp 변환
+			// WebSocket 메시지 전송 시 timestamp 변환
 			ChatMessageDto responseMessage = convertToDto(chatMessage);
 
 			messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
-			log.info("📩 Forwarded WebSocket message: {}", responseMessage);
+			log.info("Forwarded WebSocket message: {}", responseMessage);
 
 		} catch (Exception e) {
-			log.error("❌ 메시지 처리 실패", e);
+			log.error("메시지 처리 실패", e);
 		}
 	}
 
-	// ✅ Lazy Loading 해결 후 DTO 변환
+	// Lazy Loading 해결 후 DTO 변환
 	private ChatMessageDto convertToDto(ChatMessage message) {
 		Hibernate.initialize(message.getSender());
 
-		// ✅ 프로필 이미지 URL 가져오기
+		// 프로필 이미지 URL 가져오기
 		String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
 
 		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
@@ -108,7 +108,7 @@ public class ChatMessageConsumer {
 			.chatRoomId(message.getChatRoom().getId())
 			.senderId(message.getSender().getId())
 			.nickname(message.getSender().getNickname())
-			.profileImageUrl(profileImageUrl) // ✅ 백엔드에서도 NULL 방지
+			.profileImageUrl(profileImageUrl) // 백엔드에서도 NULL 방지
 			.content(message.getContent())
 			.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 			.status(message.getStatus())
@@ -116,4 +116,3 @@ public class ChatMessageConsumer {
 	}
 
 }
-
