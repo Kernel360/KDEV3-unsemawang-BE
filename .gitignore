@@ -219,4 +219,4 @@ gradlew
 .env.*
 
 #firebase
-src/main/resource/firebase/serviceAccountKey.json
+*.json
