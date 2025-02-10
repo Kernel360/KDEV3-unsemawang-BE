@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.config;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,18 +20,41 @@ public class FirebaseConfig {
 
 	@PostConstruct
 	public FirebaseApp initializeFcm() throws IOException {
-		// 프로젝트 내부에 있는 JSON 파일 로드
-		ClassPathResource resource = new ClassPathResource("firebase/serviceAccountKey.json");
-		InputStream serviceAccount = resource.getInputStream();
+		String credentialsPath;
 
+		// 환경 변수 GOOGLE_APPLICATION_CREDENTIALS 확인
+		String envVar = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+
+		if (envVar != null && !envVar.isEmpty()) {
+			// 환경 변수로 설정된 경로 사용
+			credentialsPath = envVar;
+		} else {
+			// 로컬 환경일 경우 ClassPathResource 사용
+			credentialsPath = "firebase/serviceAccountKey.json";
+		}
+
+		// 파일 입력 스트림으로 Firebase 인증 파일 로드
+		InputStream serviceAccount;
+		if (credentialsPath.startsWith("firebase")) {
+			// 로컬 환경에서는 ClassPathResource 사용
+			ClassPathResource resource = new ClassPathResource(credentialsPath);
+			serviceAccount = resource.getInputStream();
+		} else {
+			// 컨테이너 환경에서는 파일 경로로 직접 읽기
+			serviceAccount = new FileInputStream(credentialsPath);
+		}
+
+		// Firebase 옵션 설정
 		FirebaseOptions options = FirebaseOptions.builder()
 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
 			.build();
 
 		firebaseApp = FirebaseApp.initializeApp(options);
 		log.info("FirebaseApp initialized");
+
 		return firebaseApp;
 	}
+
 	@Bean
 	public FirebaseMessaging initFirebaseMessaging() {
 		return FirebaseMessaging.getInstance(firebaseApp);
