@@ -19,13 +19,29 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ActivityTraceAspect {
 
+	private final RedisTemplate redisTemplate;
 	private final ActiveMemberService activeMemberService;
+
+	public boolean isRedisConnected() {
+		try {
+			String pingResult = redisTemplate.getConnectionFactory().getConnection().ping();
+			return "PONG".equalsIgnoreCase(pingResult);
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	/**
 	 * 회원이 API 요청을 수행한 후 활동 내역을 Redis에 저장
 	 */
 	@AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
 	public void trackUserActivity() {
+
+		if (!isRedisConnected()) {
+			log.error("레디스 연결 정보 없음");
+			return;
+		}
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if (auth == null || !auth.isAuthenticated()) {
