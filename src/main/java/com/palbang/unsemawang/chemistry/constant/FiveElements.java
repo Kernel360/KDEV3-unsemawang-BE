@@ -37,4 +37,10 @@ public enum FiveElements {
 	public static FiveElements fromReading(String reading) {
 		return lookup.get(reading);
 	}
+
+	// "갑" -> "木" 로 변경
+	public static String convertToChinese(String reading) {
+		FiveElements fe = lookup.get(reading);
+		return fe.chinese;
+	}
 }
