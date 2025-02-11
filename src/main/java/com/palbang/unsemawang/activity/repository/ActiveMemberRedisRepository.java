@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.palbang.unsemawang.activity.entity.ActiveMember;
 
-public interface ActiveMemberRepository extends CrudRepository<ActiveMember, String> {
+public interface ActiveMemberRedisRepository extends CrudRepository<ActiveMember, String> {
 
 }
