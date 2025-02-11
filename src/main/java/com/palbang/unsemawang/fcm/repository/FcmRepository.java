@@ -16,4 +16,6 @@ public interface FcmRepository extends JpaRepository<FcmToken,String> {
 	List<FcmToken> findByMemberIdAndDeviceType(String memberId, DeviceType deviceType);
 	List<FcmToken> findByMemberIdAndDeviceTypeAndBrowserType(String memberId, DeviceType deviceType, BrowserType browserType);
 
+	boolean existsByMemberId(String memberId);
+	void deleteByMemberId(String memberId);
 }
