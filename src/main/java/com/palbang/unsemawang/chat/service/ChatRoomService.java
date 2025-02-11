@@ -65,8 +65,10 @@ public class ChatRoomService {
 		Member targetUser = memberRepository.findById(receiverId)
 			.orElseThrow(() -> new IllegalStateException("targetUser를 찾을 수 없습니다. receiverId=" + receiverId));
 
+		String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+
 		// unreadCount(안 읽은 메시지 개수) 추가 (기본값: 0)
-		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0);
+		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0, profileImageUrl);
 	}
 
 	/**
@@ -91,12 +93,14 @@ public class ChatRoomService {
 				targetUser = chatRoom.getUser2();
 			}
 
+			String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+
 			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, userId,
 				MessageStatus.RECEIVED);
 
 			String fiveElement = (targetUser != null) ? getUserFiveElement(targetUser.getId()) : null;
 
-			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount);
+			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount, profileImageUrl);
 		}).collect(Collectors.toList());
 	}
 
@@ -108,7 +112,7 @@ public class ChatRoomService {
 		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
 
 		if (chatMessages.isEmpty()) {
-			log.warn("⚠채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
+			log.warn("채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
 			return Collections.emptyList();
 		}
 
@@ -117,7 +121,7 @@ public class ChatRoomService {
 		List<ChatMessageDto> chatMessageDtos = chatMessages.stream()
 			.map(message -> {
 				if (message == null || message.getSender() == null) {
-					log.warn("⚠sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
+					log.warn("sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
 					return null;
 				}
 
@@ -128,10 +132,6 @@ public class ChatRoomService {
 
 				// 프로필 이미지 URL 가져오기
 				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
-
-				if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-					profileImageUrl = "https://cdn.example.com/default-profile.png"; // 기본 프로필 이미지 URL
-				}
 
 				ChatMessageDto dto = ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())

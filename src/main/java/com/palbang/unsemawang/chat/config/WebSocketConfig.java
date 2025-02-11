@@ -6,17 +6,25 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import com.palbang.unsemawang.chat.interceptor.WebSocketAuthInterceptor;
+import com.palbang.unsemawang.jwt.JWTUtil;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
+@AllArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+	private final JWTUtil jwtUtil;
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws")
 			.setAllowedOriginPatterns("*")
+			.addInterceptors(new WebSocketAuthInterceptor(jwtUtil)) // 🔹 인터셉터에 JWTUtil 전달
 			.withSockJS();
 		log.info("✅ WebSocket Endpoint Registered: /ws");
 	}

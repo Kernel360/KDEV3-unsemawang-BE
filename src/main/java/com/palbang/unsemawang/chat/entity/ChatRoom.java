@@ -2,6 +2,7 @@ package com.palbang.unsemawang.chat.entity;
 
 import java.time.LocalDateTime;
 
+import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -26,7 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Table(name = "chat_room")
-public class ChatRoom {
+public class ChatRoom extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +42,7 @@ public class ChatRoom {
 	private Member user2;  // 큰 ID를 가진 사용자
 
 	@Column(nullable = false)
-	private LocalDateTime createdAt;  // 채팅방 생성 시간
+	private LocalDateTime registeredAt;  // 채팅방 생성 시간
 
 	@Column(nullable = false)
 	@Builder.Default
@@ -63,7 +64,7 @@ public class ChatRoom {
 				.user2(userB)
 				.active(true)
 				.isDelete(false)
-				.createdAt(LocalDateTime.now())
+				.registeredAt(LocalDateTime.now())
 				.unreadCount(0)
 				.build();
 		} else {
@@ -72,7 +73,7 @@ public class ChatRoom {
 				.user2(userA)
 				.active(true)
 				.isDelete(false)
-				.createdAt(LocalDateTime.now())
+				.registeredAt(LocalDateTime.now())
 				.unreadCount(0)
 				.build();
 		}

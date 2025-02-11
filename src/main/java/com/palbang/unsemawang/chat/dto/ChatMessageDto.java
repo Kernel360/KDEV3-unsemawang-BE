@@ -21,15 +21,23 @@ import lombok.Setter;
 @Schema(description = "채팅 메시지 DTO")
 public class ChatMessageDto {
 
+	@Schema(required = true)
 	private Long chatRoomId;
+	@Schema(required = true)
 	private String senderId;
+	@Schema(required = true)
 	private String content;
+	@Schema(required = true)
 	private MessageStatus status;
+	@Schema(required = false)
 	private Long timestamp;
+	@Schema(required = true)
 	private String nickname;
+	@Schema(required = true)
 	private String profileImageUrl;
 
 	/** 보낸 사람 타입 (SELF: 본인, OTHER: 상대방) */
 	@JsonProperty("senderType")
+	@Schema(required = true)
 	private SenderType senderType;
 }

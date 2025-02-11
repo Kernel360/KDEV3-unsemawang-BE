@@ -65,9 +65,6 @@ public class ChatMessageConsumer {
 					ZoneId.systemDefault()))
 				.build();
 
-			// Sender.nickname을 강제 로딩하여 Hibernate Proxy 문제 방지
-			Hibernate.initialize(sender.getFavorites());
-
 			chatMessageRepository.save(chatMessage);
 
 			// WebSocket 메시지 전송 시 timestamp 변환
@@ -87,10 +84,6 @@ public class ChatMessageConsumer {
 
 		// 프로필 이미지 URL 가져오기
 		String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
-
-		if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-			profileImageUrl = "https://cdn.example.com/default-profile.png"; // 기본 프로필 이미지 URL
-		}
 
 		return ChatMessageDto.builder()
 			.chatRoomId(message.getChatRoom().getId())
