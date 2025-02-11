@@ -49,8 +49,13 @@ public class FirebaseConfig {
 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
 			.build();
 
-		firebaseApp = FirebaseApp.initializeApp(options);
-		log.info("FirebaseApp initialized");
+		if (FirebaseApp.getApps().isEmpty()) {
+			firebaseApp = FirebaseApp.initializeApp(options);
+			log.info("FirebaseApp initialized");
+		} else {
+			firebaseApp = FirebaseApp.getInstance();
+			log.info("FirebaseApp already initialized");
+		}
 
 		return firebaseApp;
 	}
