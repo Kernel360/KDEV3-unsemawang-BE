@@ -40,6 +40,10 @@ public class MemberMatchingScore extends BaseEntity {
 	@Column(name = "score", nullable = false)
 	private int score;
 
+	@Column(name = "scaling_score", nullable = false)
+	@Builder.Default
+	private int scalingScore = 0;
+
 	@Column(name = "registered_at", updatable = false)
 	@Builder.Default
 	private LocalDateTime registeredAt = LocalDateTime.now();
@@ -48,8 +52,11 @@ public class MemberMatchingScore extends BaseEntity {
 	@Builder.Default
 	private LocalDateTime updatedAt = LocalDateTime.now();
 
-	public void updateScore(int score) {
-		this.score = score;
-		this.updatedAt = LocalDateTime.now();
+	public void updateScore(int score, int scalingScore) {
+		if (this.score != score || this.scalingScore != scalingScore) { // 값이 다를 때만 변경
+			this.score = score;
+			this.scalingScore = scalingScore;
+			this.updatedAt = LocalDateTime.now();
+		}
 	}
 }
