@@ -41,4 +41,5 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@EntityGraph(attributePaths = {"nickname", "profileUrl"})
 	@Query("SELECT m FROM Member m WHERE m.id = :id")
 	Optional<Member> findWithDetailsById(@Param("id") String id);
+
 }
