@@ -20,4 +20,6 @@ public class FcmNotificationRequest {
 	private String title;
 	@Schema(description = "메세지 내용", required = true, example = "메세지 내용")
 	private String body;
+	@Schema(description = "링크 url", required = true, example = "https://www.unsemawang.com/")
+	private String url;
 }

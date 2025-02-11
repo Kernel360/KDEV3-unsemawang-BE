@@ -2,6 +2,8 @@ package com.palbang.unsemawang.fcm.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -70,11 +72,37 @@ public class FcmController {
 		}
 
 		try {
-			return fcmService.sendPushMessage(request.getFcmToken(),request.getTitle(),request.getBody());
+			return fcmService.sendPushMessage(request);
 		} catch (FirebaseMessagingException e) {
 			e.printStackTrace();
 			return "Error: " + e.getMessage();
 		}
 	}
+	@Operation(
+		summary = "FCM 토큰 조회",
+		description = "로그인한 회원의 FCM 토큰을 조회합니다."
+	)
+	@GetMapping("/token")
+	public ResponseEntity<String> getFcmToken(@AuthenticationPrincipal CustomOAuth2User auth) {
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+		String fcmToken = fcmService.getFcmToken(auth.getId());
+		return ResponseEntity.ok(fcmToken);
+	}
+
+	@Operation(
+		summary = "FCM 토큰 삭제",
+		description = "회원의 FCM 토큰을 삭제합니다."
+	)
+	@DeleteMapping("/token")
+	public ResponseEntity<Void> deleteFcmToken(@AuthenticationPrincipal CustomOAuth2User auth) {
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+		fcmService.deleteFcmToken(auth.getId());
+		return ResponseEntity.noContent().build();
+	}
+
 
 }
