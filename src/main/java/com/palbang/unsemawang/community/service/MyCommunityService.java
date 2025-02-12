@@ -65,7 +65,7 @@ public class MyCommunityService {
 	 */
 	private PostListResponse convertToPostListResponse(PostProjectionDto post, String memberId) {
 		return PostListResponse.builder()
-			.cursorId(post.getId())
+			.cursorKey(post.getId())
 			.id(post.getId())
 			.title(post.getTitle())
 			.snippet(post.getSnippet())

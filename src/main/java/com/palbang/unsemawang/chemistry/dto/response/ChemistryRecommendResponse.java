@@ -20,6 +20,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChemistryRecommendResponse {
 
+	@Schema(required = true, description = "상대방 id")
+	private String targetId;
+
 	@Schema(required = true, description = "나와의 궁합 매칭 점수")
 	private Integer score;
 
@@ -49,6 +52,7 @@ public class ChemistryRecommendResponse {
 		String element = FiveElements.convertToChinese(fortuneUserInfo.getDayGan());
 
 		return ChemistryRecommendResponse.builder()
+			.targetId(matchMember.getId())
 			.score(scoreEntity.getScalingScore())
 			.fiveElementCn(element)
 			.nickname(matchMember.getNickname())

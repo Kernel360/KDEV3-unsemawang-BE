@@ -2,7 +2,6 @@ package com.palbang.unsemawang.community.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.community.constant.CommunityCategory;
 import com.palbang.unsemawang.community.entity.Post;
 
@@ -14,7 +13,7 @@ import lombok.Getter;
 @Builder
 public class PostListResponse {
 
-	private Long cursorId;
+	private Long cursorKey;
 
 	@Schema(description = "게시글 ID", required = true, example = "1")
 	private Long id;
@@ -54,21 +53,21 @@ public class PostListResponse {
 
 	public static PostListResponse fromEntity(Post post, String imageUrl, String profileImageUrl) {
 		return PostListResponse.builder()
-				.cursorId(post.getId())
-				.id(post.getId())
-				.title(post.getTitle())
-				.snippet(post.getContent().substring(0, Math.min(post.getContent().length(), 100)))
-				.viewCount(post.getViewCount())
-				.likeCount(post.getLikeCount())
-				.commentCount(post.getCommentCount())
-				.nickname(post.getIsAnonymous() ? "익명"
-						: (post.getMember() != null ? post.getMember()
-						.getNickname() : "탈퇴한 사용자"))
-				.profileImageUrl(profileImageUrl)
-				.communityCategory(post.getCommunityCategory())
-				.registeredAt(post.getRegisteredAt())
-				.updatedAt(post.getUpdatedAt())
-				.imageUrl(imageUrl)
-				.build();
+			.cursorKey(post.getId())
+			.id(post.getId())
+			.title(post.getTitle())
+			.snippet(post.getContent().substring(0, Math.min(post.getContent().length(), 100)))
+			.viewCount(post.getViewCount())
+			.likeCount(post.getLikeCount())
+			.commentCount(post.getCommentCount())
+			.nickname(post.getIsAnonymous() ? "익명"
+				: (post.getMember() != null ? post.getMember()
+				.getNickname() : "탈퇴한 사용자"))
+			.profileImageUrl(profileImageUrl)
+			.communityCategory(post.getCommunityCategory())
+			.registeredAt(post.getRegisteredAt())
+			.updatedAt(post.getUpdatedAt())
+			.imageUrl(imageUrl)
+			.build();
 	}
 }
