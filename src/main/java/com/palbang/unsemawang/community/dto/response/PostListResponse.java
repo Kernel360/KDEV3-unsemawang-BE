@@ -13,8 +13,6 @@ import lombok.Getter;
 @Builder
 public class PostListResponse {
 
-	private Long cursorKey;
-
 	@Schema(description = "게시글 ID", required = true, example = "1")
 	private Long id;
 
@@ -53,7 +51,6 @@ public class PostListResponse {
 
 	public static PostListResponse fromEntity(Post post, String imageUrl, String profileImageUrl) {
 		return PostListResponse.builder()
-			.cursorKey(post.getId())
 			.id(post.getId())
 			.title(post.getTitle())
 			.snippet(post.getContent().substring(0, Math.min(post.getContent().length(), 100)))
