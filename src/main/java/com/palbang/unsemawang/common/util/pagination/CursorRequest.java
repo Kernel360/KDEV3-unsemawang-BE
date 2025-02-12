@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param <T> 페이지에 담을 데이터 객체
  */
 public record CursorRequest<T>(
-	@Schema(description = "커서 키 (첫 요청 시 null 가능)", required = true, nullable = true)
-	T cursorKey, @Schema(required = true) Integer size) {
+	@Schema(description = "커서 키 (첫 요청 시 null 가능)", required = true, nullable = true) T cursorKey,
+	@Schema(required = true) Integer size) {
 
 	public CursorRequest(T cursorKey, Integer size) {
 		this.cursorKey = cursorKey;
