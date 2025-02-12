@@ -65,7 +65,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 			.from(post)
 			.where(
 				whereClause,
-				cursorRequest.key() == null ? null : post.id.lt(cursorRequest.key()) // 커서 기반 페이징 적용
+				cursorRequest.cursorKey() == null ? null : post.id.lt(cursorRequest.cursorKey()) // 커서 기반 페이징 적용
 			)
 			.orderBy(orderSpecifier, post.id.desc()) // 최신순 또는 조회순 정렬
 			.limit(cursorRequest.size() + 1) // 한 개 더 가져와서 다음 커서 판단
