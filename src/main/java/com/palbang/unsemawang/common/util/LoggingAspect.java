@@ -24,6 +24,7 @@ public class LoggingAspect {
 	@Pointcut("execution(* com.palbang.unsemawang..*.*(..)) "
 		+ "&& !execution(* com.palbang.unsemawang.common..*.*(..)) "
 		+ "&& !execution(* com.palbang.unsemawang.config..*.*(..)) "
+		+ "&& !execution(* com.palbang.unsemawang.chat..*.*(..)) "
 		+ "&& !execution(* com.palbang.unsemawang.fortune.config..*.*(..))")
 	public void applicationPackagePointcut() {
 	}

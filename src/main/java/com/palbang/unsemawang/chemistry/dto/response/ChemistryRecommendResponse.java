@@ -1,6 +1,6 @@
 package com.palbang.unsemawang.chemistry.dto.response;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.chemistry.entity.MemberMatchingScore;
@@ -19,6 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ChemistryRecommendResponse {
+
+	@Schema(required = true, description = "상대방 id")
+	private String targetId;
 
 	@Schema(required = true, description = "나와의 궁합 매칭 점수")
 	private Integer score;
@@ -39,24 +42,24 @@ public class ChemistryRecommendResponse {
 	private char sex;
 
 	@Schema(required = false, description = "상대방 마지막 로그인 날짜")
-	private LocalDate lastActiveDate;
+	private LocalDateTime lastActiveDateTime;
 
 	// 점수 스케일링 포함된 정적 팩토리 메서드
 	public static ChemistryRecommendResponse from(MemberMatchingScore scoreEntity, FortuneUserInfo fortuneUserInfo,
-		int maxScore, String imgUrl) {
+		String imgUrl) {
 		Member matchMember = scoreEntity.getMatchMember();
-		int scaledScore = (int)Math.round(((double)scoreEntity.getScore() / maxScore) * 10);
 
 		String element = FiveElements.convertToChinese(fortuneUserInfo.getDayGan());
 
 		return ChemistryRecommendResponse.builder()
-			.score(scaledScore)
+			.targetId(matchMember.getId())
+			.score(scoreEntity.getScalingScore())
 			.fiveElementCn(element)
 			.nickname(matchMember.getNickname())
 			.profileImageUrl(imgUrl)
 			.profileBio(matchMember.getDetailBio())
 			.sex(fortuneUserInfo.getSex())
-			.lastActiveDate(matchMember.getLastLoginAt() != null ? matchMember.getLastLoginAt().toLocalDate() : null)
+			.lastActiveDateTime(matchMember.getLastActivityAt())
 			.build();
 	}
 }

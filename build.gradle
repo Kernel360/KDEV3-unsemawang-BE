@@ -33,6 +33,7 @@ dependencies {
     // Spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -101,6 +102,13 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'com.github.kstyrc:embedded-redis:0.6'
+
+
+    // AMQP
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-admin:9.4.3'
 
 
     // Batch

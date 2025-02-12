@@ -78,6 +78,7 @@ public enum ResponseCode implements Codable {
 	MAX_VALUE("6222", HttpStatus.BAD_REQUEST, "최대 값 기준치 초과"),
 	DUPLICATED_VALUE("6223", HttpStatus.CONFLICT, "이미 사용 중인 닉네임 입니다."),
 	NOT_EXIST_TENGAN("6224", HttpStatus.BAD_REQUEST, "십간(十干)이 존재하지 않습니다."),
+	NOT_EXIST_FCM_TOKEN("6225", HttpStatus.BAD_REQUEST, "FCM 토큰이 존재하지 않습니다."),
 
 	// 유효성 검사 오류 (값: 63xx)
 	EMPTY_PARAM_BLANK_OR_NULL("6300", HttpStatus.BAD_REQUEST, "Request Parameter 빈 값, NULL 또는 공백"),

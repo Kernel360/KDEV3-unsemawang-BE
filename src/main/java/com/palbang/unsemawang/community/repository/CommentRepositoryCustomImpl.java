@@ -86,7 +86,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 			.where(
 				comment.member.id.eq(memberId),
 				comment.isDeleted.eq(false),
-				cursorRequest.key() == null ? null : comment.id.lt(cursorRequest.key())
+				cursorRequest.cursorKey() == null ? null : comment.id.lt(cursorRequest.cursorKey())
 			)
 			.orderBy(comment.registeredAt.desc(), comment.id.desc())
 			.limit(cursorRequest.size() + 1)

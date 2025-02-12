@@ -1,0 +1,245 @@
+package com.palbang.unsemawang.chat.service;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.hibernate.Hibernate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.palbang.unsemawang.chat.constant.SenderType;
+import com.palbang.unsemawang.chat.dto.ChatMessageDto;
+import com.palbang.unsemawang.chat.dto.ChatRoomDto;
+import com.palbang.unsemawang.chat.entity.ChatMessage;
+import com.palbang.unsemawang.chat.entity.ChatRoom;
+import com.palbang.unsemawang.chat.entity.MessageStatus;
+import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
+import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
+import com.palbang.unsemawang.chemistry.constant.FiveElements;
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.common.util.file.service.FileService;
+import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
+import com.palbang.unsemawang.member.entity.Member;
+import com.palbang.unsemawang.member.repository.MemberRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ChatRoomService {
+
+	private final ChatRoomRepository chatRoomRepository;
+	private final ChatMessageRepository chatMessageRepository;
+	private final MemberRepository memberRepository;
+	private final FortuneUserInfoRepository fortuneUserInfoRepository;
+	private final FileService fileService;
+	private final SimpMessagingTemplate messagingTemplate;
+
+	/**
+	 * 사용자의 채팅방 목록을 조회하거나 새로 생성
+	 */
+	@Transactional
+	public ChatRoomDto createOrGetChatRoom(String senderId, String receiverId) {
+		ChatRoom chatRoom = chatRoomRepository.findByUsers(senderId, receiverId)
+			.orElseGet(() -> {
+				Member sender = memberRepository.findById(senderId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+				Member receiver = memberRepository.findById(receiverId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+				ChatRoom newChatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
+				return chatRoomRepository.save(newChatRoom);
+			});
+
+		Member targetUser = memberRepository.findById(receiverId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+
+		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0, profileImageUrl);
+	}
+
+	/**
+	 * 사용자의 채팅방 목록을 조회하며 마지막 메시지와 오행 정보를 포함
+	 */
+	@Transactional(readOnly = true)
+	public List<ChatRoomDto> getChatRoomsWithLastMessage(String userId) {
+		List<ChatRoom> chatRooms = chatRoomRepository.findByUserId(userId);
+
+		return chatRooms.stream().map(chatRoom -> {
+			ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
+				.orElse(null);
+
+			Member targetUser = getTargetUser(chatRoom, userId)
+				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+			String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+
+			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
+				chatRoom, userId, MessageStatus.RECEIVED);
+
+			String fiveElement = getUserFiveElement(targetUser.getId());
+
+			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount, profileImageUrl);
+		}).collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChatMessageDto> getChatHistory(Long chatRoomId, String userId) {
+		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
+
+		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
+
+		if (chatMessages.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		return chatMessages.stream()
+			.filter(Objects::nonNull)
+			.map(message -> {
+				if (message.getSender() == null) {
+					throw new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID);
+				}
+
+				Hibernate.initialize(message.getSender());
+
+				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
+
+				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
+
+				ChatMessageDto dto = ChatMessageDto.builder()
+					.chatRoomId(chatRoom.getId())
+					.senderId(message.getSender().getId())
+					.nickname(Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
+					.profileImageUrl(profileImageUrl)
+					.content(message.getContent())
+					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+					.status(message.getStatus())
+					.senderType(senderType)
+					.build();
+
+				try {
+					objectMapper.writeValueAsString(dto);
+				} catch (Exception e) {
+					throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "JSON 직렬화 오류", e);
+				}
+
+				return dto;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * 사용자가 채팅방을 떠남
+	 */
+	@Transactional
+	public void leaveChatRoom(String userId, Long chatRoomId) {
+		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
+
+		boolean isUser1 = removeUserFromChatRoom(chatRoom, userId, true);
+		boolean isUser2 = removeUserFromChatRoom(chatRoom, userId, false);
+
+		if (!isUser1 && !isUser2) {
+			throw new GeneralException(ResponseCode.FORBIDDEN);
+		}
+
+		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
+
+		if (targetUser != null) {
+			ChatMessage leaveMessage = ChatMessage.builder()
+				.chatRoom(chatRoom)
+				.sender(null)
+				.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+				.status(MessageStatus.RECEIVED)
+				.timestamp(LocalDateTime.now())
+				.build();
+
+			chatMessageRepository.save(leaveMessage);
+
+			messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
+				ChatMessageDto.builder()
+					.chatRoomId(chatRoomId)
+					.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+					.status(MessageStatus.RECEIVED)
+					.timestamp(System.currentTimeMillis())
+					.nickname("시스템")
+					.senderId(null)
+					.senderType(SenderType.OTHER)
+					.build()
+			);
+		}
+
+		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
+			chatRoom.setDelete(true);
+		}
+
+		chatRoomRepository.save(chatRoom);
+	}
+
+	/**
+	 * 채팅방의 안 읽은 메시지를 READ 상태로 업데이트
+	 */
+	@Transactional
+	public void markMessagesAsRead(Long chatRoomId, String userId) {
+		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
+
+		List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomAndSenderIdNotAndStatus(
+			chatRoom, userId, MessageStatus.RECEIVED);
+
+		if (!unreadMessages.isEmpty()) {
+			unreadMessages.forEach(message -> message.setStatus(MessageStatus.READ));
+			chatMessageRepository.saveAll(unreadMessages);
+		}
+	}
+
+	/**
+	 * 사용자 오행 정보 조회
+	 */
+	private String getUserFiveElement(String userId) {
+		return fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(userId)
+			.map(info -> FiveElements.convertToChinese(info.getDayGan()))
+			.orElse(null);
+	}
+
+	/**
+	 * 채팅방에서 사용자를 제거하는 메서드
+	 */
+	private boolean removeUserFromChatRoom(ChatRoom chatRoom, String userId, boolean isUser1) {
+		if (isUser1 && chatRoom.getUser1() != null && chatRoom.getUser1().getId().equals(userId)) {
+			chatRoom.setUser1(null);
+			return true;
+		} else if (!isUser1 && chatRoom.getUser2() != null && chatRoom.getUser2().getId().equals(userId)) {
+			chatRoom.setUser2(null);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 채팅방에서 대상 사용자를 찾는 메서드
+	 */
+	private Optional<Member> getTargetUser(ChatRoom chatRoom, String userId) {
+		if (chatRoom.getUser1() != null && !chatRoom.getUser1().getId().equals(userId)) {
+			return Optional.of(chatRoom.getUser1());
+		} else if (chatRoom.getUser2() != null && !chatRoom.getUser2().getId().equals(userId)) {
+			return Optional.of(chatRoom.getUser2());
+		}
+		return Optional.empty();
+	}
+}

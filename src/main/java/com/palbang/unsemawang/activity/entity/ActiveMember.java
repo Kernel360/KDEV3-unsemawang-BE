@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.TimeToLive;
+
+import com.palbang.unsemawang.activity.constant.ActiveStatus;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,9 +24,11 @@ public class ActiveMember {
 	@Id
 	private String memberId;
 
-	@Builder.Default
-	private LocalDateTime lastActiveDateTime = LocalDateTime.now();
+	private ActiveStatus status;
 
-	@TimeToLive
-	private Long ttl;
+	private Long chatRoomId;
+
+	@Builder.Default
+	private LocalDateTime lastActiveAt = LocalDateTime.now();
+
 }

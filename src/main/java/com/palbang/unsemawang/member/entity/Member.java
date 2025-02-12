@@ -73,6 +73,9 @@ public class Member extends BaseEntity {
 	@Column(name = "last_login_at")
 	private LocalDateTime lastLoginAt;  // 최근접속일자
 
+	@Column(name = "last_activity_at")
+	private LocalDateTime lastActivityAt; // 마지막 활동 일시
+
 	@Column(name = "changed_at")
 	private LocalDateTime changedAt; //변경일자
 
@@ -123,5 +126,9 @@ public class Member extends BaseEntity {
 	public void updateExtraInfo(SignupExtraInfoRequest signupExtraInfoDto) {
 		this.nickname = signupExtraInfoDto.getNickname();
 		this.changedAt = LocalDateTime.now();
+	}
+
+	public void updateLastActivityAt() {
+		this.lastActivityAt = LocalDateTime.now();
 	}
 }

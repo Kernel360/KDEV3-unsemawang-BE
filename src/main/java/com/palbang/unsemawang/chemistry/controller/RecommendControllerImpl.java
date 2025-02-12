@@ -32,7 +32,7 @@ public class RecommendControllerImpl implements RecommendController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
-		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTopMatches(auth.getId());
+		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTopShuffleMatches(auth.getId());
 
 		return ResponseEntity.ok(recommendedMemberList);
 	}
