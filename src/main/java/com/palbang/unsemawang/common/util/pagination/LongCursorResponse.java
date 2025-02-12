@@ -13,8 +13,7 @@ public record LongCursorResponse<T>(
 	List<T> data                           // 실제 데이터는 T 타입
 ) {
 	public static <T> LongCursorResponse<T> of(CursorRequest<Long> nextCursorRequest, List<T> data) {
-		// hasNextCursor는 data 리스트가 비어 있지 않은 경우 true로 설정
-		boolean hasNextCursor = (data != null && !data.isEmpty());
+		boolean hasNextCursor = nextCursorRequest.cursorKey() != null;
 		return new LongCursorResponse<>(nextCursorRequest, hasNextCursor, data);
 	}
 

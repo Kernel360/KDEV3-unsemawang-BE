@@ -47,7 +47,7 @@ public class CommentService {
 		// 부모 댓글 페이징 조회
 		LongCursorResponse<Comment> parentResponse = commentRepository.findCommentsByPostIdAndCursor(
 			postId,
-			cursorRequest.key(),
+			cursorRequest.cursorKey(),
 			cursorRequest.size()
 		);
 

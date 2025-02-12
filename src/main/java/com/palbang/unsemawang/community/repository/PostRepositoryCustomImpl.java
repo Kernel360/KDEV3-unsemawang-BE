@@ -65,7 +65,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 			.from(post)
 			.where(
 				whereClause,
-				cursorRequest.key() == null ? null : post.id.lt(cursorRequest.key()) // 커서 기반 페이징 적용
+				cursorRequest.cursorKey() == null ? null : post.id.lt(cursorRequest.cursorKey()) // 커서 기반 페이징 적용
 			)
 			.orderBy(orderSpecifier, post.id.desc()) // 최신순 또는 조회순 정렬
 			.limit(cursorRequest.size() + 1) // 한 개 더 가져와서 다음 커서 판단
@@ -82,17 +82,17 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		return LongCursorResponse.of(cursorRequest.next(nextCursorKey), posts);
 	}
 
-	private BooleanExpression isCursorBefore(Long cursorId, LocalDateTime cursorRegisteredAt) {
-		if (cursorId == null || cursorRegisteredAt == null) {
+	private BooleanExpression isCursorBefore(Long cursorKey, LocalDateTime cursorRegisteredAt) {
+		if (cursorKey == null || cursorRegisteredAt == null) {
 			return null;
 		}
 		return post.registeredAt.lt(cursorRegisteredAt)
 			.or(post.registeredAt.eq(cursorRegisteredAt)
-				.and(post.id.lt(cursorId)));
+				.and(post.id.lt(cursorKey)));
 	}
 
-	private BooleanExpression isCursorForMostViewed(Long cursorId) {
-		if (cursorId == null) {
+	private BooleanExpression isCursorForMostViewed(Long cursorKey) {
+		if (cursorKey == null) {
 			return null;
 		}
 
@@ -100,7 +100,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		Integer cursorViewCount = queryFactory
 			.select(post.viewCount)
 			.from(post)
-			.where(post.id.eq(cursorId))
+			.where(post.id.eq(cursorKey))
 			.fetchOne();
 
 		if (cursorViewCount == null) {
@@ -109,11 +109,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
 		// 커서 기반 조건 추가: viewCount가 작거나 같고 viewCount가 동일하면 ID가 작은 게시글만
 		return post.viewCount.lt(cursorViewCount)
-			.or(post.viewCount.eq(cursorViewCount).and(post.id.lt(cursorId)));
+			.or(post.viewCount.eq(cursorViewCount).and(post.id.lt(cursorKey)));
 	}
 
-	private BooleanExpression isCursorForPopular(Long cursorId) {
-		if (cursorId == null) {
+	private BooleanExpression isCursorForPopular(Long cursorKey) {
+		if (cursorKey == null) {
 			return null;
 		}
 
@@ -121,7 +121,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		Integer cursorPopularityScore = queryFactory
 			.select(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).intValue())
 			.from(post)
-			.where(post.id.eq(cursorId))
+			.where(post.id.eq(cursorKey))
 			.fetchOne();
 
 		if (cursorPopularityScore == null) {
@@ -131,7 +131,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 		// 커서 기반 조건: 점수가 낮거나 같고, 점수가 동일한 경우 ID가 작은 게시글만
 		return post.viewCount.multiply(7).add(post.likeCount.multiply(3)).lt(cursorPopularityScore)
 			.or(post.viewCount.multiply(7).add(post.likeCount.multiply(3)).eq(cursorPopularityScore)
-				.and(post.id.lt(cursorId)));
+				.and(post.id.lt(cursorKey)));
 	}
 
 	private BooleanExpression isVisible() {
@@ -139,14 +139,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	}
 
 	@Override
-	public List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorId,
+	public List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorKey,
 		LocalDateTime cursorRegisteredAt, int size) {
 		return queryFactory
 			.selectFrom(post)
 			.where(
 				post.communityCategory.eq(category),
 				isVisible(),
-				isCursorBefore(cursorId, cursorRegisteredAt)
+				isCursorBefore(cursorKey, cursorRegisteredAt)
 			)
 			.orderBy(post.registeredAt.desc(), post.id.desc())
 			.limit(size)
@@ -154,13 +154,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	}
 
 	@Override
-	public List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorId, int size) {
+	public List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorKey, int size) {
 		return queryFactory
 			.selectFrom(post)
 			.where(
 				post.communityCategory.eq(category),
 				isVisible(),
-				isCursorForMostViewed(cursorId) // updated 커서 조건
+				isCursorForMostViewed(cursorKey) // updated 커서 조건
 			)
 			.orderBy(post.viewCount.desc(), post.id.desc())
 			.limit(size)
@@ -168,13 +168,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	}
 
 	@Override
-	public List<Post> findPopularPosts(Long cursorId, LocalDateTime thirtyDaysAgo, int size) {
+	public List<Post> findPopularPosts(Long cursorKey, LocalDateTime thirtyDaysAgo, int size) {
 		return queryFactory
 			.selectFrom(post)
 			.where(
 				isVisible(), // 게시글 상태 조건
 				post.registeredAt.goe(thirtyDaysAgo), // 30일 이내의 데이터만 조회
-				isCursorForPopular(cursorId) // 수정된 커서 조건
+				isCursorForPopular(cursorKey) // 수정된 커서 조건
 			)
 			.orderBy(post.viewCount.multiply(7).add(post.commentCount.multiply(3)).desc(), post.id.desc()) // 정렬 조건
 			.limit(size) // 페이징
@@ -182,11 +182,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 	}
 
 	@Override
-	public List<Post> searchPosts(String keyword, String searchType, Long cursorId, int size) {
+	public List<Post> searchPosts(String keyword, String searchType, Long cursorKey, int size) {
 		return queryFactory
 			.selectFrom(post)
 			.where(
-				cursorId != null ? post.id.lt(cursorId) : null,
+				cursorKey != null ? post.id.lt(cursorKey) : null,
 				isVisible(),
 				buildSearchCondition(keyword, searchType)
 			)
