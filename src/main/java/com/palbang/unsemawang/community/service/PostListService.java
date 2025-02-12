@@ -115,27 +115,27 @@ public class PostListService {
 	}
 
 	// 일반 게시판용 게시글 조회 로직
-	private List<Post> fetchPosts(CommunityCategory communityCategory, Long cursorId, Sortingtype sort, int size) {
+	private List<Post> fetchPosts(CommunityCategory communityCategory, Long cursorKey, Sortingtype sort, int size) {
 		if (Sortingtype.MOST_VIEWED.equals(sort)) {
 			return postRepository.findMostViewedPostsByCategory(
 				communityCategory,
-				cursorId,
+				cursorKey,
 				size + 1 // size + 1로 hasNext 확인
 			);
 		}
 		if (Sortingtype.LATEST.equals(sort)) {
 			return postRepository.findLatestPostsByCategory(
 				communityCategory,
-				cursorId,
-				cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null,
+				cursorKey,
+				cursorKey != null ? postRepository.findRegisteredAtById(cursorKey) : null,
 				size + 1);
 		}
 		throw new IllegalArgumentException("지원하지 않는 정렬 옵션입니다. 'latest' 또는 'mostViewed' 만 가능합니다.");
 	}
 
 	// Helper 메서드: 검색 조건 처리
-	private List<Post> fetchPostsWithSearch(String keyword, String searchType, Long cursorId, int size) {
-		return postRepository.searchPosts(keyword, searchType, cursorId, size + 1); // size + 1 사용
+	private List<Post> fetchPostsWithSearch(String keyword, String searchType, Long cursorKey, int size) {
+		return postRepository.searchPosts(keyword, searchType, cursorKey, size + 1); // size + 1 사용
 	}
 
 }
