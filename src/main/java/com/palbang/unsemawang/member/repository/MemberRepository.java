@@ -37,4 +37,9 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
 	// 특정 날짜를 기점으로 활동한 회원 리스트 조회
 	List<Member> findAllByLastActivityAtAfter(LocalDateTime lastActivityAt);
+
+	@EntityGraph(attributePaths = {"nickname", "profileUrl"})
+	@Query("SELECT m FROM Member m WHERE m.id = :id")
+	Optional<Member> findWithDetailsById(@Param("id") String id);
+
 }
