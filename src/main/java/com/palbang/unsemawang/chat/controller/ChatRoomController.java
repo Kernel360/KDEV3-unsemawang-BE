@@ -1,6 +1,5 @@
 package com.palbang.unsemawang.chat.controller;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Chat Room", description = "채팅방 관련 API")
+@Tag(name = "Chat", description = "실시간 채팅 WebSocket API")
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
@@ -46,6 +45,10 @@ public class ChatRoomController {
 		}
 
 		String receiverId = requestBody.get("receiverId");
+		if (receiverId == null || receiverId.isBlank()) {
+			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "receiverId가 누락되었습니다.");
+		}
+
 		ChatRoomDto chatRoom = chatRoomService.createOrGetChatRoom(auth.getId(), receiverId);
 		return ResponseEntity.ok(chatRoom);
 	}
@@ -72,6 +75,10 @@ public class ChatRoomController {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
 
+		if (chatRoomId == null) {
+			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "chatRoomId가 누락되었습니다.");
+		}
+
 		List<ChatMessageDto> chatHistory = chatRoomService.getChatHistory(chatRoomId, user.getId());
 		chatRoomService.markMessagesAsRead(chatRoomId, user.getId());
 
@@ -87,28 +94,12 @@ public class ChatRoomController {
 		if (user == null || user.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
-		chatRoomService.leaveChatRoom(user.getId(), chatRoomId);
-		return ResponseEntity.noContent().build();
-	}
 
-	// 온라인 상태 확인 API (GET)
-	@GetMapping("/user-status/{userId}")
-	public ResponseEntity<Boolean> isUserOnline(@PathVariable String userId) {
-		String isOnline = redisTemplate.opsForValue().get("online:" + userId);
-		return ResponseEntity.ok(isOnline != null); // 키가 있으면 true, 없으면 false 반환
-	}
-
-	// 온라인 상태 업데이트 API (POST) 추가
-	@PostMapping("/user-status/{userId}")
-	public ResponseEntity<Void> updateUserOnlineStatus(@PathVariable String userId) {
-
-		if (redisTemplate == null) {
-			throw new IllegalStateException("RedisTemplate is not initialized.");
+		if (chatRoomId == null) {
+			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "chatRoomId가 누락되었습니다.");
 		}
 
-		// 유저를 온라인 상태로 설정 (만료 시간 5분 설정)
-		redisTemplate.opsForValue().set("online:" + userId, "1", Duration.ofMinutes(5));
-
-		return ResponseEntity.ok().build();
+		chatRoomService.leaveChatRoom(user.getId(), chatRoomId);
+		return ResponseEntity.noContent().build();
 	}
 }

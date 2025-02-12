@@ -8,14 +8,14 @@ import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
 import com.palbang.unsemawang.chat.service.ChatMessageProducer;
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "Chat", description = "실시간 채팅 WebSocket API")
-@Slf4j
 @Controller
 @AllArgsConstructor
 public class ChatController {
@@ -26,29 +26,23 @@ public class ChatController {
 	@Operation(summary = "채팅 메시지 전송", description = "WebSocket을 통해 메시지를 전송하고 RabbitMQ로 전달합니다.")
 	@MessageMapping("/chat/sendMessage")
 	public void sendMessage(@Payload ChatMessageDto chatMessageDto) {
-		log.info("📩 Received WebSocket message: {}", chatMessageDto);
-
 		if (chatMessageDto.getChatRoomId() == null) {
-			log.error("chatRoomId가 누락됨! {}", chatMessageDto);
-			return;
+			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "chatRoomId가 누락되었습니다.");
 		}
 
 		ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
-			.orElseThrow(
-				() -> new IllegalStateException("채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+				"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
 
 		boolean isReadOnly = (chatRoom.getUser1() == null || chatRoom.getUser2() == null);
 		if (isReadOnly) {
-			log.warn("채팅방 {} 에서 메시지 입력 차단됨 - 혼자 남은 상태", chatRoom.getId());
-			return;
+			throw new GeneralException(ResponseCode.FORBIDDEN, "채팅방에서 메시지 입력이 차단되었습니다. 혼자 남은 상태입니다.");
 		}
 
 		try {
-			log.info("Sending message to RabbitMQ: {}", chatMessageDto);
 			chatMessageProducer.sendMessageToQueue(chatMessageDto);
-			log.info("Message sent to RabbitMQ successfully!");
 		} catch (Exception e) {
-			log.error("Failed to send message to RabbitMQ", e);
+			throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "메시지를 RabbitMQ로 전송하는 데 실패했습니다.", e);
 		}
 	}
 }

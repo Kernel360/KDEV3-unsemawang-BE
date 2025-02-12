@@ -1,7 +1,6 @@
 package com.palbang.unsemawang.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 
@@ -35,9 +34,6 @@ public class ChatMessageDto {
 	private String nickname;
 	@Schema(required = true)
 	private String profileImageUrl;
-
-	/** 보낸 사람 타입 (SELF: 본인, OTHER: 상대방) */
-	@JsonProperty("senderType")
 	@Schema(required = true)
 	private SenderType senderType;
 }
