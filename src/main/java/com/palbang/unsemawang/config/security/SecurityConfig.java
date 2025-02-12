@@ -47,7 +47,7 @@ public class SecurityConfig {
 		// ✅ 인증이 필요한 엔드포인트 지정
 		http.authorizeHttpRequests(auth -> auth
 			.requestMatchers("/favicon.ico").permitAll()
-			.requestMatchers("/chat/rooms/**").authenticated()  // ✅ 채팅 관련 API는 JWT 인증 필요
+			//.requestMatchers("/chat/rooms/**").authenticated()
 			.anyRequest().permitAll());
 
 		return http.build();

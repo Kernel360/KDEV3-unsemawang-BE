@@ -23,6 +23,8 @@ import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
 import com.palbang.unsemawang.chemistry.constant.FiveElements;
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
@@ -45,29 +47,26 @@ public class ChatRoomService {
 	private final SimpMessagingTemplate messagingTemplate;
 
 	/**
-	 * 사용자의 채팅방 목록을 조회
+	 * 사용자의 채팅방 목록을 조회하거나 새로 생성
 	 */
 	@Transactional
 	public ChatRoomDto createOrGetChatRoom(String senderId, String receiverId) {
-		Optional<ChatRoom> chatRoomOpt = chatRoomRepository.findByUsers(senderId, receiverId);
+		ChatRoom chatRoom = chatRoomRepository.findByUsers(senderId, receiverId)
+			.orElseGet(() -> {
+				Member sender = memberRepository.findById(senderId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+				Member receiver = memberRepository.findById(receiverId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-		ChatRoom chatRoom = chatRoomOpt.orElseGet(() -> {
-			Member sender = memberRepository.findById(senderId)
-				.orElseThrow(() -> new IllegalArgumentException("발신자 정보를 찾을 수 없음"));
-			Member receiver = memberRepository.findById(receiverId)
-				.orElseThrow(() -> new IllegalArgumentException("수신자 정보를 찾을 수 없음"));
+				ChatRoom newChatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
+				return chatRoomRepository.save(newChatRoom);
+			});
 
-			ChatRoom newChatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
-			return chatRoomRepository.save(newChatRoom);
-		});
-
-		// receiverId를 기반으로 targetUser 찾기 (이제 NullPointerException 방지 가능)
 		Member targetUser = memberRepository.findById(receiverId)
-			.orElseThrow(() -> new IllegalStateException("targetUser를 찾을 수 없습니다. receiverId=" + receiverId));
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
 		String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-		// unreadCount(안 읽은 메시지 개수) 추가 (기본값: 0)
 		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0, profileImageUrl);
 	}
 
@@ -79,26 +78,18 @@ public class ChatRoomService {
 		List<ChatRoom> chatRooms = chatRoomRepository.findByUserId(userId);
 
 		return chatRooms.stream().map(chatRoom -> {
-			Optional<ChatMessage> lastMessageOpt = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(
-				chatRoom);
-			ChatMessage lastMessage = lastMessageOpt.orElse(null);
+			ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
+				.orElse(null);
 
-			Member targetUser = null;
-			boolean isUser1 = chatRoom.getUser1() != null && !chatRoom.getUser1().getId().equals(userId);
-			boolean isUser2 = chatRoom.getUser2() != null && !chatRoom.getUser2().getId().equals(userId);
-
-			if (isUser1) {
-				targetUser = chatRoom.getUser1();
-			} else if (isUser2) {
-				targetUser = chatRoom.getUser2();
-			}
+			Member targetUser = getTargetUser(chatRoom, userId)
+				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
 			String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, userId,
-				MessageStatus.RECEIVED);
+			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
+				chatRoom, userId, MessageStatus.RECEIVED);
 
-			String fiveElement = (targetUser != null) ? getUserFiveElement(targetUser.getId()) : null;
+			String fiveElement = getUserFiveElement(targetUser.getId());
 
 			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount, profileImageUrl);
 		}).collect(Collectors.toList());
@@ -107,37 +98,34 @@ public class ChatRoomService {
 	@Transactional(readOnly = true)
 	public List<ChatMessageDto> getChatHistory(Long chatRoomId, String userId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
 		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
 
 		if (chatMessages.isEmpty()) {
-			log.warn("채팅 내역이 없습니다. chatRoomId={}", chatRoomId);
 			return Collections.emptyList();
 		}
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		List<ChatMessageDto> chatMessageDtos = chatMessages.stream()
+		return chatMessages.stream()
+			.filter(Objects::nonNull)
 			.map(message -> {
-				if (message == null || message.getSender() == null) {
-					log.warn("sender가 NULL인 메시지가 있음, messageId={}", message != null ? message.getId() : "Unknown");
-					return null;
+				if (message.getSender() == null) {
+					throw new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID);
 				}
 
-				// Lazy Loading 문제 해결 (sender 강제 초기화)
 				Hibernate.initialize(message.getSender());
 
 				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
 
-				// 프로필 이미지 URL 가져오기
 				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
 
 				ChatMessageDto dto = ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())
 					.senderId(message.getSender().getId())
-					.nickname(message.getSender().getNickname() != null ? message.getSender().getNickname() : "Unknown")
-					.profileImageUrl(profileImageUrl) // 프로필 이미지 추가
+					.nickname(Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
+					.profileImageUrl(profileImageUrl)
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
@@ -145,45 +133,37 @@ public class ChatRoomService {
 					.build();
 
 				try {
-					String jsonOutput = objectMapper.writeValueAsString(dto);
-					log.info("직렬화된 메시지 JSON: {}", jsonOutput);
+					objectMapper.writeValueAsString(dto);
 				} catch (Exception e) {
-					log.error("JSON 직렬화 오류 발생", e);
+					throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "JSON 직렬화 오류", e);
 				}
 
 				return dto;
 			})
-			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
-
-		return chatMessageDtos;
 	}
 
+	/**
+	 * 사용자가 채팅방을 떠남
+	 */
 	@Transactional
 	public void leaveChatRoom(String userId, Long chatRoomId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		// 현재 사용자 제거
-		boolean isUser1 = chatRoom.getUser1() != null && chatRoom.getUser1().getId().equals(userId);
-		boolean isUser2 = chatRoom.getUser2() != null && chatRoom.getUser2().getId().equals(userId);
+		boolean isUser1 = removeUserFromChatRoom(chatRoom, userId, true);
+		boolean isUser2 = removeUserFromChatRoom(chatRoom, userId, false);
 
-		if (isUser1) {
-			chatRoom.setUser1(null);
-		} else if (isUser2) {
-			chatRoom.setUser2(null);
-		} else {
-			throw new IllegalArgumentException("채팅방에 속한 사용자가 아님");
+		if (!isUser1 && !isUser2) {
+			throw new GeneralException(ResponseCode.FORBIDDEN);
 		}
 
-		// 남아있는 사용자가 있는지 확인
 		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
 
 		if (targetUser != null) {
-			// 남아있는 사용자에게 "상대방이 나갔습니다." 메시지 전송
 			ChatMessage leaveMessage = ChatMessage.builder()
 				.chatRoom(chatRoom)
-				.sender(null) // 시스템 메시지
+				.sender(null)
 				.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
 				.status(MessageStatus.RECEIVED)
 				.timestamp(LocalDateTime.now())
@@ -204,7 +184,6 @@ public class ChatRoomService {
 			);
 		}
 
-		// 채팅방이 완전히 비었으면 삭제 처리
 		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
 			chatRoom.setDelete(true);
 		}
@@ -218,11 +197,10 @@ public class ChatRoomService {
 	@Transactional
 	public void markMessagesAsRead(Long chatRoomId, String userId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없음: " + chatRoomId));
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		// 상대방이 보낸 안 읽은 메시지 가져오기
 		List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomAndSenderIdNotAndStatus(
-			chatRoom, userId, MessageStatus.RECEIVED);  // 변경된 쿼리 적용
+			chatRoom, userId, MessageStatus.RECEIVED);
 
 		if (!unreadMessages.isEmpty()) {
 			unreadMessages.forEach(message -> message.setStatus(MessageStatus.READ));
@@ -237,5 +215,31 @@ public class ChatRoomService {
 		return fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(userId)
 			.map(info -> FiveElements.convertToChinese(info.getDayGan()))
 			.orElse(null);
+	}
+
+	/**
+	 * 채팅방에서 사용자를 제거하는 메서드
+	 */
+	private boolean removeUserFromChatRoom(ChatRoom chatRoom, String userId, boolean isUser1) {
+		if (isUser1 && chatRoom.getUser1() != null && chatRoom.getUser1().getId().equals(userId)) {
+			chatRoom.setUser1(null);
+			return true;
+		} else if (!isUser1 && chatRoom.getUser2() != null && chatRoom.getUser2().getId().equals(userId)) {
+			chatRoom.setUser2(null);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 채팅방에서 대상 사용자를 찾는 메서드
+	 */
+	private Optional<Member> getTargetUser(ChatRoom chatRoom, String userId) {
+		if (chatRoom.getUser1() != null && !chatRoom.getUser1().getId().equals(userId)) {
+			return Optional.of(chatRoom.getUser1());
+		} else if (chatRoom.getUser2() != null && !chatRoom.getUser2().getId().equals(userId)) {
+			return Optional.of(chatRoom.getUser2());
+		}
+		return Optional.empty();
 	}
 }

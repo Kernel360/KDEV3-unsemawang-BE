@@ -17,6 +17,8 @@ import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
+import com.palbang.unsemawang.common.constants.ResponseCode;
+import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
@@ -43,18 +45,13 @@ public class ChatMessageConsumer {
 			log.info("Received message from RabbitMQ: {}", messageJson);
 			ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
 
-			if (chatMessageDto.getSenderId() == null) {
-				log.error("SenderId가 없는 메시지는 처리 불가! {}", chatMessageDto);
-				return;
-			}
-
 			Member sender = memberRepository.findById(chatMessageDto.getSenderId())
-				.orElseThrow(
-					() -> new IllegalStateException("Sender를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
+				.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+					"발신자를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
 
 			ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
-				.orElseThrow(() -> new IllegalStateException(
-					"ChatRoom을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
+				.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+					"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
 
 			ChatMessage chatMessage = ChatMessage.builder()
 				.chatRoom(chatRoom)
@@ -67,14 +64,13 @@ public class ChatMessageConsumer {
 
 			chatMessageRepository.save(chatMessage);
 
-			// WebSocket 메시지 전송 시 timestamp 변환
 			ChatMessageDto responseMessage = convertToDto(chatMessage);
-
 			messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
 			log.info("Forwarded WebSocket message: {}", responseMessage);
 
 		} catch (Exception e) {
-			log.error("메시지 처리 실패", e);
+			log.error("메시지 처리 실패: {}", e.getMessage(), e);
+			throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "채팅 메시지 처리 중 예상치 못한 오류가 발생했습니다.");
 		}
 	}
 
@@ -95,5 +91,4 @@ public class ChatMessageConsumer {
 			.status(message.getStatus())
 			.build();
 	}
-
 }
