@@ -13,7 +13,7 @@ public record LongCursorResponse<T>(
 	List<T> data                           // 실제 데이터는 T 타입
 ) {
 	public static <T> LongCursorResponse<T> of(CursorRequest<Long> nextCursorRequest, List<T> data) {
-		boolean hasNextCursor = nextCursorRequest.key() != null;
+		boolean hasNextCursor = nextCursorRequest.cursorKey() != null;
 		return new LongCursorResponse<>(nextCursorRequest, hasNextCursor, data);
 	}
 

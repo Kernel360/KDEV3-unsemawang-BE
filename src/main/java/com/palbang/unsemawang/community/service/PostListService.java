@@ -45,7 +45,7 @@ public class PostListService {
 		}
 
 		// 다음 커서 결정
-		Long nextCursor = !posts.isEmpty() ? posts.get(posts.size() - 1).getId() : null;
+		Long nextCursor = hasNext ? posts.get(posts.size() - 1).getId() : null;
 
 		// 데이터 변환
 		List<PostListResponse> data = posts.stream()
@@ -71,7 +71,7 @@ public class PostListService {
 			posts.remove(posts.size() - 1);
 		}
 
-		Long nextCursor = !posts.isEmpty() ? posts.get(posts.size() - 1).getId() : null;
+		Long nextCursor = hasNext ? posts.get(posts.size() - 1).getId() : null;
 
 		List<PostListResponse> data = posts.stream()
 			.map(post -> PostListResponse.fromEntity(post,
@@ -99,7 +99,7 @@ public class PostListService {
 		}
 
 		// 다음 커서 결정
-		Long nextCursor = !posts.isEmpty() ? posts.get(posts.size() - 1).getId() : null;
+		Long nextCursor = hasNext ? posts.get(posts.size() - 1).getId() : null;
 
 		// 데이터 변환
 		List<PostListResponse> data = posts.stream()
