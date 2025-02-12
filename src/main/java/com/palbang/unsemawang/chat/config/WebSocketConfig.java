@@ -6,6 +6,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import com.palbang.unsemawang.chat.interceptor.WebSocketAuthInterceptor;
 import com.palbang.unsemawang.jwt.JWTUtil;
 
 import lombok.AllArgsConstructor;
