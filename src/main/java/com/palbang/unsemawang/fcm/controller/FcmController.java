@@ -1,14 +1,17 @@
 package com.palbang.unsemawang.fcm.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -83,12 +86,14 @@ public class FcmController {
 		description = "로그인한 회원의 FCM 토큰을 조회합니다."
 	)
 	@GetMapping("/token")
-	public ResponseEntity<String> getFcmToken(@AuthenticationPrincipal CustomOAuth2User auth) {
+	public ResponseEntity<List<String>> getFcmToken(@AuthenticationPrincipal CustomOAuth2User auth) {
 		if (auth == null || auth.getId() == null) {
 			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
 		}
-		String fcmToken = fcmService.getFcmToken(auth.getId());
-		return ResponseEntity.ok(fcmToken);
+		List<String> fcmTokenList = fcmService.getFcmToken(auth.getId());
+		return ResponseEntity
+			.status(HttpStatus.OK)
+			.body(fcmTokenList);
 	}
 
 	@Operation(
@@ -103,6 +108,20 @@ public class FcmController {
 		fcmService.deleteFcmToken(auth.getId());
 		return ResponseEntity.noContent().build();
 	}
+	@Operation(
+		summary = "FCM 토큰 비활성화",
+		description = "회원의 FCM 토큰을 비활성화합니다."
+	)
+	@PatchMapping("/token/deactivate")
+	public ResponseEntity<Void> deactivateFcmToken(@AuthenticationPrincipal CustomOAuth2User auth,String fcmToken) {
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+		fcmService.deactivateFcmToken(auth.getId(),fcmToken);
+		return ResponseEntity.noContent().build();
+	}
+
+
 
 
 }
