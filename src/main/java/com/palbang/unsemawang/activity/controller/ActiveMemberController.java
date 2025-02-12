@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.palbang.unsemawang.activity.aop.NoTracking;
 import com.palbang.unsemawang.activity.entity.ActiveMember;
-import com.palbang.unsemawang.activity.service.ActiveMemberRedisService;
+import com.palbang.unsemawang.activity.service.ActiveMemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/active-member")
 public class ActiveMemberController {
-	private final ActiveMemberRedisService activeMemberService;
+	private final ActiveMemberService activeMemberService;
 
 	@NoTracking
 	@GetMapping
