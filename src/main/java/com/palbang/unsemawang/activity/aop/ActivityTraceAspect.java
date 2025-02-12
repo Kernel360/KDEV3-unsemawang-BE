@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.palbang.unsemawang.activity.service.ActiveMemberRedisService;
+import com.palbang.unsemawang.activity.service.ActiveMemberService;
 import com.palbang.unsemawang.member.service.MemberActivityService;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ActivityTraceAspect {
 
 	private final RedisTemplate redisTemplate;
-	private final ActiveMemberRedisService activeMemberService;
+	private final ActiveMemberService activeMemberService;
 	private final MemberActivityService memberActivityService;
 
 	public boolean isRedisConnected() {
