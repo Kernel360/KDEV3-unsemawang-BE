@@ -36,7 +36,7 @@ public class PostListService {
 
 		// 게시글 조회
 		List<Post> posts = new ArrayList<>(
-			fetchPosts(communityCategory, cursorRequest.key(), sort, cursorRequest.size()));
+			fetchPosts(communityCategory, cursorRequest.cursorKey(), sort, cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -63,7 +63,7 @@ public class PostListService {
 		LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 
 		List<Post> posts = new ArrayList<>(
-			postRepository.findPopularPosts(cursorRequest.key(), thirtyDaysAgo, cursorRequest.size() + 1));
+			postRepository.findPopularPosts(cursorRequest.cursorKey(), thirtyDaysAgo, cursorRequest.size() + 1));
 
 		// hasNext 판단 후 초과 데이터 제거
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -90,7 +90,7 @@ public class PostListService {
 
 		// 검색 조건에 따라 게시글 조회
 		List<Post> posts = new ArrayList<>(
-			fetchPostsWithSearch(keyword, searchType, cursorRequest.key(), cursorRequest.size()));
+			fetchPostsWithSearch(keyword, searchType, cursorRequest.cursorKey(), cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -115,27 +115,27 @@ public class PostListService {
 	}
 
 	// 일반 게시판용 게시글 조회 로직
-	private List<Post> fetchPosts(CommunityCategory communityCategory, Long cursorId, Sortingtype sort, int size) {
+	private List<Post> fetchPosts(CommunityCategory communityCategory, Long cursorKey, Sortingtype sort, int size) {
 		if (Sortingtype.MOST_VIEWED.equals(sort)) {
 			return postRepository.findMostViewedPostsByCategory(
 				communityCategory,
-				cursorId,
+				cursorKey,
 				size + 1 // size + 1로 hasNext 확인
 			);
 		}
 		if (Sortingtype.LATEST.equals(sort)) {
 			return postRepository.findLatestPostsByCategory(
 				communityCategory,
-				cursorId,
-				cursorId != null ? postRepository.findRegisteredAtById(cursorId) : null,
+				cursorKey,
+				cursorKey != null ? postRepository.findRegisteredAtById(cursorKey) : null,
 				size + 1);
 		}
 		throw new IllegalArgumentException("지원하지 않는 정렬 옵션입니다. 'latest' 또는 'mostViewed' 만 가능합니다.");
 	}
 
 	// Helper 메서드: 검색 조건 처리
-	private List<Post> fetchPostsWithSearch(String keyword, String searchType, Long cursorId, int size) {
-		return postRepository.searchPosts(keyword, searchType, cursorId, size + 1); // size + 1 사용
+	private List<Post> fetchPostsWithSearch(String keyword, String searchType, Long cursorKey, int size) {
+		return postRepository.searchPosts(keyword, searchType, cursorKey, size + 1); // size + 1 사용
 	}
 
 }

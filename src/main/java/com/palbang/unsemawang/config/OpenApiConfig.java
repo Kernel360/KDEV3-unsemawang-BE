@@ -1,8 +1,11 @@
 package com.palbang.unsemawang.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
@@ -23,12 +26,14 @@ import io.swagger.v3.oas.annotations.servers.Server;
 			description = "Local ENV",
 			url = "http://localhost:8080"
 		)
-		/* 프로덕트 url 추가 후 주석 해제 예정 */
-		// , @Server(
-		// 	description = "Product ENV",
-		// 	url = "https://~~~"
-		// )
-	}
+	},
+	security = @SecurityRequirement(name = "bearerAuth") // 👈 전역 보안 적용
+)
+@SecurityScheme(
+	name = "bearerAuth",
+	type = SecuritySchemeType.HTTP,
+	scheme = "bearer",
+	bearerFormat = "JWT"
 )
 public class OpenApiConfig {
 

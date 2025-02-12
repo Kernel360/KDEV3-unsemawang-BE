@@ -14,13 +14,13 @@ public interface PostRepositoryCustom {
 	LongCursorResponse<PostProjectionDto> findMyPostsByCursor(String memberId, CursorRequest<Long> cursorRequest,
 		CommunityCategory category, Sortingtype sortType);
 
-	List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorId, LocalDateTime cursorRegisteredAt,
+	List<Post> findLatestPostsByCategory(CommunityCategory category, Long cursorKey, LocalDateTime cursorRegisteredAt,
 		int size);
 
-	List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorId, int size);
+	List<Post> findMostViewedPostsByCategory(CommunityCategory category, Long cursorKey, int size);
 
-	List<Post> findPopularPosts(Long cursorId, LocalDateTime thirtyDaysAgo, int size);
+	List<Post> findPopularPosts(Long cursorKey, LocalDateTime thirtyDaysAgo, int size);
 
-	List<Post> searchPosts(String keyword, String searchType, Long cursorId, int size);
+	List<Post> searchPosts(String keyword, String searchType, Long cursorKey, int size);
 
 }
