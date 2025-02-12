@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chat.config;
+package com.palbang.unsemawang.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
