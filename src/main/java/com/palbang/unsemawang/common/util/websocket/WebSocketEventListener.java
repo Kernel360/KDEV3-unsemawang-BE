@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chat.config;
+package com.palbang.unsemawang.common.util.websocket;
 
 import java.util.Map;
 
