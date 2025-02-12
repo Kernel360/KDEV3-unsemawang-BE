@@ -23,6 +23,11 @@ public class ActiveStatusWebSocketController {
 	private final SimpMessageSendingOperations simpMessageSendingOperations;
 	private final ActiveMemberService activeMemberService;
 
+	/**
+	 * 활동 상태 변경 요청 처리
+	 * @param changeActiveStatusMessage
+	 * @param sessionAttributes
+	 */
 	@NoTracking
 	@MessageMapping("/active/status")
 	public void traceMemberActivity(
