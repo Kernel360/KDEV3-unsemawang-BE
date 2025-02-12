@@ -52,7 +52,7 @@ public class ChemistryRecommendResponse {
 		String element = FiveElements.convertToChinese(fortuneUserInfo.getDayGan());
 
 		return ChemistryRecommendResponse.builder()
-			.targetId(scoreEntity.getMatchMember().getId())
+			.targetId(matchMember.getId())
 			.score(scoreEntity.getScalingScore())
 			.fiveElementCn(element)
 			.nickname(matchMember.getNickname())
