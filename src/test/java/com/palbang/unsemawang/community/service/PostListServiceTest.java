@@ -65,7 +65,7 @@ public class PostListServiceTest {
 		assertThat(response.hasNextCursor()).isTrue(); // 초과 데이터 존재하므로 true
 		assertThat(response.data().get(0).getId()).isEqualTo(1L);
 		assertThat(response.data().get(1).getId()).isEqualTo(2L);
-		assertThat(response.nextCursorRequest().key()).isEqualTo(2L); // 마지막 데이터의 ID
+		assertThat(response.nextCursorRequest().cursorKey()).isEqualTo(2L); // 마지막 데이터의 ID
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class PostListServiceTest {
 		assertThat(response).isNotNull();
 		assertThat(response.data()).isEmpty(); // 데이터가 없는지 확인
 		assertThat(response.hasNextCursor()).isFalse(); // hasNextCursor가 false로 설정되었는지 확인
-		assertThat(response.nextCursorRequest().key()).isNull(); // 다음 커서가 없는지 확인
+		assertThat(response.nextCursorRequest().cursorKey()).isNull(); // 다음 커서가 없는지 확인
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class PostListServiceTest {
 		assertThat(response).isNotNull();
 		assertThat(response.data()).hasSize(2); // 요청한 size만 적용
 		assertThat(response.hasNextCursor()).isTrue(); // 초과 데이터 존재
-		assertThat(response.nextCursorRequest().key()).isEqualTo(4L); // 마지막 반환 데이터의 ID 활용
+		assertThat(response.nextCursorRequest().cursorKey()).isEqualTo(4L); // 마지막 반환 데이터의 ID 활용
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class PostListServiceTest {
 		assertThat(response).isNotNull();
 		assertThat(response.data()).hasSize(3); // 최대 size만큼 반환
 		assertThat(response.hasNextCursor()).isTrue();          // 초과 데이터가 있으므로 hasNextCursor는 true
-		assertThat(response.nextCursorRequest().key()).isEqualTo(3L);
+		assertThat(response.nextCursorRequest().cursorKey()).isEqualTo(3L);
 	}
 
 	// 조회수를 포함한 Post 객체 생성 헬퍼 메서드

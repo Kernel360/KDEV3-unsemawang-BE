@@ -36,7 +36,7 @@ public class PostListService {
 
 		// 게시글 조회
 		List<Post> posts = new ArrayList<>(
-			fetchPosts(communityCategory, cursorRequest.key(), sort, cursorRequest.size()));
+			fetchPosts(communityCategory, cursorRequest.cursorKey(), sort, cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -63,7 +63,7 @@ public class PostListService {
 		LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 
 		List<Post> posts = new ArrayList<>(
-			postRepository.findPopularPosts(cursorRequest.key(), thirtyDaysAgo, cursorRequest.size() + 1));
+			postRepository.findPopularPosts(cursorRequest.cursorKey(), thirtyDaysAgo, cursorRequest.size() + 1));
 
 		// hasNext 판단 후 초과 데이터 제거
 		boolean hasNext = posts.size() > cursorRequest.size();
@@ -90,7 +90,7 @@ public class PostListService {
 
 		// 검색 조건에 따라 게시글 조회
 		List<Post> posts = new ArrayList<>(
-			fetchPostsWithSearch(keyword, searchType, cursorRequest.key(), cursorRequest.size()));
+			fetchPostsWithSearch(keyword, searchType, cursorRequest.cursorKey(), cursorRequest.size()));
 
 		// hasNext 판단 후 초과 데이터 삭제
 		boolean hasNext = posts.size() > cursorRequest.size();
