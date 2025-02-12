@@ -58,17 +58,17 @@ public class ActivityTraceAspect {
 	// 	ActiveMember savedActiveMember = activeMemberService.saveAndUpdateActiveMember(memberId);
 	// 	log.info("저장된 회원 활동 정보: {}", savedActiveMember);
 	// }
-	@AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
-	public void updateUserActivity() {
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (auth == null || !auth.isAuthenticated()) {
-			log.warn("인증 정보가 없습니다");
-			return;
-		}
-		String memberId = ((CustomOAuth2User)auth.getPrincipal()).getId();
-
-		memberActivityService.updateLastActivityNow(memberId);
-	}
+	// @AfterReturning("execution(* com.palbang.unsemawang..controller..*(..)) && !@annotation(com.palbang.unsemawang.activity.aop.NoTracking)")
+	// public void updateUserActivity() {
+	//
+	// 	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	//
+	// 	if (auth == null || !auth.isAuthenticated()) {
+	// 		log.warn("인증 정보가 없습니다");
+	// 		return;
+	// 	}
+	// 	String memberId = ((CustomOAuth2User)auth.getPrincipal()).getId();
+	//
+	// 	memberActivityService.updateLastActivityNow(memberId);
+	// }
 }
