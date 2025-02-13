@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 
@@ -22,18 +23,26 @@ public class ChatMessageDto {
 
 	@Schema(required = true)
 	private Long chatRoomId;
+
 	@Schema(required = true)
 	private String senderId;
+
 	@Schema(required = true)
 	private String content;
+
 	@Schema(required = true)
 	private MessageStatus status;
+
 	@Schema(required = false)
 	private Long timestamp;
+
 	@Schema(required = true)
 	private String nickname;
+
 	@Schema(required = true)
 	private String profileImageUrl;
+
 	@Schema(required = true)
+	@JsonProperty("senderType")
 	private SenderType senderType;
 }
