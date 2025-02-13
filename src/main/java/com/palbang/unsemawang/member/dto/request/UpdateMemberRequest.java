@@ -28,4 +28,6 @@ public class UpdateMemberRequest {
 	@Schema(description = "상세소개", required = true, example = "매일 운세마왕 접속해서 운세 보는 사람입니다.")
 	private String detailBio;
 
+	@Schema(description = "매칭 동의 여부")
+	private boolean isMatchAgreed;
 }

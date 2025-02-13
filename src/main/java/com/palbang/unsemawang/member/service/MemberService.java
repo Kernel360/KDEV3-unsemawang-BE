@@ -87,6 +87,7 @@ public class MemberService {
 
 		String nickname = updateMemberRequest.getNickname();
 		String detailBio = updateMemberRequest.getDetailBio();
+		boolean isMatchAgreed = updateMemberRequest.isMatchAgreed();
 
 		if (!member.getNickname().equals(nickname)) {
 			//닉네임 중복 체크
@@ -96,6 +97,7 @@ public class MemberService {
 		Member updateMember = member.toBuilder()
 			.nickname(nickname)
 			.detailBio(detailBio)
+			.isMatchAgreed(isMatchAgreed)
 			.build();
 
 		memberRepository.save(updateMember);
