@@ -76,22 +76,34 @@ public class ChatRoomService {
 	public List<ChatRoomDto> getChatRoomsWithLastMessage(String userId) {
 		List<ChatRoom> chatRooms = chatRoomRepository.findByUserId(userId);
 
-		return chatRooms.stream().map(chatRoom -> {
-			ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
-				.orElse(null);
+		return chatRooms.stream()
+			.filter(chatRoom -> {
+				// 나간 사용자는 목록에서 제외
+				if (chatRoom.getUser1().getId().equals(userId) && chatRoom.isUser1Out()) {
+					return false;
+				}
+				if (chatRoom.getUser2().getId().equals(userId) && chatRoom.isUser2Out()) {
+					return false;
+				}
+				return true;
+			})
+			.map(chatRoom -> {
+				ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
+					.orElse(null);
 
-			Member targetUser = getTargetUser(chatRoom, userId)
-				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+				Member targetUser = getTargetUser(chatRoom, userId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-			String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+				String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
-				chatRoom, userId, MessageStatus.RECEIVED);
+				int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
+					chatRoom, userId, MessageStatus.RECEIVED);
 
-			String fiveElement = getUserFiveElement(targetUser.getId());
+				String fiveElement = getUserFiveElement(targetUser.getId());
 
-			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount, profileImageUrl);
-		}).collect(Collectors.toList());
+				return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount,
+					profileImageUrl);
+			}).collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
@@ -108,7 +120,6 @@ public class ChatRoomService {
 				.messages(Collections.emptyList())
 				.partnerNickname(null)
 				.partnerId(null)
-				.isOut(null)
 				.build();
 		}
 
@@ -148,7 +159,6 @@ public class ChatRoomService {
 			.partnerNickname(partnerNickname)
 			.partnerId(partnerId)
 			.messages(messageDtos)
-			.isOut(false)
 			.build();
 	}
 
@@ -160,42 +170,35 @@ public class ChatRoomService {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		boolean isUser1 = removeUserFromChatRoom(chatRoom, userId, true);
-		boolean isUser2 = removeUserFromChatRoom(chatRoom, userId, false);
-
-		if (!isUser1 && !isUser2) {
-			throw new GeneralException(ResponseCode.FORBIDDEN);
+		if (chatRoom.getUser1().getId().equals(userId)) {
+			chatRoom.setUser1Out(true);
+		} else if (chatRoom.getUser2().getId().equals(userId)) {
+			chatRoom.setUser2Out(true);
+		} else {
+			throw new GeneralException(ResponseCode.FORBIDDEN, "사용자가 채팅방의 유효한 구성원이 아닙니다.");
 		}
 
-		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
+		ChatMessage leaveMessage = ChatMessage.builder()
+			.chatRoom(chatRoom)
+			.sender(null)
+			.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+			.status(MessageStatus.SYSTEM)
+			.timestamp(LocalDateTime.now())
+			.build();
 
-		if (targetUser != null) {
-			ChatMessage leaveMessage = ChatMessage.builder()
-				.chatRoom(chatRoom)
-				.sender(null)
+		chatMessageRepository.save(leaveMessage);
+
+		messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
+			ChatMessageDto.builder()
+				.chatRoomId(chatRoomId)
 				.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
-				.status(MessageStatus.RECEIVED)
-				.timestamp(LocalDateTime.now())
-				.build();
-
-			chatMessageRepository.save(leaveMessage);
-
-			messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
-				ChatMessageDto.builder()
-					.chatRoomId(chatRoomId)
-					.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
-					.status(MessageStatus.RECEIVED)
-					.timestamp(System.currentTimeMillis())
-					.nickname("시스템")
-					.senderId(null)
-					//.senderType(SenderType.OTHER)
-					.build()
-			);
-		}
-
-		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
-			chatRoom.setDelete(true);
-		}
+				.status(MessageStatus.SYSTEM)
+				.timestamp(System.currentTimeMillis())
+				.nickname("시스템")
+				.senderId(null)
+				//.senderType(SenderType.OTHER)
+				.build()
+		);
 
 		chatRoomRepository.save(chatRoom);
 	}
