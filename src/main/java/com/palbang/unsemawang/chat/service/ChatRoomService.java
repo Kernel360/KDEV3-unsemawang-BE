@@ -2,9 +2,7 @@ package com.palbang.unsemawang.chat.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
 import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
@@ -108,20 +105,12 @@ public class ChatRoomService {
 
 	@Transactional(readOnly = true)
 	public ChatHistoryReadResponse getChatHistory(Long chatRoomId, String userId) {
-		// 채팅방 및 메시지 검색
+		// 채팅방 찾기
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
-
-		// 메세지가 없을 경우 빈 리스트 반환
-		if (chatMessages.isEmpty()) {
-			return ChatHistoryReadResponse.builder()
-				.messages(Collections.emptyList())
-				.partnerNickname(null)
-				.partnerId(null)
-				.build();
-		}
+		// 모든 메시지 가져오기
+		List<ChatMessage> chatMessages = chatMessageRepository.findAllMessagesByChatRoom(chatRoom);
 
 		// 채팅 상대방 ID 가져오기
 		String partnerId = chatRoomRepository.findOtherMemberIdInChatRoom(chatRoomId, userId)
@@ -133,23 +122,19 @@ public class ChatRoomService {
 
 		String partnerNickname = Optional.ofNullable(partner.getNickname()).orElse("Unknown");
 
-		// 메시지 DTO 변환
+		// 메시지 DTO 변환 - SYSTEM 메시지도 포함
 		List<ChatMessageDto> messageDtos = chatMessages.stream()
-			.filter(Objects::nonNull)
 			.map(message -> {
-				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
-
-				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
-
+				boolean isSystemMessage = message.getSender() == null; // 시스템 메시지 확인
 				return ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())
-					.senderId(message.getSender().getId())
-					.nickname(Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
-					.profileImageUrl(profileImageUrl)
+					.senderId(isSystemMessage ? null : message.getSender().getId())
+					.nickname(isSystemMessage ? "시스템"
+						: Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
+					.profileImageUrl(isSystemMessage ? null : fileService.getProfileImgUrl(message.getSender().getId()))
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
-					//.senderType(senderType)
 					.build();
 			})
 			.collect(Collectors.toList());
