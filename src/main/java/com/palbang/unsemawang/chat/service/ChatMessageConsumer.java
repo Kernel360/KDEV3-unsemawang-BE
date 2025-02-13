@@ -1,7 +1,5 @@
 package com.palbang.unsemawang.chat.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.hibernate.Hibernate;
@@ -59,23 +57,23 @@ public class ChatMessageConsumer {
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
 				"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
 
-		ChatMessage chatMessage = ChatMessage.builder()
-			.chatRoom(chatRoom)
-			.sender(sender)
-			.content(chatMessageDto.getContent())
-			.status(MessageStatus.RECEIVED)
-			.timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()),
-				ZoneId.systemDefault()))
-			.build();
+		//		ChatMessage chatMessage = ChatMessage.builder()
+		//			.chatRoom(chatRoom)
+		//			.sender(sender)
+		//			.content(chatMessageDto.getContent())
+		//			.status(MessageStatus.RECEIVED)
+		//			.timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()),
+		//				ZoneId.systemDefault()))
+		//			.build();
 
-		chatMessageRepository.save(chatMessage);
+		//		chatMessageRepository.save(chatMessage);
 
 		Member chatPartner = chatRoom.getPartnerMember(sender.getId())
 			.orElseThrow(() -> new GeneralException(ResponseCode.DEFAULT_BAD_REQUEST));
 
-		ChatMessageDto responseMessage = convertToDto(chatMessage);
-		messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
-		log.info("Forwarded WebSocket message: {}", responseMessage);
+		//		ChatMessageDto responseMessage = convertToDto(chatMessage);
+		messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), chatMessageDto);
+		log.info("Forwarded WebSocket message: {}", chatMessageDto);
 
 		// 채팅 상대가 채팅방 리스트를 보고있다면 새로운 메세지 내용과 안본 메세지 수를 보냄
 		ActiveStatus partnerActiveStatus = activeMemberService.findActiveMemberById(chatPartner.getId()).getStatus();
