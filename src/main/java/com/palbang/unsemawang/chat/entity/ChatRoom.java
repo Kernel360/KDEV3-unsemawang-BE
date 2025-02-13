@@ -1,6 +1,9 @@
 package com.palbang.unsemawang.chat.entity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.Member;
@@ -19,7 +22,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Getter
 @Setter
@@ -77,5 +82,17 @@ public class ChatRoom extends BaseEntity {
 				.unreadCount(0)
 				.build();
 		}
+	}
+
+	public Optional<Member> getPartnerMember(String memberId) {
+		if (memberId == null) {
+			log.warn("getPartnerMember(String memberId) -> memberId가 null 임");
+			return Optional.empty();
+		}
+
+		return Stream.of(user1, user2)
+			.filter(Objects::nonNull) // null 인지 아닌지 확인
+			.filter(m -> !m.getId().equals(memberId)) // memberId와 일치하지 않는 user 찾기
+			.findFirst(); // 그 중 첫번째 객체 반환
 	}
 }
