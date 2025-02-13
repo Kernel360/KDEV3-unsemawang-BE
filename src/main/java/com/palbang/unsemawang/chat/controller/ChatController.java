@@ -23,7 +23,9 @@ import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Tag(name = "Chat", description = "실시간 채팅 WebSocket API")
 @Controller
 @AllArgsConstructor
@@ -39,8 +41,11 @@ public class ChatController {
 	public void sendMessage(
 		StompHeaderAccessor stompHeaderAccessor,
 		@Payload ChatMessageRequest chatMessageRequest,
-		@DestinationVariable("chatRoomId") Long chatRoomId
+		@DestinationVariable("id") Long chatRoomId
 	) {
+
+		log.info("WebSocket 메시지 수신: 채팅방 ID={}, 메시지={}", chatRoomId, chatMessageRequest.getMessage());
+
 		if (chatRoomId == null) {
 			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "chatRoomId가 누락되었습니다.");
 		}
