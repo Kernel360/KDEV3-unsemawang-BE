@@ -10,8 +10,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.palbang.unsemawang.activity.constant.ActiveStatus;
+import com.palbang.unsemawang.activity.service.ActiveMemberService;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
+import com.palbang.unsemawang.chat.dto.NewChatMessageCountDto;
+import com.palbang.unsemawang.chat.dto.NewChatMessageDto;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
@@ -37,41 +42,58 @@ public class ChatMessageConsumer {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final ObjectMapper objectMapper;
 	private final FileService fileService;
+	private final ActiveMemberService activeMemberService;
 
 	@RabbitListener(queues = "chat.queue")
 	@Transactional // 트랜잭션 적용
-	public void consumeMessage(String messageJson) {
-		try {
-			log.info("Received message from RabbitMQ: {}", messageJson);
-			ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
+	public void consumeMessage(String messageJson) throws JsonProcessingException {
+		// try {
+		log.info("Received message from RabbitMQ: {}", messageJson);
+		ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
 
-			Member sender = memberRepository.findById(chatMessageDto.getSenderId())
-				.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
-					"발신자를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
+		Member sender = memberRepository.findById(chatMessageDto.getSenderId())
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+				"발신자를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
 
-			ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
-				.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
-					"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
+		ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+				"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
 
-			ChatMessage chatMessage = ChatMessage.builder()
-				.chatRoom(chatRoom)
-				.sender(sender)
-				.content(chatMessageDto.getContent())
-				.status(MessageStatus.RECEIVED)
-				.timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()),
-					ZoneId.systemDefault()))
-				.build();
+		ChatMessage chatMessage = ChatMessage.builder()
+			.chatRoom(chatRoom)
+			.sender(sender)
+			.content(chatMessageDto.getContent())
+			.status(MessageStatus.RECEIVED)
+			.timestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()),
+				ZoneId.systemDefault()))
+			.build();
 
-			chatMessageRepository.save(chatMessage);
+		chatMessageRepository.save(chatMessage);
 
-			ChatMessageDto responseMessage = convertToDto(chatMessage);
-			messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
-			log.info("Forwarded WebSocket message: {}", responseMessage);
+		Member chatPartner = chatRoom.getPartnerMember(sender.getId())
+			.orElseThrow(() -> new GeneralException(ResponseCode.DEFAULT_BAD_REQUEST));
 
-		} catch (Exception e) {
-			log.error("메시지 처리 실패: {}", e.getMessage(), e);
-			throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "채팅 메시지 처리 중 예상치 못한 오류가 발생했습니다.");
+		ChatMessageDto responseMessage = convertToDto(chatMessage);
+		messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), responseMessage);
+		log.info("Forwarded WebSocket message: {}", responseMessage);
+
+		// 채팅 상대가 채팅방 리스트를 보고있다면 새로운 메세지 내용과 안본 메세지 수를 보냄
+		ActiveStatus partnerActiveStatus = activeMemberService.findActiveMemberById(chatPartner.getId()).getStatus();
+		log.info("partnerActiveStatus: {}", partnerActiveStatus);
+
+		if (partnerActiveStatus == ActiveStatus.ACTIVE_CHATROOM_LIST) {
+			String destination = "/topic/chat/" + chatRoom.getId() + "/" + sender.getId() + "/new-message";
+			messagingTemplate.convertAndSend(destination, NewChatMessageDto.of(chatMessageDto.getContent()));
+
+			int count = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, chatPartner.getId(),
+				MessageStatus.RECEIVED);
+			messagingTemplate.convertAndSend(destination + "/count", NewChatMessageCountDto.of(count));
 		}
+
+		// } catch (Exception e) {
+		// 	log.error("메시지 처리 실패: {}", e.getMessage(), e);
+		// 	throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "채팅 메시지 처리 중 예상치 못한 오류가 발생했습니다.");
+		// }
 	}
 
 	// Lazy Loading 해결 후 DTO 변환
