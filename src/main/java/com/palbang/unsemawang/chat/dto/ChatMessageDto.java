@@ -1,8 +1,6 @@
 package com.palbang.unsemawang.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,7 +40,4 @@ public class ChatMessageDto {
 	@Schema(required = true)
 	private String profileImageUrl;
 
-	@Schema(required = true)
-	@JsonProperty("senderType")
-	private SenderType senderType;
 }

@@ -1,5 +1,7 @@
 package com.palbang.unsemawang.chat.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -8,10 +10,12 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
-import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.request.ChatMessageRequest;
+import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
+import com.palbang.unsemawang.chat.entity.MessageStatus;
+import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
 import com.palbang.unsemawang.chat.service.ChatMessageProducer;
 import com.palbang.unsemawang.common.constants.ResponseCode;
@@ -30,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @AllArgsConstructor
 public class ChatController {
+	private final ChatMessageRepository chatMessageRepository;
 
 	private final SimpMessageSendingOperations simpMessageSendingOperations;
 	private final ChatMessageProducer chatMessageProducer;
@@ -67,10 +72,21 @@ public class ChatController {
 			throw new GeneralException(ResponseCode.FORBIDDEN, "채팅방에서 메시지 입력이 차단되었습니다. 혼자 남은 상태입니다.");
 		}
 
-		ChatMessageDto chatMessageDto = createChatMessageDto(chatMessageRequest.getMessage(), chatRoomId, sender);
+		//		ChatMessageDto chatMessageDto = createChatMessageDto(chatMessageRequest.getMessage(), chatRoomId, sender);
+
+		ChatMessage chatMessage = ChatMessage.builder()
+			.chatRoom(chatRoom)
+			.sender(sender)
+			.content(chatMessageRequest.getMessage())
+			.status(
+				MessageStatus.RECEIVED)
+			.timestamp(LocalDateTime.now())
+			.build();
+
+		chatMessageRepository.save(chatMessage);
 
 		try {
-			chatMessageProducer.sendMessageToQueue(chatMessageDto);
+			chatMessageProducer.sendMessageToQueue(chatMessage);
 		} catch (Exception e) {
 			throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "메시지를 RabbitMQ로 전송하는 데 실패했습니다.", e);
 		}
@@ -83,7 +99,7 @@ public class ChatController {
 			.content(message)
 			.nickname(sender.getNickname())
 			.profileImageUrl(sender.getProfileUrl())
-			.senderType(SenderType.SELF)
+			//			.senderType(SenderType.SELF)
 			.build();
 	}
 
