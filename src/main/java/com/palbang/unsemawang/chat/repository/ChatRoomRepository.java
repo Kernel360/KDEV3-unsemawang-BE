@@ -22,4 +22,11 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 	@Query("SELECT c FROM ChatRoom c WHERE c.user1.id = :userId OR c.user2.id = :userId")
 	List<ChatRoom> findByUserId(@Param("userId") String userId);
 
+	// ChatRoomRepository
+	@Query("SELECT CASE " +
+		"WHEN c.user1.id = :userId THEN c.user2.id " +
+		"WHEN c.user2.id = :userId THEN c.user1.id " +
+		"ELSE NULL END " +
+		"FROM ChatRoom c WHERE c.id = :chatRoomId")
+	Optional<String> findOtherMemberIdInChatRoom(@Param("chatRoomId") Long chatRoomId, @Param("userId") String userId);
 }
