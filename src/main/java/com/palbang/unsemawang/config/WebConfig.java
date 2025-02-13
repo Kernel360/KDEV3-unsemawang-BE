@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
 				"https://local.unsemawang.com",
 				"https://dev.unsemawang.com")
 
-			.allowedMethods("GET", "POST", "PUT", "DELETE")
+			.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
 			.allowedHeaders("*")
 			.allowCredentials(true);
 	}

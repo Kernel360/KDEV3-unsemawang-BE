@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fcm.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -66,7 +67,25 @@ public class FcmService {
 		String body = request.getBody();
 		String url = request.getUrl();
 
-		// 푸시 알림 메시지 생성(우선 notification =>data로 변경할 수도 있음)
+		// FCM 메시지 요청 생성
+		Message message = Message.builder()
+			.setToken(token) // 특정 기기의 FCM 토큰
+			.putData("title", title)
+			.putData("body", body)
+			.putData("click_action", url)
+			.putData("image", "https://www.unsemawang.com/icon/icon_192.png")
+			.build();
+
+		// FCM 메시지 전송
+		return FirebaseMessaging.getInstance().send(message);
+	}
+
+	public String sendPushNotification(FcmNotificationRequest request) throws FirebaseMessagingException {
+		String token = request.getFcmToken();
+		String title = request.getTitle();
+		String body = request.getBody();
+		String url = request.getUrl();
+
 		Notification notification = Notification.builder()
 			.setTitle(title)
 			.setBody(body)
@@ -89,7 +108,7 @@ public class FcmService {
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID, "회원을 찾을 수 없습니다"));
 		List<String> fcmTokenList = fcmRepository.findByMemberIdAndIsActive(memberId);
 		if (fcmTokenList.isEmpty()) {
-			return null;
+			return Collections.emptyList();
 		}else{
 			return fcmTokenList;
 		}
