@@ -105,5 +105,12 @@ jobs:
       - name: SSH into EC2 and run new app.jar
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "
+            # serviceAccountKey.json 환경 변수 설정
+            export GOOGLE_APPLICATION_CREDENTIALS=/home/ubuntu/serviceAccountKey.json
+            
+            # .env 파일의 내용을 환경변수로 로드
+            export $(cat /home/ubuntu/.env | xargs)
+  
+            # JAR 파일 실행
             nohup java -jar /home/ubuntu/app.jar &
           "
