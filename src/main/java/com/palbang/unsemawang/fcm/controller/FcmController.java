@@ -67,7 +67,7 @@ public class FcmController {
 	@ApiResponse(responseCode = "400", description = "요청 형식이 잘못됨 (잘못된 토큰, 필드 누락, API 키 문제 등) -INVALID_ARGUMENT")
 	@ApiResponse(responseCode = "404", description = "FCM 토큰이 만료됨 (앱 삭제, 데이터 초기화, 오래 사용 안 한 경우) -UNREGISTERED")
 	@PostMapping("/send")
-	public String sendNotification(@AuthenticationPrincipal CustomOAuth2User auth, @RequestBody @Valid
+	public String sendMessage(@AuthenticationPrincipal CustomOAuth2User auth, @RequestBody @Valid
 		FcmNotificationRequest request) {
 
 		if (auth == null || auth.getId() == null) {
@@ -81,6 +81,31 @@ public class FcmController {
 			return "Error: " + e.getMessage();
 		}
 	}
+
+	//FCM 서버에 푸시 메시지 전송 요청
+	@Operation(
+		summary = "FCM 서버에 푸시 notification 전송 요청",
+		description = "FCM 서버에 푸시 메시지 전송을 요청 합니다."
+	)
+	@ApiResponse(responseCode = "200", description = "푸시 메시지 전송 요청 성공")
+	@ApiResponse(responseCode = "400", description = "요청 형식이 잘못됨 (잘못된 토큰, 필드 누락, API 키 문제 등) -INVALID_ARGUMENT")
+	@ApiResponse(responseCode = "404", description = "FCM 토큰이 만료됨 (앱 삭제, 데이터 초기화, 오래 사용 안 한 경우) -UNREGISTERED")
+	@PostMapping("/send-notification")
+	public String sendNotification(@AuthenticationPrincipal CustomOAuth2User auth, @RequestBody @Valid
+	FcmNotificationRequest request) {
+
+		if (auth == null || auth.getId() == null) {
+			throw new GeneralException(ResponseCode.EMPTY_TOKEN);
+		}
+
+		try {
+			return fcmService.sendPushNotification(request);
+		} catch (FirebaseMessagingException e) {
+			e.printStackTrace();
+			return "Error: " + e.getMessage();
+		}
+	}
+
 	@Operation(
 		summary = "FCM 토큰 조회",
 		description = "로그인한 회원의 FCM 토큰을 조회합니다."
