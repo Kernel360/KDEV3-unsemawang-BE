@@ -138,7 +138,7 @@ public class ChatRoomService {
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
-					.senderType(senderType)
+					//.senderType(senderType)
 					.build();
 			})
 			.collect(Collectors.toList());
@@ -188,7 +188,7 @@ public class ChatRoomService {
 					.timestamp(System.currentTimeMillis())
 					.nickname("시스템")
 					.senderId(null)
-					.senderType(SenderType.OTHER)
+					//.senderType(SenderType.OTHER)
 					.build()
 			);
 		}
