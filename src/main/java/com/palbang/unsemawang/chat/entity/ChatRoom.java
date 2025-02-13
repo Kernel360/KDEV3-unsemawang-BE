@@ -47,6 +47,12 @@ public class ChatRoom extends BaseEntity {
 	private Member user2;  // 큰 ID를 가진 사용자
 
 	@Column(nullable = false)
+	private boolean user1Out = false;
+
+	@Column(nullable = false)
+	private boolean user2Out = false;
+
+	@Column(nullable = false)
 	private LocalDateTime registeredAt;  // 채팅방 생성 시간
 
 	@Column(nullable = false)

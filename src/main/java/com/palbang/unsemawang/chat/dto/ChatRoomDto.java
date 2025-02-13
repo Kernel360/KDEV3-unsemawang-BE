@@ -35,8 +35,6 @@ public class ChatRoomDto {
 	private String five;
 	@Schema(required = true)
 	private int unreadCount;
-	@Schema(required = true)
-	private boolean isReadOnly;  // 읽기 전용 여부 추가
 
 	public static ChatRoomDto fromEntity(ChatRoom chatRoom, ChatMessage lastMessage, Member targetUser,
 		String fiveElement, int unreadCount, String profileImageUrl) {
@@ -59,7 +57,6 @@ public class ChatRoomDto {
 			.sex(gender == 'M' ? "남" : "여")
 			.five(fiveElement)
 			.unreadCount(unreadCount)
-			.isReadOnly(isReadOnly)
 			.build();
 	}
 
