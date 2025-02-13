@@ -117,11 +117,10 @@ public class CommentService {
 					comment.getMember().getId())
 				.map(AnonymousMapping::getAnonymousName)
 				.orElse("알 수 없음"); // 매핑이 없는 경우 기본값
-		} else if (category == CommunityCategory.FREE_BOARD) {
+		} else {
 			// 자유 게시판일 경우 사용자의 닉네임 반환
 			return comment.getMember().getNickname();
 		}
-		throw new GeneralException(ResponseCode.INVALID_CATEGORY); // 유효하지 않은 카테고리 처리
 	}
 
 	private String resolveProfileImageForReadResponse(Comment comment, CommunityCategory category) {
