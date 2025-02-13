@@ -1,8 +1,8 @@
 package com.palbang.unsemawang.chat.constant;
 
 public enum SenderType {
-	SELF("self", "본인"),
-	OTHER("other", "상대방");
+	SELF("SELF", "본인"),
+	OTHER("OTHER", "상대방");
 
 	private String type;
 	private String desc;
