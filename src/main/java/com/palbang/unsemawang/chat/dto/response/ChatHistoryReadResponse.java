@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChatHistoryReadResponse {
 
-	@Schema(required = false, description = "채팅 상대 닉네임")
+	@Schema(required = true, description = "채팅 상대 닉네임")
 	@JsonProperty("partner")
 	String partnerNickname;
 
-	@Schema(required = false, description = "채팅 상대 ID")
+	@Schema(required = true, description = "채팅 상대 ID")
 	String partnerId;
 
-	@Schema(required = false, description = "채팅 메세지 목록")
+	@Schema(required = true, description = "채팅 메세지 목록")
 	List<ChatMessageDto> messages;
 
-	@Schema(required = false, description = "나가기 여부")
+	@Schema(required = true, description = "나가기 여부")
 	Boolean isOut = false;
 }
