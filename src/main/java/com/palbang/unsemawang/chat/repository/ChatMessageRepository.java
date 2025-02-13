@@ -38,5 +38,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 		@Param("userId") String userId,
 		@Param("status") MessageStatus status
 	);
+
+	// 시스템 메시지가 포함된 모든 메시지를 가져오기 위한 메서드
+	@Query("SELECT m FROM ChatMessage m WHERE m.chatRoom = :chatRoom ORDER BY m.timestamp ASC")
+	List<ChatMessage> findAllMessagesByChatRoom(@Param("chatRoom") ChatRoom chatRoom);
 }
 
