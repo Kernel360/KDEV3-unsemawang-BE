@@ -72,6 +72,9 @@ public class SignupExtraInfoRequest {
 	@Max(value = 1, message = "평달(1) 또는 윤달(0)을 입력해 주세요")
 	private Integer youn; //윤달여부?
 
+	@Schema(description = "궁합매칭 동의 여부")
+	private boolean isMatchAgreed;
+
 	/* 검증 */
 	@AssertTrue(message = "생시는 반드시 다음 숫자만 입력되어야 합니다: 0, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22")
 	private boolean isValidHour() {
