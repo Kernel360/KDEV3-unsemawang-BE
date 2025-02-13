@@ -8,15 +8,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.hibernate.Hibernate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
+import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
 import com.palbang.unsemawang.chat.entity.ChatRoom;
 import com.palbang.unsemawang.chat.entity.MessageStatus;
@@ -96,32 +95,42 @@ public class ChatRoomService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChatMessageDto> getChatHistory(Long chatRoomId, String userId) {
+	public ChatHistoryReadResponse getChatHistory(Long chatRoomId, String userId) {
+		// 채팅방 및 메시지 검색
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
 		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
 
+		// 메세지가 없을 경우 빈 리스트 반환
 		if (chatMessages.isEmpty()) {
-			return Collections.emptyList();
+			return ChatHistoryReadResponse.builder()
+				.messages(Collections.emptyList())
+				.partnerNickname(null)
+				.partnerId(null)
+				.isOut(null)
+				.build();
 		}
 
-		ObjectMapper objectMapper = new ObjectMapper();
+		// 채팅 상대방 ID 가져오기
+		String partnerId = chatRoomRepository.findOtherMemberIdInChatRoom(chatRoomId, userId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-		return chatMessages.stream()
+		// 상대방 사용자 정보 조회
+		Member partner = memberRepository.findById(partnerId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		String partnerNickname = Optional.ofNullable(partner.getNickname()).orElse("Unknown");
+
+		// 메시지 DTO 변환
+		List<ChatMessageDto> messageDtos = chatMessages.stream()
 			.filter(Objects::nonNull)
 			.map(message -> {
-				if (message.getSender() == null) {
-					throw new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID);
-				}
-
-				Hibernate.initialize(message.getSender());
-
 				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
 
 				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
 
-				ChatMessageDto dto = ChatMessageDto.builder()
+				return ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())
 					.senderId(message.getSender().getId())
 					.nickname(Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
@@ -131,16 +140,16 @@ public class ChatRoomService {
 					.status(message.getStatus())
 					.senderType(senderType)
 					.build();
-
-				try {
-					objectMapper.writeValueAsString(dto);
-				} catch (Exception e) {
-					throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "JSON 직렬화 오류", e);
-				}
-
-				return dto;
 			})
 			.collect(Collectors.toList());
+
+		// 응답 객체 생성
+		return ChatHistoryReadResponse.builder()
+			.partnerNickname(partnerNickname)
+			.partnerId(partnerId)
+			.messages(messageDtos)
+			.isOut(false)
+			.build();
 	}
 
 	/**
