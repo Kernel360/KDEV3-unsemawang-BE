@@ -1,5 +1,9 @@
 package com.palbang.unsemawang.chat.controller;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -51,7 +55,11 @@ public class ChatController {
 		String newMessageDestination =
 			"/topic/chat/" + chatMessageDto.getChatRoomId() + "/" + chatMessageDto.getSenderId() + "/new-message";
 		simpMessageSendingOperations.convertAndSend(newMessageDestination,
-			NewChatMessageDto.of(chatMessageDto.getContent()));
+			NewChatMessageDto.of(
+				chatMessageDto.getContent(),
+				LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()), ZoneId.systemDefault())
+			)
+		);
 
 		int count = chatMessageService.getNotReadMessageOfPartner(chatMessageDto.getSenderId(),
 			chatMessageDto.getChatRoomId());
