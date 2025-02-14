@@ -12,17 +12,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.activity.service.ActiveMemberService;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
-import com.palbang.unsemawang.chat.dto.NewChatMessageCountDto;
-import com.palbang.unsemawang.chat.dto.NewChatMessageDto;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
-import com.palbang.unsemawang.chat.entity.ChatRoom;
-import com.palbang.unsemawang.chat.entity.MessageStatus;
 import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
 import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
-import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.service.FileService;
-import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.AllArgsConstructor;
@@ -44,30 +37,30 @@ public class ChatMessageConsumer {
 	@RabbitListener(queues = "chat.queue")
 	@Transactional // 트랜잭션 적용
 	public void consumeMessage(String messageJson) throws JsonProcessingException {
-		log.info("Received message from RabbitMQ: {}", messageJson);
-		ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
-
-		Member sender = memberRepository.findById(chatMessageDto.getSenderId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
-				"발신자를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
-
-		ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
-				"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
-
-		Member chatPartner = chatRoom.getPartnerMember(sender.getId())
-			.orElseThrow(() -> new GeneralException(ResponseCode.DEFAULT_BAD_REQUEST));
-
-		messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), chatMessageDto);
-		log.info("Forwarded WebSocket message: {}", chatMessageDto);
-
-		// 새로운 메세지 내용과 안본 메세지 수를 보냄
-		String newMessageDestination = "/topic/chat/" + chatRoom.getId() + "/" + sender.getId() + "/new-message";
-		messagingTemplate.convertAndSend(newMessageDestination, NewChatMessageDto.of(chatMessageDto.getContent()));
-
-		int count = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, chatPartner.getId(),
-			MessageStatus.RECEIVED);
-		messagingTemplate.convertAndSend(newMessageDestination + "/count", NewChatMessageCountDto.of(count));
+		// log.info("Received message from RabbitMQ: {}", messageJson);
+		// ChatMessageDto chatMessageDto = objectMapper.readValue(messageJson, ChatMessageDto.class);
+		//
+		// Member sender = memberRepository.findById(chatMessageDto.getSenderId())
+		// 	.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+		// 		"발신자를 찾을 수 없습니다. senderId=" + chatMessageDto.getSenderId()));
+		//
+		// ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getChatRoomId())
+		// 	.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND,
+		// 		"채팅방을 찾을 수 없습니다. chatRoomId=" + chatMessageDto.getChatRoomId()));
+		//
+		// Member chatPartner = chatRoom.getPartnerMember(sender.getId())
+		// 	.orElseThrow(() -> new GeneralException(ResponseCode.DEFAULT_BAD_REQUEST));
+		//
+		// messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), chatMessageDto);
+		// log.info("Forwarded WebSocket message: {}", chatMessageDto);
+		//
+		// // 새로운 메세지 내용과 안본 메세지 수를 보냄
+		// String newMessageDestination = "/topic/chat/" + chatRoom.getId() + "/" + sender.getId() + "/new-message";
+		// messagingTemplate.convertAndSend(newMessageDestination, NewChatMessageDto.of(chatMessageDto.getContent()));
+		//
+		// int count = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, chatPartner.getId(),
+		// 	MessageStatus.RECEIVED);
+		// messagingTemplate.convertAndSend(newMessageDestination + "/count", NewChatMessageCountDto.of(count));
 
 	}
 
