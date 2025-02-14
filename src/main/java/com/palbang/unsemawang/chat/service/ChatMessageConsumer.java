@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.palbang.unsemawang.activity.constant.ActiveStatus;
 import com.palbang.unsemawang.activity.service.ActiveMemberService;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.NewChatMessageCountDto;
@@ -62,18 +61,13 @@ public class ChatMessageConsumer {
 		messagingTemplate.convertAndSend("/topic/chat/" + chatRoom.getId(), chatMessageDto);
 		log.info("Forwarded WebSocket message: {}", chatMessageDto);
 
-		// 채팅 상대가 채팅방 리스트를 보고있다면 새로운 메세지 내용과 안본 메세지 수를 보냄
-		ActiveStatus partnerActiveStatus = activeMemberService.findActiveMemberById(chatPartner.getId()).getStatus();
-		log.info("partnerActiveStatus: {}", partnerActiveStatus);
+		// 새로운 메세지 내용과 안본 메세지 수를 보냄
+		String newMessageDestination = "/topic/chat/" + chatRoom.getId() + "/" + sender.getId() + "/new-message";
+		messagingTemplate.convertAndSend(newMessageDestination, NewChatMessageDto.of(chatMessageDto.getContent()));
 
-		if (partnerActiveStatus == ActiveStatus.ACTIVE_CHATROOM_LIST) {
-			String destination = "/topic/chat/" + chatRoom.getId() + "/" + sender.getId() + "/new-message";
-			messagingTemplate.convertAndSend(destination, NewChatMessageDto.of(chatMessageDto.getContent()));
-
-			int count = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, chatPartner.getId(),
-				MessageStatus.RECEIVED);
-			messagingTemplate.convertAndSend(destination + "/count", NewChatMessageCountDto.of(count));
-		}
+		int count = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(chatRoom, chatPartner.getId(),
+			MessageStatus.RECEIVED);
+		messagingTemplate.convertAndSend(newMessageDestination + "/count", NewChatMessageCountDto.of(count));
 
 	}
 
