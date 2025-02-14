@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.common.util.file.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public class FileServiceImpl implements FileService {
 
 	/* S3Service는 @Transactional 불가, 수동으로 일관성을 관리해줘야 함 */
-	final FileRepository fileRepository;
-	final S3Service s3Service;
+	private final FileRepository fileRepository;
+	private final S3Service s3Service;
 
 	@Override
 	public void uploadImage(MultipartFile file, FileRequest fileRequest) {
@@ -65,83 +66,65 @@ public class FileServiceImpl implements FileService {
 
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.MEMBER_PROFILE_IMG, referenceId);
 
-		String key;
-		List<File> files = fileRepository.findFilesByFileReference(fileRequest);
-		if (files.isEmpty()) {
-			key = "MEMBER_PROFILE_IMG/default_profile.png";
-		} else {
-			key = files.get(0).getS3Key();
-		}
+		String url = getFileUrl(fileRequest);
+		if (url == null) {
 
-		if (files.size() > 1) {
-			log.warn("파일이 한 개가 아닙니다. 파일 참조 정보: {}", fileRequest);
+			return s3Service.generateObjectUrl("MEMBER_PROFILE_IMG/default_profile.webp");
+		} else {
+
+			return url;
 		}
-		return s3Service.createPresignedGetUrl(key);
 	}
 
 	@Override
 	public String getAnonymousProfileImgUrl() {
 
-		String key;
-
-		key = "MEMBER_PROFILE_IMG/anoymous_profile_image.webp";
-
-		return s3Service.createPresignedGetUrl(key);
+		return s3Service.generateObjectUrl("MEMBER_PROFILE_IMG/anoymous_profile_image.webp");
 	}
 
 	@Override
 	public String getPostThumbnailImgUrl(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
-		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
-		if (files.isEmpty()) {
-			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
-			return null;
-		}
-
-		return s3Service.createPresignedGetUrl(files.get(0).getS3Key());
+		return getFileUrl(fileRequest);
 	}
 
+	@Override
 	public List<String> getPostImgUrls(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.COMMUNITY_BOARD, referenceId);
 
-		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
-		if (files.isEmpty()) {
-			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
-			return List.of();
-		}
-
-		List<String> paths = new ArrayList<>(files.size());
-		for (File f : files) {
-			paths.add(s3Service.createPresignedGetUrl(f.getS3Key()));
-		}
-		return paths;
+		return getFileUrls(fileRequest);
 	}
 
 	@Override
 	public String getContentThumbnailImgUrl(Long referenceId) {
 		FileRequest fileRequest = FileRequest.of(FileReferenceType.CONTENT_THUMBNAIL_IMG, referenceId);
 
-		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
-		if (files.isEmpty()) {
-			log.warn("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+		return getFileUrl(fileRequest);
+	}
+
+	@Override
+	public String getFileUrl(FileRequest fileRequest) {
+		List<String> urls = getFileUrls(fileRequest);
+		if (urls.isEmpty()) {
 			return null;
 		}
-
-		return s3Service.createPresignedGetUrl(files.get(0).getS3Key());
+		return getFileUrls(fileRequest).get(0);
 	}
 
 	@Override
 	public List<String> getFileUrls(FileRequest fileRequest) {
 
-		List<File> files = fileRepository.findFilesByFileReference(fileRequest);
-		validFilesNotEmpty(files, fileRequest);
-
-		List<String> paths = new ArrayList<>(files.size());
-		for (File f : files) {
-			paths.add(s3Service.createPresignedGetUrl(f.getS3Key()));
+		List<File> files = fileRepository.findFilesByFileReferenceAndIsNotDeleted(fileRequest);
+		if (!validFilesNotEmpty(files, fileRequest)) {
+			return Collections.emptyList();
 		}
-		return paths;
+
+		List<String> urls = new ArrayList<>(files.size());
+		for (File f : files) {
+			urls.add(s3Service.generateObjectUrl(f.getS3Key()));
+		}
+		return urls;
 	}
 
   /*
@@ -178,12 +161,6 @@ public class FileServiceImpl implements FileService {
 		updateFile(file, updateTargetId);
 	}
 
-	/**
-	 * 파일 업데이트 로직
-	 *
-	 * @param file     업로드할 파일
-	 * @param targetId 업데이트할 파일 ID
-	 */
 	private void updateFile(MultipartFile file, Long targetId) {
 
 		Optional<File> existing = fileRepository.findById(targetId);
@@ -393,11 +370,13 @@ public class FileServiceImpl implements FileService {
 		return files.isEmpty();
 	}
 
-	private void validFilesNotEmpty(List<File> files, FileRequest fileRequest) {
+	private boolean validFilesNotEmpty(List<File> files, FileRequest fileRequest) {
 		if (files.isEmpty()) {
-			log.error("파일이 비어 있습니다. 파일 참조 정보: {}", fileRequest);
-			throw new InvalidFileFormatException("파일이 비어 있습니다.");
+			log.error("파일이 없습니다. 파일 참조 정보: {}", fileRequest);
+			// throw new InvalidFileFormatException("파일이 비어 있습니다.");
+			return false;
 		}
+		return true;
 	}
 
 	/**

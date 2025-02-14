@@ -2,8 +2,8 @@ package com.palbang.unsemawang.common.util.file.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,14 +17,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -36,19 +34,20 @@ public class S3Service {
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucketName;
+	@Value("${cloud.aws.region.static}")
+	private Region region;
 
-	/**
-	 * 파일 저장 경로를 참조id로 폴더화
-	 * e.g, 참조id가 110000 -> 참조테이블/0/0000/0000/0011/0000/파일명
-	 */
-	private static String createFolderStructure(long id) {
-		long part1 = id / 1000000000000L;         // 첫 번째 3자리
-		long part2 = (id / 100000000) % 10000;    // 두 번째 4자리
-		long part3 = (id / 1000000) % 10000;      // 세 번째 4자리
-		long part4 = (id / 10000) % 10000;        // 네 번째 4자리
-		long part5 = id % 10000;                  // 다섯 번째 4자리
+	private static String createStructuredReferenceId(FileRequest fileRequest) {
 
-		return String.format("%d/%04d/%04d/%04d/%04d/", part1, part2, part3, part4, part5);
+		if (fileRequest.referenceStringId() == null) {
+
+			return String.format("%04d/", fileRequest.referenceId())
+				+ "/" + UUID.randomUUID();
+		} else {
+
+			return String.valueOf(ThreadLocalRandom.current().nextInt(1000, 10000))
+				+ "/" + fileRequest.referenceStringId();
+		}
 	}
 
 	/**
@@ -59,13 +58,7 @@ public class S3Service {
 	 */
 	public String upload(MultipartFile file, FileRequest fileRequest) {
 
-		String structuredReferenceId;
-		if (fileRequest.referenceStringId() == null) {
-			structuredReferenceId = createFolderStructure(fileRequest.referenceId()) + UUID.randomUUID();
-		} else {
-			structuredReferenceId = fileRequest.referenceStringId();
-		}
-		String keyName = fileRequest.referenceType() + "/" + structuredReferenceId;
+		String keyName = fileRequest.referenceType() + "/" + createStructuredReferenceId(fileRequest);
 
 		try (InputStream inputStream = file.getInputStream()) {
 			RequestBody requestBody = RequestBody.fromInputStream(inputStream, file.getSize());
@@ -96,25 +89,30 @@ public class S3Service {
 		return keyName;
 	}
 
-	/**
-	 * Create a pre-signed URL to download an object in a subsequent GET request
-	 * @param keyName S3에 저장된 key
-	 * @return presignedGetURL
-	 */
-	public String createPresignedGetUrl(String keyName) {
-		GetObjectRequest objectRequest = GetObjectRequest.builder()
-			.bucket(bucketName)
-			.key(keyName)
-			.build();
+	// /**
+	//  * Create a pre-signed URL to download an object in a subsequent GET request
+	//  * @param keyName S3에 저장된 key
+	//  * @return presignedGetURL
+	//  */
+	// public String createPresignedGetUrl(String keyName) {
+	// 	GetObjectRequest objectRequest = GetObjectRequest.builder()
+	// 		.bucket(bucketName)
+	// 		.key(keyName)
+	// 		.build();
+	//
+	// 	GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+	// 		.signatureDuration(Duration.ofHours(1))  // URL duration
+	// 		.getObjectRequest(objectRequest)
+	// 		.build();
+	//
+	// 	PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+	//
+	// 	return presignedRequest.url().toExternalForm();
+	// }
 
-		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-			.signatureDuration(Duration.ofHours(1))  // URL duration
-			.getObjectRequest(objectRequest)
-			.build();
+	public String generateObjectUrl(String keyName) {
 
-		PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
-
-		return presignedRequest.url().toExternalForm();
+		return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + keyName;
 	}
 
 	/**
