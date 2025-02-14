@@ -31,6 +31,13 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 		@Param("status") MessageStatus status
 	);
 
+	@Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.chatRoom.id = :chatRoomId AND m.sender.id <> :userId AND m.status = :status")
+	int countByChatRoomIdAndSenderIdNotAndStatus(
+		@Param("chatRoomId") Long chatRoomId,
+		@Param("userId") String userId,
+		@Param("status") MessageStatus status
+	);
+
 	// 특정 사용자가 안 읽은 메시지 목록 가져오기
 	@Query("SELECT m FROM ChatMessage m WHERE m.chatRoom = :chatRoom AND m.sender.id <> :userId AND m.status = :status")
 	List<ChatMessage> findByChatRoomAndSenderIdNotAndStatus(
