@@ -22,6 +22,7 @@ import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.service.FileService;
+import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
@@ -61,9 +62,14 @@ public class ChatRoomService {
 		Member targetUser = memberRepository.findById(receiverId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
+		FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(receiverId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
+
+		char sex = fortuneUserInfo.getSex();
+
 		String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0, profileImageUrl);
+		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, sex, 0, profileImageUrl);
 	}
 
 	/**
@@ -93,12 +99,17 @@ public class ChatRoomService {
 
 				String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
+				FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(
+						targetUser.getId())
+					.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
+				char sex = fortuneUserInfo.getSex();
+
 				int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
 					chatRoom, userId, MessageStatus.RECEIVED);
 
 				String fiveElement = getUserFiveElement(targetUser.getId());
 
-				return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount,
+				return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, sex, unreadCount,
 					profileImageUrl);
 			}).collect(Collectors.toList());
 	}
