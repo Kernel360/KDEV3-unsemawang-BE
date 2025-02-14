@@ -109,7 +109,9 @@ public class ChatRoomService {
 
 				return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, sex, unreadCount,
 					profileImageUrl);
-			}).collect(Collectors.toList());
+			})
+			.sorted((dto1, dto2) -> dto2.getLastChatTime().compareTo(dto1.getLastChatTime()))
+			.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
