@@ -48,16 +48,14 @@ public class ChatRoomService {
 	 */
 	@Transactional
 	public ChatRoomDto createOrGetChatRoom(String senderId, String receiverId) {
-		ChatRoom chatRoom = chatRoomRepository.findByUsers(senderId, receiverId)
-			.orElseGet(() -> {
-				Member sender = memberRepository.findById(senderId)
-					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
-				Member receiver = memberRepository.findById(receiverId)
-					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-				ChatRoom newChatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
-				return chatRoomRepository.save(newChatRoom);
-			});
+		Member sender = memberRepository.findById(senderId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+		Member receiver = memberRepository.findById(receiverId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		ChatRoom chatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
+		chatRoomRepository.save(chatRoom);
 
 		Member targetUser = memberRepository.findById(receiverId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
