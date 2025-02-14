@@ -47,9 +47,11 @@ public class ChatRoom extends BaseEntity {
 	private Member user2;  // 큰 ID를 가진 사용자
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean user1Out = false;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private boolean user2Out = false;
 
 	@Column(nullable = false)
