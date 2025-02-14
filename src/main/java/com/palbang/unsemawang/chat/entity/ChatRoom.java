@@ -46,26 +46,27 @@ public class ChatRoom extends BaseEntity {
 	@JoinColumn(name = "user2_id", nullable = false)
 	private Member user2;  // 큰 ID를 가진 사용자
 
-	@Column(nullable = false)
+	@Column(name = "user1out", nullable = false)
 	@Builder.Default
 	private boolean user1Out = false;
 
-	@Column(nullable = false)
+	@Column(name = "user2out", nullable = false)
 	@Builder.Default
 	private boolean user2Out = false;
 
-	@Column(nullable = false)
-	private LocalDateTime registeredAt;  // 채팅방 생성 시간
+	@Column(name = "registered_at", nullable = false)
+	@Builder.Default
+	private LocalDateTime registeredAt = LocalDateTime.now();  // 채팅방 생성 시간
 
 	@Column(nullable = false)
 	@Builder.Default
 	private boolean active = true;  // 채팅방 활성 상태 기본값 true
 
-	@Column(nullable = false)
+	@Column(name = "is_delete", nullable = false)
 	@Builder.Default
 	private boolean isDelete = false;  // 채팅방 삭제 여부 기본값 false
 
-	@Column(nullable = false)
+	@Column(name = "unread_count", nullable = false)
 	@Builder.Default
 	private int unreadCount = 0;  // 안 읽은 메시지 개수 기본값 0
 
