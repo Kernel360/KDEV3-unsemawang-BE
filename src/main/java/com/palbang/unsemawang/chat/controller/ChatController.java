@@ -1,6 +1,8 @@
 package com.palbang.unsemawang.chat.controller;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,17 +13,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Controller;
 
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
+import com.palbang.unsemawang.chat.dto.NewChatMessageCountDto;
+import com.palbang.unsemawang.chat.dto.NewChatMessageDto;
 import com.palbang.unsemawang.chat.dto.request.ChatMessageRequest;
-import com.palbang.unsemawang.chat.entity.ChatMessage;
-import com.palbang.unsemawang.chat.entity.ChatRoom;
-import com.palbang.unsemawang.chat.entity.MessageStatus;
-import com.palbang.unsemawang.chat.repository.ChatMessageRepository;
-import com.palbang.unsemawang.chat.repository.ChatRoomRepository;
-import com.palbang.unsemawang.chat.service.ChatMessageProducer;
-import com.palbang.unsemawang.common.constants.ResponseCode;
-import com.palbang.unsemawang.common.exception.GeneralException;
+import com.palbang.unsemawang.chat.service.ChatMessageService;
 import com.palbang.unsemawang.member.entity.Member;
-import com.palbang.unsemawang.member.repository.MemberRepository;
 import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,12 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @AllArgsConstructor
 public class ChatController {
-	private final ChatMessageRepository chatMessageRepository;
 
 	private final SimpMessageSendingOperations simpMessageSendingOperations;
-	private final ChatMessageProducer chatMessageProducer;
-	private final ChatRoomRepository chatRoomRepository;
-	private final MemberRepository memberRepository;
+	private final ChatMessageService chatMessageService;
 
 	@Operation(summary = "채팅 메시지 전송", description = "WebSocket을 통해 메시지를 전송하고 RabbitMQ로 전달합니다.")
 	@MessageMapping("/chat/{id}")
@@ -51,45 +44,26 @@ public class ChatController {
 
 		log.info("WebSocket 메시지 수신: 채팅방 ID={}, 메시지={}", chatRoomId, chatMessageRequest.getMessage());
 
-		if (chatRoomId == null) {
-			throw new GeneralException(ResponseCode.EMPTY_PARAM_BLANK_OR_NULL, "chatRoomId가 누락되었습니다.");
-		}
-
 		String memberId = getSessionUserId(stompHeaderAccessor);
-		Member sender = memberRepository.findById(memberId)
-			.orElseThrow(() -> new GeneralException(
-				ResponseCode.RESOURCE_NOT_FOUND,
-				"발신자를 찾을 수 없습니다. senderId=" + memberId
-			));
 
-		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new GeneralException(
-				ResponseCode.RESOURCE_NOT_FOUND,
-				"채팅방을 찾을 수 없습니다. chatRoomId=" + chatRoomId
-			));
+		ChatMessageDto chatMessageDto = chatMessageService.saveChatMessage(memberId, chatRoomId, chatMessageRequest);
 
-		if (chatRoom.getUser1() == null || chatRoom.getUser2() == null) {
-			throw new GeneralException(ResponseCode.FORBIDDEN, "채팅방에서 메시지 입력이 차단되었습니다. 혼자 남은 상태입니다.");
-		}
+		simpMessageSendingOperations.convertAndSend("/topic/chat/" + chatMessageDto.getChatRoomId(), chatMessageDto);
+		log.info("Forwarded WebSocket message: {}", chatMessageDto);
 
-		//		ChatMessageDto chatMessageDto = createChatMessageDto(chatMessageRequest.getMessage(), chatRoomId, sender);
+		// 새로운 메세지 내용과 안본 메세지 수를 보냄
+		String newMessageDestination =
+			"/topic/chat/" + chatMessageDto.getChatRoomId() + "/" + chatMessageDto.getSenderId() + "/new-message";
+		simpMessageSendingOperations.convertAndSend(newMessageDestination,
+			NewChatMessageDto.of(
+				chatMessageDto.getContent(),
+				LocalDateTime.ofInstant(Instant.ofEpochMilli(chatMessageDto.getTimestamp()), ZoneId.systemDefault())
+			)
+		);
 
-		ChatMessage chatMessage = ChatMessage.builder()
-			.chatRoom(chatRoom)
-			.sender(sender)
-			.content(chatMessageRequest.getMessage())
-			.status(
-				MessageStatus.RECEIVED)
-			.timestamp(LocalDateTime.now())
-			.build();
-
-		chatMessageRepository.save(chatMessage);
-
-		try {
-			chatMessageProducer.sendMessageToQueue(chatMessage);
-		} catch (Exception e) {
-			throw new GeneralException(ResponseCode.DEFAULT_INTERNAL_SERVER_ERROR, "메시지를 RabbitMQ로 전송하는 데 실패했습니다.", e);
-		}
+		int count = chatMessageService.getNotReadMessageOfPartner(chatMessageDto.getSenderId(),
+			chatMessageDto.getChatRoomId());
+		simpMessageSendingOperations.convertAndSend(newMessageDestination + "/count", NewChatMessageCountDto.of(count));
 	}
 
 	private ChatMessageDto createChatMessageDto(String message, Long chatRoomId, Member sender) {
