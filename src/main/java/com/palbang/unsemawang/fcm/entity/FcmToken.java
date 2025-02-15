@@ -39,20 +39,26 @@ public class FcmToken extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)  // 외래 키(FK)
 	private Member member;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String fcmToken;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private DeviceType deviceType;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private BrowserType browserType;  // 브라우저 타입
 
 	@Column(name = "updated_at", nullable = true)
 	private LocalDateTime updatedAt;
 
-	@Column(name = "registeredAt", nullable = true)
+	@Column(name = "registered_at", nullable = true)
 	private LocalDateTime registeredAt;
+
+	@Column(name ="is_active" , nullable = false)
+	private Boolean isActive; //활성화 여부
+
+	@Column(name ="expires_at", nullable = true)
+	private LocalDateTime expiresAt;
 }

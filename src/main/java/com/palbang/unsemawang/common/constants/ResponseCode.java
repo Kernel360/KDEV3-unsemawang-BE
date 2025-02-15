@@ -65,6 +65,7 @@ public enum ResponseCode implements Codable {
 	NOT_CHANGED_RELATION("6135", HttpStatus.BAD_REQUEST, "본인 관계는 수정할 수 없습니다."),
 	NOT_MATCHING_PEOPLE("6136", HttpStatus.BAD_REQUEST, "추천된 사용자 리스트가 없습니다."),
 	NOT_UPDATED_SHARE_BOARD_CATEGORY("6137", HttpStatus.BAD_REQUEST, "운세공유 게시판은 수정이 불가합니다."),
+	INVALID_FCM_TOKEN("6138",HttpStatus.BAD_REQUEST, "해당 FCM 토큰은 해당 회원의 것이 아닙니다."),
 
 
 	//  유효성 검사 오류 (형식: 62xx)
@@ -79,6 +80,7 @@ public enum ResponseCode implements Codable {
 	DUPLICATED_VALUE("6223", HttpStatus.CONFLICT, "이미 사용 중인 닉네임 입니다."),
 	NOT_EXIST_TENGAN("6224", HttpStatus.BAD_REQUEST, "십간(十干)이 존재하지 않습니다."),
 	NOT_EXIST_FCM_TOKEN("6225", HttpStatus.BAD_REQUEST, "FCM 토큰이 존재하지 않습니다."),
+	NOT_EXIST_ACTIVE_FCM_TOKEN("6226", HttpStatus.BAD_REQUEST, "활성화된 FCM 토큰이 존재하지 않습니다."),
 
 	// 유효성 검사 오류 (값: 63xx)
 	EMPTY_PARAM_BLANK_OR_NULL("6300", HttpStatus.BAD_REQUEST, "Request Parameter 빈 값, NULL 또는 공백"),

@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.fcm.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class FcmService {
 		// 기존 토큰이 있는지 확인 (중복 방지)
 		// 토큰이 존재하는지 체크 이미 존재하면... 이미 등록된 fcm 토큰입니다. 라고 안내..
 
-		List<FcmToken> existingToken = fcmRepository.findByFcmToken(fcmToken);
+		List<FcmToken> existingToken = fcmRepository.findByMemberIdAndFcmToken(memberId,fcmToken);
 		if (existingToken.isEmpty()) {
 			// 새로운 FCM 토큰 저장
 			FcmToken newToken = FcmToken.builder()
@@ -44,6 +45,7 @@ public class FcmService {
 				.deviceType(deviceType)
 				.browserType(browserType)
 				.registeredAt(LocalDateTime.now())
+				.isActive(true)
 				.build();
 
 			fcmRepository.save(newToken);
@@ -51,7 +53,9 @@ public class FcmService {
 		} else {
 			//기존 토큰이 있다면 업데이트
 			FcmToken token = existingToken.get(0);
-			token.setFcmToken(fcmToken);
+			if (!token.getIsActive()) {  // isActive가 false면 true로 변경
+				token.setIsActive(true);
+			}
 			token.setUpdatedAt(LocalDateTime.now());
 			return false;  // 기존 토큰이 업데이트됨
 		}
@@ -63,7 +67,25 @@ public class FcmService {
 		String body = request.getBody();
 		String url = request.getUrl();
 
-		// 푸시 알림 메시지 생성
+		// FCM 메시지 요청 생성
+		Message message = Message.builder()
+			.setToken(token) // 특정 기기의 FCM 토큰
+			.putData("title", title)
+			.putData("body", body)
+			.putData("click_action", url)
+			.putData("image", "https://www.unsemawang.com/icon/icon_192.png")
+			.build();
+
+		// FCM 메시지 전송
+		return FirebaseMessaging.getInstance().send(message);
+	}
+
+	public String sendPushNotification(FcmNotificationRequest request) throws FirebaseMessagingException {
+		String token = request.getFcmToken();
+		String title = request.getTitle();
+		String body = request.getBody();
+		String url = request.getUrl();
+
 		Notification notification = Notification.builder()
 			.setTitle(title)
 			.setBody(body)
@@ -81,14 +103,14 @@ public class FcmService {
 		return FirebaseMessaging.getInstance().send(message);
 	}
 
-	public String getFcmToken(String memberId) {
+	public List<String> getFcmToken(String memberId) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID, "회원을 찾을 수 없습니다"));
-		List<FcmToken> fcmToken = fcmRepository.findByMemberId(memberId);
-		if (fcmToken.isEmpty()) {
-			return null;
+		List<String> fcmTokenList = fcmRepository.findByMemberIdAndIsActive(memberId);
+		if (fcmTokenList.isEmpty()) {
+			return Collections.emptyList();
 		}else{
-			return fcmToken.get(0).getFcmToken();
+			return fcmTokenList;
 		}
 	}
 
@@ -102,7 +124,23 @@ public class FcmService {
 			throw new GeneralException(ResponseCode.NOT_EXIST_FCM_TOKEN, "FCM 토큰이 존재하지 않습니다.");
 		}
 		fcmRepository.deleteByMemberId(memberId);
+	}
 
+	@Transactional
+	public void deactivateFcmToken(String memberId,String fcmToken){
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID, "회원을 찾을 수 없습니다"));
 
+		// 활성화된 FCM 토큰 조회 (Optional 사용)
+		FcmToken fcmTokenEntity = fcmRepository.findFirstByFcmTokenAndIsActive(fcmToken, true)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_ACTIVE_FCM_TOKEN, "활성화된 FCM 토큰이 존재하지 않습니다."));
+
+		// 해당 FCM 토큰이 해당 회원의 것인지 검증
+		if (!fcmTokenEntity.getMember().getId().equals(memberId)) {
+			throw new GeneralException(ResponseCode.INVALID_FCM_TOKEN, "해당 FCM 토큰은 해당 회원의 것이 아닙니다.");
+		}
+
+		// 토큰 비활성화
+		fcmTokenEntity.setIsActive(false);
 	}
 }

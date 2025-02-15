@@ -3,6 +3,7 @@ package com.palbang.unsemawang.chat.dto.response;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -21,6 +22,9 @@ public class ChatHistoryReadResponse {
 	@JsonProperty("partner")
 	String partnerNickname;
 
-	@Schema(required = false, description = "채팅 메세지 목록")
-	List<ChatMessageResponse> messages;
+	@Schema(required = true, description = "채팅 상대 ID")
+	String partnerId;
+
+	@Schema(required = true, description = "채팅 메세지 목록")
+	List<ChatMessageDto> messages;
 }

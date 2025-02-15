@@ -1,6 +1,9 @@
 package com.palbang.unsemawang.chat.entity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.palbang.unsemawang.common.entity.BaseEntity;
 import com.palbang.unsemawang.member.entity.Member;
@@ -19,7 +22,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Getter
 @Setter
@@ -41,18 +46,27 @@ public class ChatRoom extends BaseEntity {
 	@JoinColumn(name = "user2_id", nullable = false)
 	private Member user2;  // 큰 ID를 가진 사용자
 
-	@Column(nullable = false)
-	private LocalDateTime registeredAt;  // 채팅방 생성 시간
+	@Column(name = "user1out", nullable = false)
+	@Builder.Default
+	private boolean user1Out = false;
+
+	@Column(name = "user2out", nullable = false)
+	@Builder.Default
+	private boolean user2Out = false;
+
+	@Column(name = "registered_at", nullable = false)
+	@Builder.Default
+	private LocalDateTime registeredAt = LocalDateTime.now();  // 채팅방 생성 시간
 
 	@Column(nullable = false)
 	@Builder.Default
 	private boolean active = true;  // 채팅방 활성 상태 기본값 true
 
-	@Column(nullable = false)
+	@Column(name = "is_delete", nullable = false)
 	@Builder.Default
 	private boolean isDelete = false;  // 채팅방 삭제 여부 기본값 false
 
-	@Column(nullable = false)
+	@Column(name = "unread_count", nullable = false)
 	@Builder.Default
 	private int unreadCount = 0;  // 안 읽은 메시지 개수 기본값 0
 
@@ -77,5 +91,17 @@ public class ChatRoom extends BaseEntity {
 				.unreadCount(0)
 				.build();
 		}
+	}
+
+	public Optional<Member> getPartnerMember(String memberId) {
+		if (memberId == null) {
+			log.warn("getPartnerMember(String memberId) -> memberId가 null 임");
+			return Optional.empty();
+		}
+
+		return Stream.of(user1, user2)
+			.filter(Objects::nonNull) // null 인지 아닌지 확인
+			.filter(m -> !m.getId().equals(memberId)) // memberId와 일치하지 않는 user 찾기
+			.findFirst(); // 그 중 첫번째 객체 반환
 	}
 }

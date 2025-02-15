@@ -10,6 +10,9 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 public class RabbitMQConfig {
 
@@ -39,6 +42,22 @@ public class RabbitMQConfig {
 	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
 		RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 		rabbitTemplate.setMessageConverter(jsonMessageConverter());
+
+		// 메시지가 Exchange까지 도달했는지 확인
+		rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+			if (ack) {
+				log.info("메시지가 Exchange까지 정상 도착");
+			} else {
+				log.error("메시지 도착 실패: {}", cause);
+			}
+		});
+
+		// 메시지가 Queue로 전달되지 못하면 반환하는 Callback
+		rabbitTemplate.setReturnsCallback(returned -> {
+			log.warn("메시지가 Queue로 전달되지 못함: {}", new String(returned.getMessage().getBody()));
+			log.warn("Exchange: {}, Routing Key: {}", returned.getExchange(), returned.getRoutingKey());
+		});
+
 		return rabbitTemplate;
 	}
 }

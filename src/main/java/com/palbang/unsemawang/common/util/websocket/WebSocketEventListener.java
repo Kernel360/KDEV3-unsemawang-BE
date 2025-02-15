@@ -1,12 +1,11 @@
 package com.palbang.unsemawang.common.util.websocket;
 
-import java.util.Map;
-
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.AbstractSubProtocolEvent;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
@@ -16,6 +15,7 @@ import com.palbang.unsemawang.activity.dto.ActiveMemberSaveRequest;
 import com.palbang.unsemawang.activity.dto.websocket.NotifyActiveStatusMessage;
 import com.palbang.unsemawang.activity.entity.ActiveMember;
 import com.palbang.unsemawang.activity.service.ActiveMemberService;
+import com.palbang.unsemawang.oauth2.dto.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WebSocketEventListener {
 	private final ActiveMemberService activeMemberService;
 	private final SimpMessagingTemplate simpMessagingTemplate;
-	private final RedisTemplate<String, String> redisTemplate;
 
 	/**
 	 * 웹소켓 연결 이벤트 핸들러
@@ -38,25 +37,24 @@ public class WebSocketEventListener {
 	@EventListener
 	public void handleSessionConnect(SessionConnectEvent event) {
 		// 회원 ID 추출
-		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		String userId = (String)getSessionValue(headerAccessor, "userId");
+		CustomOAuth2User user = getSessionUser(event);
 
-		if (userId == null) {
+		if (user == null) {
 			log.error("인증되지 않은 사용자의 접근입니다");
 			return;
 		}
 
-		log.info("웹소켓 연결된 사용자 ID :" + userId);
+		log.info("웹소켓 연결된 사용자 ID :" + user);
 
 		// 활동 상태 저장
 		ActiveMemberSaveRequest saveRequest = ActiveMemberSaveRequest.builder()
-			.memberId(userId)
+			.memberId(user.getId())
 			.status(ActiveStatus.ACTIVE_OTHERS)
 			.build();
 		activeMemberService.saveActiveMember(saveRequest);
 
 		// 활동 상태 공유
-		String destination = "/topic/active/status/" + userId;
+		String destination = "/topic/active/status/" + user.getId();
 		simpMessagingTemplate.convertAndSend(destination, NotifyActiveStatusMessage.of(true));
 	}
 
@@ -91,36 +89,35 @@ public class WebSocketEventListener {
 	@EventListener
 	public void handleSessionDisconnect(SessionDisconnectEvent event) {
 		// 회원 ID 추출
-		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		String userId = (String)getSessionValue(headerAccessor, "userId");
+		CustomOAuth2User user = getSessionUser(event);
 
-		if (userId == null) {
+		if (user == null) {
 			log.error("인증되지 않은 사용자의 접근입니다");
 			return;
 		}
 
 		// 활동 상태 공유
-		String destination = "/topic/active/status/" + userId;
+		String destination = "/topic/active/status/" + user.getId();
 		simpMessagingTemplate.convertAndSend(destination, NotifyActiveStatusMessage.of(false));
 
 		// 활동 상태 저장
 		ActiveMemberSaveRequest saveRequest = ActiveMemberSaveRequest.builder()
-			.memberId(userId)
+			.memberId(user.getId())
 			.status(ActiveStatus.INACTIVE)
 			.build();
 		activeMemberService.saveActiveMember(saveRequest);
 	}
 
-	private Object getSessionValue(StompHeaderAccessor headerAccessor, String key) {
+	private CustomOAuth2User getSessionUser(AbstractSubProtocolEvent event) {
+		// 회원 ID 추출
+		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+		UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken)headerAccessor.getUser();
 
-		Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
-		log.info("session attributes:" + sessionAttributes);
-
-		if (sessionAttributes != null) {
-			return sessionAttributes.get(key);
+		if (auth == null || auth.getPrincipal() == null) {
+			return null;
 		}
 
-		return null;
-	}
+		return (CustomOAuth2User)auth.getPrincipal();
 
+	}
 }
