@@ -110,6 +110,9 @@ dependencies {
     //Firebase
     implementation 'com.google.firebase:firebase-admin:9.4.3'
 
+    // html -> text
+    implementation 'org.apache.commons:commons-text:1.10.0'
+
 }
 
 tasks.named('test') {

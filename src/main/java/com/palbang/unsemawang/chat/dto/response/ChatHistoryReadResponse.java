@@ -27,7 +27,4 @@ public class ChatHistoryReadResponse {
 
 	@Schema(required = true, description = "채팅 메세지 목록")
 	List<ChatMessageDto> messages;
-
-	@Schema(required = true, description = "나가기 여부")
-	Boolean isOut = false;
 }

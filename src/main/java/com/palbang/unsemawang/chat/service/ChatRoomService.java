@@ -2,9 +2,7 @@ package com.palbang.unsemawang.chat.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.palbang.unsemawang.chat.constant.SenderType;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
 import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
@@ -25,6 +22,7 @@ import com.palbang.unsemawang.chemistry.constant.FiveElements;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.util.file.service.FileService;
+import com.palbang.unsemawang.fortune.entity.FortuneUserInfo;
 import com.palbang.unsemawang.fortune.repository.FortuneUserInfoRepository;
 import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
@@ -50,23 +48,26 @@ public class ChatRoomService {
 	 */
 	@Transactional
 	public ChatRoomDto createOrGetChatRoom(String senderId, String receiverId) {
-		ChatRoom chatRoom = chatRoomRepository.findByUsers(senderId, receiverId)
-			.orElseGet(() -> {
-				Member sender = memberRepository.findById(senderId)
-					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
-				Member receiver = memberRepository.findById(receiverId)
-					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-				ChatRoom newChatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
-				return chatRoomRepository.save(newChatRoom);
-			});
+		Member sender = memberRepository.findById(senderId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+		Member receiver = memberRepository.findById(receiverId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+
+		ChatRoom chatRoom = ChatRoom.createSortedChatRoom(sender, receiver);
+		chatRoomRepository.save(chatRoom);
 
 		Member targetUser = memberRepository.findById(receiverId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
+		FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(receiverId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
+
+		char sex = fortuneUserInfo.getSex();
+
 		String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, 0, profileImageUrl);
+		return ChatRoomDto.fromEntity(chatRoom, null, targetUser, null, sex, 0, profileImageUrl);
 	}
 
 	/**
@@ -76,41 +77,51 @@ public class ChatRoomService {
 	public List<ChatRoomDto> getChatRoomsWithLastMessage(String userId) {
 		List<ChatRoom> chatRooms = chatRoomRepository.findByUserId(userId);
 
-		return chatRooms.stream().map(chatRoom -> {
-			ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
-				.orElse(null);
+		return chatRooms.stream()
+			.filter(chatRoom -> {
+				// 나간 사용자는 목록에서 제외
+				if (chatRoom.getUser1().getId().equals(userId) && chatRoom.isUser1Out()) {
+					return false;
+				}
+				if (chatRoom.getUser2().getId().equals(userId) && chatRoom.isUser2Out()) {
+					return false;
+				}
+				return true;
+			})
+			.map(chatRoom -> {
+				ChatMessage lastMessage = chatMessageRepository.findTopByChatRoomOrderByTimestampDesc(chatRoom)
+					.orElse(null);
 
-			Member targetUser = getTargetUser(chatRoom, userId)
-				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
+				Member targetUser = getTargetUser(chatRoom, userId)
+					.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 
-			String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
+				String profileImageUrl = fileService.getProfileImgUrl(targetUser.getId());
 
-			int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
-				chatRoom, userId, MessageStatus.RECEIVED);
+				FortuneUserInfo fortuneUserInfo = fortuneUserInfoRepository.findByMemberIdRelationIdIsOne(
+						targetUser.getId())
+					.orElseThrow(() -> new GeneralException(ResponseCode.ERROR_SEARCH));
+				char sex = fortuneUserInfo.getSex();
 
-			String fiveElement = getUserFiveElement(targetUser.getId());
+				int unreadCount = chatMessageRepository.countByChatRoomAndSenderIdNotAndStatus(
+					chatRoom, userId, MessageStatus.RECEIVED);
 
-			return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, unreadCount, profileImageUrl);
-		}).collect(Collectors.toList());
+				String fiveElement = getUserFiveElement(targetUser.getId());
+
+				return ChatRoomDto.fromEntity(chatRoom, lastMessage, targetUser, fiveElement, sex, unreadCount,
+					profileImageUrl);
+			})
+			.sorted((dto1, dto2) -> dto2.getLastChatTime().compareTo(dto1.getLastChatTime()))
+			.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
 	public ChatHistoryReadResponse getChatHistory(Long chatRoomId, String userId) {
-		// 채팅방 및 메시지 검색
+		// 채팅방 찾기
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByTimestampAsc(chatRoom);
-
-		// 메세지가 없을 경우 빈 리스트 반환
-		if (chatMessages.isEmpty()) {
-			return ChatHistoryReadResponse.builder()
-				.messages(Collections.emptyList())
-				.partnerNickname(null)
-				.partnerId(null)
-				.isOut(null)
-				.build();
-		}
+		// 모든 메시지 가져오기
+		List<ChatMessage> chatMessages = chatMessageRepository.findAllMessagesByChatRoom(chatRoom);
 
 		// 채팅 상대방 ID 가져오기
 		String partnerId = chatRoomRepository.findOtherMemberIdInChatRoom(chatRoomId, userId)
@@ -122,23 +133,19 @@ public class ChatRoomService {
 
 		String partnerNickname = Optional.ofNullable(partner.getNickname()).orElse("Unknown");
 
-		// 메시지 DTO 변환
+		// 메시지 DTO 변환 - SYSTEM 메시지도 포함
 		List<ChatMessageDto> messageDtos = chatMessages.stream()
-			.filter(Objects::nonNull)
 			.map(message -> {
-				SenderType senderType = message.getSender().getId().equals(userId) ? SenderType.SELF : SenderType.OTHER;
-
-				String profileImageUrl = fileService.getProfileImgUrl(message.getSender().getId());
-
+				boolean isSystemMessage = message.getSender() == null; // 시스템 메시지 확인
 				return ChatMessageDto.builder()
 					.chatRoomId(chatRoom.getId())
-					.senderId(message.getSender().getId())
-					.nickname(Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
-					.profileImageUrl(profileImageUrl)
+					.senderId(isSystemMessage ? null : message.getSender().getId())
+					.nickname(isSystemMessage ? "시스템"
+						: Optional.ofNullable(message.getSender().getNickname()).orElse("Unknown"))
+					.profileImageUrl(isSystemMessage ? null : fileService.getProfileImgUrl(message.getSender().getId()))
 					.content(message.getContent())
 					.timestamp(message.getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 					.status(message.getStatus())
-					.senderType(senderType)
 					.build();
 			})
 			.collect(Collectors.toList());
@@ -148,7 +155,6 @@ public class ChatRoomService {
 			.partnerNickname(partnerNickname)
 			.partnerId(partnerId)
 			.messages(messageDtos)
-			.isOut(false)
 			.build();
 	}
 
@@ -160,42 +166,35 @@ public class ChatRoomService {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
 
-		boolean isUser1 = removeUserFromChatRoom(chatRoom, userId, true);
-		boolean isUser2 = removeUserFromChatRoom(chatRoom, userId, false);
-
-		if (!isUser1 && !isUser2) {
-			throw new GeneralException(ResponseCode.FORBIDDEN);
+		if (chatRoom.getUser1().getId().equals(userId)) {
+			chatRoom.setUser1Out(true);
+		} else if (chatRoom.getUser2().getId().equals(userId)) {
+			chatRoom.setUser2Out(true);
+		} else {
+			throw new GeneralException(ResponseCode.FORBIDDEN, "사용자가 채팅방의 유효한 구성원이 아닙니다.");
 		}
 
-		Member targetUser = isUser1 ? chatRoom.getUser2() : chatRoom.getUser1();
+		ChatMessage leaveMessage = ChatMessage.builder()
+			.chatRoom(chatRoom)
+			.sender(null)
+			.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
+			.status(MessageStatus.SYSTEM)
+			.timestamp(LocalDateTime.now())
+			.build();
 
-		if (targetUser != null) {
-			ChatMessage leaveMessage = ChatMessage.builder()
-				.chatRoom(chatRoom)
-				.sender(null)
+		chatMessageRepository.save(leaveMessage);
+
+		messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
+			ChatMessageDto.builder()
+				.chatRoomId(chatRoomId)
 				.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
-				.status(MessageStatus.RECEIVED)
-				.timestamp(LocalDateTime.now())
-				.build();
-
-			chatMessageRepository.save(leaveMessage);
-
-			messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId,
-				ChatMessageDto.builder()
-					.chatRoomId(chatRoomId)
-					.content("상대방이 채팅방을 나갔습니다. 메시지를 보낼 수 없습니다.")
-					.status(MessageStatus.RECEIVED)
-					.timestamp(System.currentTimeMillis())
-					.nickname("시스템")
-					.senderId(null)
-					.senderType(SenderType.OTHER)
-					.build()
-			);
-		}
-
-		if (chatRoom.getUser1() == null && chatRoom.getUser2() == null) {
-			chatRoom.setDelete(true);
-		}
+				.status(MessageStatus.SYSTEM)
+				.timestamp(System.currentTimeMillis())
+				.nickname("시스템")
+				.senderId(null)
+				//.senderType(SenderType.OTHER)
+				.build()
+		);
 
 		chatRoomRepository.save(chatRoom);
 	}
