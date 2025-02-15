@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -22,13 +23,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 )
 public class DomainDataSourceConfig {
 
-	@Bean
+	@Primary
+	@Bean(name = "dataSource")
 	@ConfigurationProperties(prefix = "spring.datasource-domain")
 	public DataSource dataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean // entity를 관리하는 Bean
+	@Primary
+	@Bean(name = "dataEntityManager") // entity를 관리하는 Bean
 	public LocalContainerEntityManagerFactoryBean dataEntityManager() {
 
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -46,7 +49,8 @@ public class DomainDataSourceConfig {
 		return em;
 	}
 
-	@Bean
+	@Primary
+	@Bean(name = "dataTransactionManager")
 	public PlatformTransactionManager dataTransactionManager() {
 
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
