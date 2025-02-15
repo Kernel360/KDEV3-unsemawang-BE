@@ -91,7 +91,7 @@ public class Member extends BaseEntity {
 
 	private Boolean isTermsAgreed; // 약관 동의 true/false
 
-	@Column(name ="is_match_agreed")
+	@Column(name = "is_match_agreed")
 	private Boolean isMatchAgreed; // 매칭 동의 true/false
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -134,5 +134,9 @@ public class Member extends BaseEntity {
 
 	public void updateLastActivityAt() {
 		this.lastActivityAt = LocalDateTime.now();
+	}
+
+	public void updateLastActivityAt(LocalDateTime lastActivityAt) {
+		this.lastActivityAt = lastActivityAt;
 	}
 }
