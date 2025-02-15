@@ -91,6 +91,9 @@ public class Member extends BaseEntity {
 
 	private Boolean isTermsAgreed; // 약관 동의 true/false
 
+	@Column(name = "is_match_agreed")
+	private Boolean isMatchAgreed; // 매칭 동의 true/false
+
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Favorite> favorites; // 사용자가 찜한 목록
 
@@ -125,10 +128,15 @@ public class Member extends BaseEntity {
 
 	public void updateExtraInfo(SignupExtraInfoRequest signupExtraInfoDto) {
 		this.nickname = signupExtraInfoDto.getNickname();
+		this.isMatchAgreed = signupExtraInfoDto.isMatchAgreed();
 		this.changedAt = LocalDateTime.now();
 	}
 
 	public void updateLastActivityAt() {
 		this.lastActivityAt = LocalDateTime.now();
+	}
+
+	public void updateLastActivityAt(LocalDateTime lastActivityAt) {
+		this.lastActivityAt = lastActivityAt;
 	}
 }
