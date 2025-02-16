@@ -112,7 +112,7 @@ public class S3Service {
 
 	public String generateObjectUrl(String keyName) {
 
-		return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + keyName;
+		return "https://d2zpv3o0xxl9q3.cloudfront.net" + "/" + keyName;
 	}
 
 	/**
