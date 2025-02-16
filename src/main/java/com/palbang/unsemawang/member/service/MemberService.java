@@ -74,6 +74,7 @@ public class MemberService {
 			.point(member.getPoint())
 			.oauthProvider(member.getOauthProvider())
 			.detailBio(member.getDetailBio())
+			.isMatchAgreed(member.getIsMatchAgreed())
 			.build();
 
 		return memberProfileDto;

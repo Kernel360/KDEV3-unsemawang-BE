@@ -57,6 +57,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.oauthProvider(oAuth2Response.getProvider())
 				.email(oAuth2Response.getEmail())
 				.role(GUEST)
+				.isDeleted(false)
+				.isMatchAgreed(false)
+				.isJoin(false)
 				.build();
 
 			//OAuth 얻어온 정보 회원정보 저장

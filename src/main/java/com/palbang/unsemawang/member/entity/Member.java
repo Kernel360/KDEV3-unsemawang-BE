@@ -83,7 +83,7 @@ public class Member extends BaseEntity {
 	@Column(name = "memberStatus")
 	public MemberStatus memberStatus; //계정상태
 
-	@Column(nullable = false)
+	@Column(name ="is_deleted", nullable = false)
 	@Builder.Default
 	private Boolean isDeleted = false;
 
@@ -91,8 +91,9 @@ public class Member extends BaseEntity {
 
 	private Boolean isTermsAgreed; // 약관 동의 true/false
 
-	@Column(name ="is_match_agreed")
-	private Boolean isMatchAgreed; // 매칭 동의 true/false
+	@Column(name ="is_match_agreed", nullable = false)
+	@Builder.Default
+	private Boolean isMatchAgreed = false; // 매칭 동의 true/false
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Favorite> favorites; // 사용자가 찜한 목록
