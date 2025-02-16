@@ -83,7 +83,7 @@ public class Member extends BaseEntity {
 	@Column(name = "memberStatus")
 	public MemberStatus memberStatus; //계정상태
 
-	@Column(name ="is_deleted",nullable = false)
+	@Column(name ="is_deleted", nullable = false)
 	@Builder.Default
 	private Boolean isDeleted = false;
 
