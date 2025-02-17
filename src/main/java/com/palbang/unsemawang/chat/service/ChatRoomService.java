@@ -2,14 +2,18 @@ package com.palbang.unsemawang.chat.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.ChatRoomDto;
 import com.palbang.unsemawang.chat.dto.response.ChatHistoryReadResponse;
@@ -42,6 +46,9 @@ public class ChatRoomService {
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
 	private final FileService fileService;
 	private final SimpMessagingTemplate messagingTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
+
+	private static final String REDIS_CHAT_PREFIX = "chat:room:";
 
 	/**
 	 * 사용자의 채팅방 목록을 조회하거나 새로 생성
@@ -116,12 +123,6 @@ public class ChatRoomService {
 
 	@Transactional(readOnly = true)
 	public ChatHistoryReadResponse getChatHistory(Long chatRoomId, String userId) {
-		// 채팅방 찾기
-		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
-
-		// 모든 메시지 가져오기
-		List<ChatMessage> chatMessages = chatMessageRepository.findAllMessagesByChatRoom(chatRoom);
 
 		// 채팅 상대방 ID 가져오기
 		String partnerId = chatRoomRepository.findOtherMemberIdInChatRoom(chatRoomId, userId)
@@ -130,8 +131,41 @@ public class ChatRoomService {
 		// 상대방 사용자 정보 조회
 		Member partner = memberRepository.findById(partnerId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
-
 		String partnerNickname = Optional.ofNullable(partner.getNickname()).orElse("Unknown");
+
+		// 1. Redis에서 메시지 조회
+		String redisKey = REDIS_CHAT_PREFIX + chatRoomId;
+		List<Object> rawMessages = redisTemplate.opsForList().range(redisKey, 0, -1);
+
+		// ObjectMapper 사용하여 ChatMessageResponseDto로 변환
+		ObjectMapper objectMapper = new ObjectMapper();
+		List<ChatMessageDto> redisMessages = (rawMessages != null) ? rawMessages.stream()
+			.map(obj -> {
+				try {
+					ChatMessageDto dto = objectMapper.convertValue(obj, ChatMessageDto.class);
+					return ChatMessageDto.builder()
+						.chatRoomId(chatRoomId)
+						.senderId(dto.getSenderId())
+						.nickname(dto.getNickname())
+						.profileImageUrl(dto.getProfileImageUrl())
+						.content(dto.getContent())
+						.status(dto.getStatus())
+						.timestamp(dto.getTimestamp())
+						.build();
+				} catch (Exception e) {
+					log.error("Redis 메시지 변환 오류: {}", obj, e);
+					return null;
+				}
+			})
+			.filter(Objects::nonNull)
+			.toList() : List.of();
+
+		// 2. DB에서 메시지 조회
+		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
+
+		// 모든 메시지 가져오기
+		List<ChatMessage> chatMessages = chatMessageRepository.findAllMessagesByChatRoom(chatRoom);
 
 		// 메시지 DTO 변환 - SYSTEM 메시지도 포함
 		List<ChatMessageDto> messageDtos = chatMessages.stream()
@@ -150,11 +184,23 @@ public class ChatRoomService {
 			})
 			.collect(Collectors.toList());
 
+		// 3. Redis + DB 메시지 합쳐서 시간순 정렬
+		List<ChatMessageDto> allMessages = redisMessages.stream()
+			.filter(
+				msg -> messageDtos.stream().noneMatch(dbMsg -> dbMsg.getTimestamp() == msg.getTimestamp())) // 중복 제거
+			.collect(Collectors.toList());
+
+		allMessages.addAll(messageDtos);
+
+		allMessages = allMessages.stream()
+			.sorted(Comparator.comparing(ChatMessageDto::getTimestamp)) // 시간순 정렬
+			.toList();
+
 		// 응답 객체 생성
 		return ChatHistoryReadResponse.builder()
 			.partnerNickname(partnerNickname)
 			.partnerId(partnerId)
-			.messages(messageDtos)
+			.messages(allMessages)
 			.build();
 	}
 
