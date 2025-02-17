@@ -12,7 +12,9 @@ import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberActivityService {
@@ -32,5 +34,24 @@ public class MemberActivityService {
 	@Transactional(readOnly = true)
 	public List<Member> findRecentActiveMembersAfter(LocalDateTime asOfDateTime) {
 		return memberRepository.findAllByLastActivityAtAfter(asOfDateTime);
+	}
+
+	/**
+	 * member JPA 엔티티에 마지막 활동 시간 갱신
+	 * @param memberId
+	 * @param LastActivityTime
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void updateLastActivityTime(String memberId, LocalDateTime LastActivityTime) {
+		Member member = memberRepository.findById(memberId)
+			.orElse(null);
+
+		if (member == null) {
+			log.warn("유효하지 않은 회원 ID의 마지막 활동 시간 갱신 시도가 이루어졌습니다");
+			return;
+		}
+
+		member.updateLastActivityAt(LastActivityTime);
+
 	}
 }

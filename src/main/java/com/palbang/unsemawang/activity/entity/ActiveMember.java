@@ -1,5 +1,6 @@
 package com.palbang.unsemawang.activity.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
@@ -19,8 +20,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RedisHash(value = "activity_member")
-public class ActiveMember {
+@RedisHash(value = "activity_member", timeToLive = 10800)
+public class ActiveMember implements Serializable {
 	@Id
 	private String memberId;
 
@@ -29,6 +30,13 @@ public class ActiveMember {
 	private Long chatRoomId;
 
 	@Builder.Default
+	private boolean isSaved = false;
+
+	@Builder.Default
 	private LocalDateTime lastActiveAt = LocalDateTime.now();
+
+	public void markAsSaved() {
+		this.isSaved = true;
+	}
 
 }

@@ -140,6 +140,10 @@ public class Member extends BaseEntity {
 		this.lastActivityAt = LocalDateTime.now();
 	}
 
+	public void updateLastActivityAt(LocalDateTime lastActivityAt) {
+		this.lastActivityAt = lastActivityAt;
+  }
+  
 	public void updateUserInfo(UpdateMemberRequest request){
 		this.nickname = request.getNickname();
 		this.detailBio = request.getDetailBio();
