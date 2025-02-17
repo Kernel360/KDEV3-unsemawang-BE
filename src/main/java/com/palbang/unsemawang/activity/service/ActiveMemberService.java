@@ -2,6 +2,7 @@ package com.palbang.unsemawang.activity.service;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.palbang.unsemawang.activity.constant.ActiveStatus;
@@ -33,19 +34,19 @@ public class ActiveMemberService {
 		return (List<ActiveMember>)activeMemberRepository.findAll();
 	}
 
+	@Cacheable(value = "activity_member", key = "#memberId")
 	public ActiveMember findActiveMemberById(String memberId) {
 
 		Member member = memberRepository.findById(memberId).orElseThrow(
 			() -> new GeneralException(ResponseCode.NOT_EXIST_UNIQUE_NO)
 		);
 
-		ActiveMember activeMemberEntity = activeMemberRepository.findById(member.getId())
-			.orElse(ActiveMember.builder()
-				.memberId(member.getId())
-				.status(ActiveStatus.INACTIVE)
-				.lastActiveAt(member.getLastActivityAt())
-				.build()
-			);
+		ActiveMember activeMemberEntity = ActiveMember.builder()
+			.memberId(member.getId())
+			.status(ActiveStatus.INACTIVE)
+			.lastActiveAt(member.getLastActivityAt())
+			.build();
 		return activeMemberEntity;
 	}
+
 }
