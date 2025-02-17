@@ -41,6 +41,7 @@ dependencies {
     // Spring Data
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // AOP
@@ -106,6 +107,8 @@ dependencies {
 
     // AMQP
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
 
     //Firebase
     implementation 'com.google.firebase:firebase-admin:9.4.3'

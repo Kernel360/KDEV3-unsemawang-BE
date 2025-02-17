@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.activity.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +31,7 @@ public class ActiveStatusWebSocketController {
 	 */
 	@NoTracking
 	@MessageMapping("/active/status")
+	@SendTo("/topic/active/status")
 	public void traceMemberActivity(
 		ChangeActiveStatusMessage changeActiveStatusMessage,
 		StompHeaderAccessor stompHeaderAccessor
