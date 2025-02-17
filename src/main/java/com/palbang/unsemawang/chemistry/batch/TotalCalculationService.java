@@ -55,6 +55,41 @@ public class TotalCalculationService {
 	}
 
 	/**
+	 * 회원 1명에 대한 점수 계산 로직
+	 */
+	@Transactional
+	public void calculateAndSaveChemistryScoresForNewMember(String newMemberId) {
+		// 신규 회원 조회 및 검증
+		Member newMember = getValidGeneralMember(newMemberId);
+
+		// 신규 회원의 일간(天干) 정보 가져오기
+		MemberWithDayGanDto newMemberDayGan = memberRepository.findByMemberWithDayGan(newMemberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_TENGAN));
+
+		// 기존 회원 목록 조회
+		List<MemberWithDayGanDto> existingMembers = memberRepository.findAllMembersWithDayGan();
+
+		for (MemberWithDayGanDto existingMemberDto : existingMembers) {
+			// 자기 자신과의 비교는 제외
+			if (existingMemberDto.getMemberId().equals(newMemberId)) {
+				continue;
+			}
+
+			Member existingMember = getValidGeneralMember(existingMemberDto.getMemberId());
+
+			// 궁합 점수 계산
+			int baseScore = ChemistryCalculator.getChemistryScore(newMemberDayGan.getDayGan(),
+				existingMemberDto.getDayGan());
+			int scalingScore = applyWeightAndScaleScore(baseScore, existingMember.getLastActivityAt());
+
+			// 점수 저장 또는 업데이트
+			saveOrUpdateMatchingScore(newMember, existingMember, baseScore, scalingScore);
+		}
+	}
+
+	// 헬퍼 메서드
+
+	/**
 	 * 회원 ID로 GENERAL 회원을 조회하고 검증
 	 */
 	private Member getValidGeneralMember(String memberId) {
