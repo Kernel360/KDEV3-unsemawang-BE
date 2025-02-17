@@ -33,7 +33,6 @@ public class RecommendControllerImpl implements RecommendController {
 		}
 
 		List<ChemistryRecommendResponse> recommendedMemberList = recommendService.getTopShuffleMatches(auth.getId());
-
 		return ResponseEntity.ok(recommendedMemberList);
 	}
 }

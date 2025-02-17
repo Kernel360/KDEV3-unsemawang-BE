@@ -65,8 +65,7 @@ public enum ResponseCode implements Codable {
 	NOT_CHANGED_RELATION("6135", HttpStatus.BAD_REQUEST, "본인 관계는 수정할 수 없습니다."),
 	NOT_MATCHING_PEOPLE("6136", HttpStatus.BAD_REQUEST, "추천된 사용자 리스트가 없습니다."),
 	NOT_UPDATED_SHARE_BOARD_CATEGORY("6137", HttpStatus.BAD_REQUEST, "운세공유 게시판은 수정이 불가합니다."),
-	INVALID_FCM_TOKEN("6138",HttpStatus.BAD_REQUEST, "해당 FCM 토큰은 해당 회원의 것이 아닙니다."),
-
+	INVALID_FCM_TOKEN("6138", HttpStatus.BAD_REQUEST, "해당 FCM 토큰은 해당 회원의 것이 아닙니다."),
 
 	//  유효성 검사 오류 (형식: 62xx)
 	NOT_LITERAL("6211", HttpStatus.BAD_REQUEST, "문자열 형식이 아님"),
@@ -93,6 +92,10 @@ public enum ResponseCode implements Codable {
 	EMPTY_PARAM_07("6307", HttpStatus.BAD_REQUEST, "07번 Parameter 데이터 누락"),
 	EMPTY_PARAM_08("6308", HttpStatus.BAD_REQUEST, "08번 Parameter 데이터 누락"),
 	EMPTY_PARAM_09("6309", HttpStatus.BAD_REQUEST, "09번 Parameter 데이터 누락"),
+
+	// Batch, async 오류
+	MATCHING_PROCESSING("6401", HttpStatus.BAD_REQUEST, "궁합 점수를 계산 중입니다. 잠시 후 다시 시도해주세요."),
+	MATCHING_ERROR("6402", HttpStatus.BAD_REQUEST, "궁합 점수 계산에 실패했습니다."),
 
 	// 파일 관련 ( 값: 7xxx)
 	FILE_TOO_LARGE("7000", HttpStatus.PAYLOAD_TOO_LARGE, "파일 크기가 최대 허용치를 초과했습니다"),

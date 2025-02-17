@@ -1,4 +1,4 @@
-package com.palbang.unsemawang.chemistry.config;
+package com.palbang.unsemawang.config;
 
 import javax.sql.DataSource;
 

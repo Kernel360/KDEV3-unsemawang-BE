@@ -3,7 +3,10 @@ package com.palbang.unsemawang.chemistry.batch;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +20,18 @@ import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TotalCalculationService {
 	private final MemberMatchingScoreRepository scoreRepository;
 	private final MemberRepository memberRepository;
+	private final StringRedisTemplate redisTemplate;
+
+	private static final String REDIS_KEY_PREFIX = "matching_status:"; // Redis 키 prefix
+	private static final long EXPIRATION_TIME = 10; // 상태 유지 시간 (10분)
 
 	private static final int MAX_SCORE = 8;
 	private static final int MIN_SCORE = -9;
@@ -53,6 +62,55 @@ public class TotalCalculationService {
 			}
 		}
 	}
+
+	/**
+	 * 회원 1명에 대한 점수 계산 로직
+	 */
+	@Async
+	@Transactional
+	public void calculateAndSaveChemistryScoresForNewMember(String newMemberId) {
+		log.info("궁합 점수 계산 시작 - 회원 ID: {}", newMemberId);
+
+		// Redis에 "processing" 상태 저장 (10분 후 자동 만료)
+		redisTemplate.opsForValue()
+			.set(REDIS_KEY_PREFIX + newMemberId, "processing", EXPIRATION_TIME, TimeUnit.MINUTES);
+
+		try {
+			Member newMember = getValidGeneralMember(newMemberId);
+
+			MemberWithDayGanDto newMemberDayGan = memberRepository.findByMemberWithDayGan(newMemberId)
+				.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_TENGAN));
+
+			List<MemberWithDayGanDto> existingMembers = memberRepository.findAllMembersWithDayGan();
+
+			for (MemberWithDayGanDto existingMemberDto : existingMembers) {
+				if (existingMemberDto.getMemberId().equals(newMemberId)) {
+					continue;
+				}
+
+				Member existingMember = getValidGeneralMember(existingMemberDto.getMemberId());
+
+				int baseScore = ChemistryCalculator.getChemistryScore(newMemberDayGan.getDayGan(),
+					existingMemberDto.getDayGan());
+				int scalingScore = applyWeightAndScaleScore(baseScore, existingMember.getLastActivityAt());
+
+				saveOrUpdateMatchingScore(newMember, existingMember, baseScore, scalingScore);
+			}
+
+			// 작업 완료 후 Redis에 "completed" 저장
+			redisTemplate.opsForValue()
+				.set(REDIS_KEY_PREFIX + newMemberId, "completed", EXPIRATION_TIME, TimeUnit.MINUTES);
+
+			log.info("궁합 점수 계산 완료 - 회원 ID: {}", newMemberId);
+
+		} catch (Exception e) {
+			// 오류 발생 시 Redis 상태 삭제
+			redisTemplate.delete(REDIS_KEY_PREFIX + newMemberId);
+			throw new GeneralException(ResponseCode.MATCHING_ERROR);
+		}
+	}
+
+	// 헬퍼 메서드
 
 	/**
 	 * 회원 ID로 GENERAL 회원을 조회하고 검증

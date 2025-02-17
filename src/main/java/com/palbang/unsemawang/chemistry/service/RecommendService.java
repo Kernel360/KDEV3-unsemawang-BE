@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +28,22 @@ public class RecommendService {
 	private final MemberRepository memberRepository;
 	private final FortuneUserInfoRepository fortuneUserInfoRepository;
 	private final FileService fileService;
+	private final StringRedisTemplate redisTemplate;
+
+	private static final String REDIS_KEY_PREFIX = "matching_status:";
 
 	private static final long MATCHING_NUMBER = 4;
 
 	@Transactional(readOnly = true)
 	public List<ChemistryRecommendResponse> getTopShuffleMatches(String memberId) {
+
+		// Redis에서 상태 확인
+		String status = redisTemplate.opsForValue().get(REDIS_KEY_PREFIX + memberId);
+
+		if ("processing".equals(status)) {
+			throw new GeneralException(ResponseCode.MATCHING_PROCESSING);
+		}
+
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new GeneralException(ResponseCode.NOT_EXIST_MEMBER_ID));
 

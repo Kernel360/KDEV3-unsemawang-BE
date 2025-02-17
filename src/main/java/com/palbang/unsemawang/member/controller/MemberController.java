@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.palbang.unsemawang.chemistry.batch.TotalCalculationService;
 import com.palbang.unsemawang.common.constants.ResponseCode;
 import com.palbang.unsemawang.common.exception.GeneralException;
 import com.palbang.unsemawang.common.response.ErrorResponse;
@@ -46,6 +47,7 @@ public class MemberController {
 	private final FortuneUserInfoRegisterService fortuneInfoRegisterService;
 	private final FileService fileService;
 	private final FortuneUserInfoUpdateService fortuneUserInfoUpdateService;
+	private final TotalCalculationService totalCalculationService;
 
 	@Operation(
 		summary = "회원 닉네임 중복 체크",
@@ -105,6 +107,9 @@ public class MemberController {
 
 		// HttpHeaders 객체 JWT 재발급 후 쿠키에 넘겨줌
 		HttpHeaders headers = memberService.addJwtToCookie(auth);
+
+		// 궁합 점수 계산 - 비동기
+		totalCalculationService.calculateAndSaveChemistryScoresForNewMember(auth.getId());
 
 		return ResponseEntity.ok()
 			.headers(headers)

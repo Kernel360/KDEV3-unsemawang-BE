@@ -42,4 +42,12 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 	@Query("SELECT m FROM Member m WHERE m.id = :id")
 	Optional<Member> findWithDetailsById(@Param("id") String id);
 
+	@Query("""
+		    SELECT new com.palbang.unsemawang.chemistry.dto.MemberWithDayGanDto(m.id, f.dayGan)
+		    FROM Member m
+		    JOIN FortuneUserInfo f ON m.id = f.member.id
+		    WHERE f.relation.id = 1 AND m.id = :memberId
+		""")
+	Optional<MemberWithDayGanDto> findByMemberWithDayGan(String memberId);
+
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
+@Table(name = "fortune_category")
 public class FortuneCategory extends BaseEntity {
 
 	@Id
@@ -31,15 +33,17 @@ public class FortuneCategory extends BaseEntity {
 	@Column(nullable = false, unique = true)
 	private String name; // 상담 영역 : 신점, 타로, 역학, 심리 4개
 
-	@Column(unique = true)
+	@Column(unique = true, name = "name_en")
 	private String nameEn;
 
 	private String description;
 
-	@Column(nullable = false)
+	@Column(name = "is_visible", nullable = false)
 	private Boolean isVisible;
 
+	@Column(name = "is_deleted")
 	private Boolean isDeleted;
 
+	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 }

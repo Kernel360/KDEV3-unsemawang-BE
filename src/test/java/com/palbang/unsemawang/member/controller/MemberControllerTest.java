@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palbang.unsemawang.WithCustomMockUser;
+import com.palbang.unsemawang.chemistry.batch.TotalCalculationService;
 import com.palbang.unsemawang.common.util.file.service.FileService;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoRegisterService;
 import com.palbang.unsemawang.fortune.service.FortuneUserInfoUpdateService;
@@ -39,6 +40,9 @@ class MemberControllerTest {
 
 	@MockBean
 	private FileService fileService;
+
+	@MockBean
+	private TotalCalculationService totalCalculationService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
