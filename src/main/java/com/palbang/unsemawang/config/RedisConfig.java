@@ -30,8 +30,8 @@ public class RedisConfig {
 	public RedisConnectionFactory redisConnectionFactory() {
 
 		LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
-			//.useSsl()    // SSL 사용 설정 : mandatory to use elasti-cache
-			//.and()
+			.useSsl()    // SSL 사용 설정 : mandatory to use elasti-cache
+			.and()
 			.commandTimeout(Duration.ofSeconds(5))
 			.build();
 
