@@ -1,6 +1,4 @@
-package com.palbang.unsemawang.chemistry.config;
-
-import java.util.HashMap;
+package com.palbang.unsemawang.config;
 
 import javax.sql.DataSource;
 
@@ -39,12 +37,6 @@ public class DomainDataSourceConfig {
 		em.setDataSource(dataSource());
 		em.setPackagesToScan(new String[] {"com.palbang.unsemawang"});
 		em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-
-		HashMap<String, Object> properties = new HashMap<>();
-		// 2개 DB를 연결하면 application.properties 설정 적용 X. 여기서 설정 해줘야 함
-		properties.put("hibernate.hbm2ddl.auto", "update");
-		properties.put("hibernate.show_sql", "true");
-		em.setJpaPropertyMap(properties);
 
 		return em;
 	}
