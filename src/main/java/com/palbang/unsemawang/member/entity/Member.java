@@ -83,18 +83,20 @@ public class Member extends BaseEntity {
 	private LocalDateTime changedAt; //변경일자
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "memberStatus")
+	@Column(name = "member_status")
 	public MemberStatus memberStatus; //계정상태
 
-	@Column(name ="is_deleted", nullable = false)
+	@Column(name = "is_deleted", nullable = false)
 	@Builder.Default
 	private Boolean isDeleted = false;
 
+	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
+	@Column(name = "is_terms_agreed")
 	private Boolean isTermsAgreed; // 약관 동의 true/false
 
-	@Column(name ="is_match_agreed", nullable = false)
+	@Column(name = "is_match_agreed", nullable = false)
 	@Builder.Default
 	private Boolean isMatchAgreed = false; // 매칭 동의 true/false
 
@@ -120,8 +122,10 @@ public class Member extends BaseEntity {
 
 	private String career;
 
+	@Column(name = "short_bio")
 	private String shortBio; // 한줄소개
 
+	@Column(name = "detail_bio")
 	private String detailBio; // 상세소개
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -142,9 +146,9 @@ public class Member extends BaseEntity {
 
 	public void updateLastActivityAt(LocalDateTime lastActivityAt) {
 		this.lastActivityAt = lastActivityAt;
-  }
-  
-	public void updateUserInfo(UpdateMemberRequest request){
+	}
+
+	public void updateUserInfo(UpdateMemberRequest request) {
 		this.nickname = request.getNickname();
 		this.detailBio = request.getDetailBio();
 		this.isMatchAgreed = request.isMatchAgreed();

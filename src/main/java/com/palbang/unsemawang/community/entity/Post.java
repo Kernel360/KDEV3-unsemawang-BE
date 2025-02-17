@@ -69,7 +69,7 @@ public class Post extends BaseEntity {
 	private Integer commentCount = 0;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(nullable = false, name = "community_category")
 	private CommunityCategory communityCategory;
 
 	@Column(name = "is_visible")

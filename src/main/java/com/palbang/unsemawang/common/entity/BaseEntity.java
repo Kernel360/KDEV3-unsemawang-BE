@@ -18,16 +18,18 @@ import lombok.Getter;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 	@CreatedDate
-	@Column(updatable = false)
+	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
 
 	@CreatedBy
-	@Column(updatable = false)
+	@Column(name = "created_by", updatable = false)
 	private String createdBy;
 
 	@LastModifiedDate
+	@Column(name = "modified_at")
 	private LocalDateTime modifiedAt;
 
 	@LastModifiedBy
+	@Column(name = "modified_by")
 	private String modifiedBy;
 }
