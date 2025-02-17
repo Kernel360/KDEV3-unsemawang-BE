@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -21,6 +24,8 @@ public class FirebaseConfig {
 	@PostConstruct
 	public FirebaseApp initializeFcm() throws IOException {
 		String credentialsPath;
+		// HTTP/1.1을 사용하도록 NetHttpTransport 적용
+		HttpTransport httpTransport = new ApacheHttpTransport();
 
 		// 환경 변수 GOOGLE_APPLICATION_CREDENTIALS 확인
 		String envVar = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
@@ -47,6 +52,7 @@ public class FirebaseConfig {
 		// Firebase 옵션 설정
 		FirebaseOptions options = FirebaseOptions.builder()
 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+			.setHttpTransport(httpTransport)
 			.build();
 
 		if (FirebaseApp.getApps().isEmpty()) {

@@ -34,5 +34,8 @@ public class MemberProfileDto {
 	private OauthProvider oauthProvider;
 	@Schema(description = "회원 상세소개", required = true)
 	private String detailBio;
+	@Schema(description = "매칭 동의여부", required = true)
+	private boolean isMatchAgreed;
+
 
 }

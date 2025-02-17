@@ -5,6 +5,9 @@ import java.time.ZoneId;
 
 import org.springframework.stereotype.Service;
 
+import com.palbang.unsemawang.activity.constant.ActiveStatus;
+import com.palbang.unsemawang.activity.entity.ActiveMember;
+import com.palbang.unsemawang.activity.repository.ActiveMemberRedisRepository;
 import com.palbang.unsemawang.chat.dto.ChatMessageDto;
 import com.palbang.unsemawang.chat.dto.request.ChatMessageRequest;
 import com.palbang.unsemawang.chat.entity.ChatMessage;
@@ -28,6 +31,7 @@ public class ChatMessageService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
 	private final FileService fileService;
+	private final ActiveMemberRedisRepository activeMemberRepository;
 
 	public ChatMessageDto saveChatMessage(String memberId, Long chatRoomId, ChatMessageRequest chatMessageRequest) {
 		if (chatRoomId == null) {
@@ -80,4 +84,19 @@ public class ChatMessageService {
 			chatRoomId, partnerId, MessageStatus.RECEIVED
 		);
 	}
+
+	public String getReceiverId(String memberId, Long chatRoomId) {
+		String receiverId = chatRoomRepository.findOtherMemberIdInChatRoom(chatRoomId, memberId)
+			.orElseThrow(() -> new GeneralException(ResponseCode.RESOURCE_NOT_FOUND));
+		return receiverId;
+	}
+
+	public ActiveMember getReceiverIdStatus(String memberId, Long chatRoomId) {
+		//ActiveStatus status
+		ActiveMember memberStatus = activeMemberRepository.findById(memberId).orElse(ActiveMember.builder().
+			memberId(memberId).status(ActiveStatus.ACTIVE_CHATROOM).chatRoomId(chatRoomId).build());
+		return memberStatus;
+	}
+
+
 }

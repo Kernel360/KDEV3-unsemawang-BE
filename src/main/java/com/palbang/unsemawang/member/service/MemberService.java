@@ -74,6 +74,7 @@ public class MemberService {
 			.point(member.getPoint())
 			.oauthProvider(member.getOauthProvider())
 			.detailBio(member.getDetailBio())
+			.isMatchAgreed(member.getIsMatchAgreed())
 			.build();
 
 		return memberProfileDto;
@@ -94,15 +95,9 @@ public class MemberService {
 			duplicateNicknameCheck(nickname);
 		}
 
-		Member updateMember = member.toBuilder()
-			.nickname(nickname)
-			.detailBio(detailBio)
-			.isMatchAgreed(isMatchAgreed)
-			.build();
+		member.updateUserInfo(updateMemberRequest);
 
-		memberRepository.save(updateMember);
-
-		return new UpdateMemberResponse(updateMember.getNickname(), updateMember.getDetailBio());
+		return new UpdateMemberResponse(nickname,detailBio);
 	}
 
 	//jwt 발급후 쿠키에 넣어서 전달

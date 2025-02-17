@@ -57,6 +57,13 @@ public interface FileService {
 	String getContentThumbnailImgUrl(Long referenceId);
 
 	/**
+	 * 파일 url 반환
+	 * @param fileRequest ReferenceType(참조 테이블명)과 ReferenceId(참조 id) 입력
+	 * @return 파일 url
+	 */
+	String getFileUrl(FileRequest fileRequest);
+
+	/**
 	 * 파일 url 리스트 반환
 	 * @param fileRequest ReferenceType(참조 테이블명)과 ReferenceId(참조 id) 입력
 	 * @return 파일 url 리스트

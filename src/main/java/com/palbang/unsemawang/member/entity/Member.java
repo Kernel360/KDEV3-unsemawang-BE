@@ -10,6 +10,7 @@ import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.constant.MemberStatus;
 import com.palbang.unsemawang.member.constant.OauthProvider;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
+import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,8 +27,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+@Setter
 @Getter
 @ToString
 @Builder(toBuilder = true)
@@ -83,7 +86,7 @@ public class Member extends BaseEntity {
 	@Column(name = "memberStatus")
 	public MemberStatus memberStatus; //계정상태
 
-	@Column(nullable = false)
+	@Column(name ="is_deleted", nullable = false)
 	@Builder.Default
 	private Boolean isDeleted = false;
 
@@ -91,8 +94,9 @@ public class Member extends BaseEntity {
 
 	private Boolean isTermsAgreed; // 약관 동의 true/false
 
-	@Column(name = "is_match_agreed")
-	private Boolean isMatchAgreed; // 매칭 동의 true/false
+	@Column(name ="is_match_agreed", nullable = false)
+	@Builder.Default
+	private Boolean isMatchAgreed = false; // 매칭 동의 true/false
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Favorite> favorites; // 사용자가 찜한 목록
@@ -138,5 +142,11 @@ public class Member extends BaseEntity {
 
 	public void updateLastActivityAt(LocalDateTime lastActivityAt) {
 		this.lastActivityAt = lastActivityAt;
+  }
+  
+	public void updateUserInfo(UpdateMemberRequest request){
+		this.nickname = request.getNickname();
+		this.detailBio = request.getDetailBio();
+		this.isMatchAgreed = request.isMatchAgreed();
 	}
 }
