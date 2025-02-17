@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,9 @@ import com.palbang.unsemawang.member.entity.Member;
 import com.palbang.unsemawang.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TotalCalculationService {
@@ -57,8 +60,11 @@ public class TotalCalculationService {
 	/**
 	 * 회원 1명에 대한 점수 계산 로직
 	 */
+	@Async
 	@Transactional
 	public void calculateAndSaveChemistryScoresForNewMember(String newMemberId) {
+		log.info("궁합 점수 계산 시작 - 회원 ID: {}", newMemberId);
+
 		// 신규 회원 조회 및 검증
 		Member newMember = getValidGeneralMember(newMemberId);
 
@@ -85,6 +91,7 @@ public class TotalCalculationService {
 			// 점수 저장 또는 업데이트
 			saveOrUpdateMatchingScore(newMember, existingMember, baseScore, scalingScore);
 		}
+		log.info("궁합 점수 계산 완료 - 회원 ID: {}", newMemberId);
 	}
 
 	// 헬퍼 메서드
