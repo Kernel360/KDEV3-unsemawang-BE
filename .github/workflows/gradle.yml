@@ -87,7 +87,8 @@ jobs:
 
       - name: Copy app.jar to EC2
         run: |
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ./build/libs/unsemawang-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app.jar
+          scp -o StrictHostKeyChecking=no ./build/libs/unsemawang-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/app.jar
+
 
       - name: SSH into EC2 and stop old app.jar (if running)
         run: |
@@ -100,7 +101,11 @@ jobs:
               echo 'No running app.jar process found.'
             fi
           "
-
+        shell: bash
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh-VygJdTYIko8Q/agent.2026
+          SSH_AGENT_PID: 2027
+    
       - name: SSH into EC2 and run new app.jar
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "
