@@ -95,7 +95,7 @@ public enum ResponseCode implements Codable {
 
 	// Batch, async 오류
 	MATCHING_PROCESSING("6401", HttpStatus.BAD_REQUEST, "궁합 점수를 계산 중입니다. 잠시 후 다시 시도해주세요."),
-	MATCHING_ERROR("6402", HttpStatus.BAD_REQUEST, "궁합 점수를 계산에 실패했습니다."),
+	MATCHING_ERROR("6402", HttpStatus.BAD_REQUEST, "궁합 점수 계산에 실패했습니다."),
 
 	// 파일 관련 ( 값: 7xxx)
 	FILE_TOO_LARGE("7000", HttpStatus.PAYLOAD_TOO_LARGE, "파일 크기가 최대 허용치를 초과했습니다"),
