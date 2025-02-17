@@ -10,6 +10,7 @@ import com.palbang.unsemawang.member.constant.MemberRole;
 import com.palbang.unsemawang.member.constant.MemberStatus;
 import com.palbang.unsemawang.member.constant.OauthProvider;
 import com.palbang.unsemawang.member.dto.SignupExtraInfoRequest;
+import com.palbang.unsemawang.member.dto.request.UpdateMemberRequest;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,8 +27,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+@Setter
 @Getter
 @ToString
 @Builder(toBuilder = true)
@@ -135,5 +138,11 @@ public class Member extends BaseEntity {
 
 	public void updateLastActivityAt() {
 		this.lastActivityAt = LocalDateTime.now();
+	}
+
+	public void updateUserInfo(UpdateMemberRequest request){
+		this.nickname = request.getNickname();
+		this.detailBio = request.getDetailBio();
+		this.isMatchAgreed = request.isMatchAgreed();
 	}
 }
