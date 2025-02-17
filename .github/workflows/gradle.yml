@@ -92,7 +92,6 @@ jobs:
 
       - name: SSH into EC2 and stop old app.jar (if running)
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "
             # 기존에 실행 중인 java 프로세스를 종료합니다.
             if pgrep -f 'java -jar /home/ubuntu/app.jar' > /dev/null; then
               echo 'Stopping existing app.jar process...'
@@ -100,11 +99,6 @@ jobs:
             else
               echo 'No running app.jar process found.'
             fi
-          "
-        shell: bash
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh-VygJdTYIko8Q/agent.2026
-          SSH_AGENT_PID: 2027
     
       - name: SSH into EC2 and run new app.jar
         run: |
