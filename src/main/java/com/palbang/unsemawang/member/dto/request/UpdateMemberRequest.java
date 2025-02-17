@@ -1,6 +1,7 @@
 package com.palbang.unsemawang.member.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
@@ -29,5 +30,6 @@ public class UpdateMemberRequest {
 	private String detailBio;
 
 	@Schema(description = "매칭 동의 여부")
-	private boolean isMatchAgreed;
+	@JsonProperty("matchAgreed")  // JSON 필드명을 명시적으로 설정
+	private boolean matchAgreed;
 }
